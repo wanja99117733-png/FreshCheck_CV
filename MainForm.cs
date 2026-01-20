@@ -11,7 +11,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace FreshCheck_CV
 {
-
+    // 현재 참조 WeifenLuo.WinFormsUI.Docking, WeifenLuo.WinFormsUI.Docking.Themes.VS2015
     public partial class MainForm : Form
     {
         //#2_DOCKPANEL#1 DockPanel을 전역으로 선언
