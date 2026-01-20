@@ -32,6 +32,9 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageOpenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageSaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ImageFolderOpenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.StartCycleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.StopCycleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -51,7 +54,10 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.imageOpenToolStripMenuItem,
-            this.imageSaveToolStripMenuItem});
+            this.imageSaveToolStripMenuItem,
+            this.ImageFolderOpenToolStripMenuItem,
+            this.StartCycleToolStripMenuItem,
+            this.StopCycleToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(55, 29);
             this.fileToolStripMenuItem.Text = "File";
@@ -59,15 +65,43 @@
             // imageOpenToolStripMenuItem
             // 
             this.imageOpenToolStripMenuItem.Name = "imageOpenToolStripMenuItem";
-            this.imageOpenToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.imageOpenToolStripMenuItem.Size = new System.Drawing.Size(273, 34);
             this.imageOpenToolStripMenuItem.Text = "Image Open";
             this.imageOpenToolStripMenuItem.Click += new System.EventHandler(this.imageOpenToolStripMenuItem_Click);
             // 
             // imageSaveToolStripMenuItem
             // 
             this.imageSaveToolStripMenuItem.Name = "imageSaveToolStripMenuItem";
-            this.imageSaveToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.imageSaveToolStripMenuItem.Size = new System.Drawing.Size(273, 34);
             this.imageSaveToolStripMenuItem.Text = "Image Save";
+            // 
+            // ImageFolderOpenToolStripMenuItem
+            // 
+            this.ImageFolderOpenToolStripMenuItem.Name = "ImageFolderOpenToolStripMenuItem";
+            this.ImageFolderOpenToolStripMenuItem.Size = new System.Drawing.Size(273, 34);
+            this.ImageFolderOpenToolStripMenuItem.Text = "Image Folder Open";
+            this.ImageFolderOpenToolStripMenuItem.Click +=
+            new System.EventHandler(this.ImageFolderOpenToolStripMenuItem_Click);
+
+
+            // 
+            // StartCycleToolStripMenuItem
+            // 
+            this.StartCycleToolStripMenuItem.Name = "StartCycleToolStripMenuItem";
+            this.StartCycleToolStripMenuItem.Size = new System.Drawing.Size(273, 34);
+            this.StartCycleToolStripMenuItem.Text = "Start Cycle";
+            this.StartCycleToolStripMenuItem.Click +=
+            new System.EventHandler(this.StartCycleToolStripMenuItem_Click);
+
+            // 
+            // StopCycleToolStripMenuItem
+            // 
+            this.StopCycleToolStripMenuItem.Name = "StopCycleToolStripMenuItem";
+            this.StopCycleToolStripMenuItem.Size = new System.Drawing.Size(273, 34);
+            this.StopCycleToolStripMenuItem.Text = "Stop Cycle";
+            this.StopCycleToolStripMenuItem.Click +=
+            new System.EventHandler(this.StopCycleToolStripMenuItem_Click);
+
             // 
             // MainForm
             // 
@@ -91,6 +125,9 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem imageOpenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem imageSaveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ImageFolderOpenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem StartCycleToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem StopCycleToolStripMenuItem;
     }
 }
 
