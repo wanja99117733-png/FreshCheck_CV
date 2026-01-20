@@ -216,6 +216,11 @@ namespace FreshCheck_CV.UIControl
             ImageRect.Y -= dy;
         }
 
+        public Bitmap GetCurBitmap()
+        {
+            return _bitmapImage;
+        }
+
         // Virtual <-> Screen 좌표계 변환
         #region 좌표계 변환
         private PointF GetScreenOffset()
