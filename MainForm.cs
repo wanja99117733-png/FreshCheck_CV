@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FreshCheck_CV.Core;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -69,10 +70,14 @@ namespace FreshCheck_CV
                 openFileDialog.Title = "이미지 파일 선택";
                 openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
                 openFileDialog.Multiselect = false;
+                
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = openFileDialog.FileName;
-                    cameraForm.LoadImage(filePath);
+
+                    Global.Inst.InspStage.LoadImage(filePath);
+
+                    // 원본 저장 + 화면 표시를 InspStage에서 한 번에 책임지게 구조화
                 }
             }
         }

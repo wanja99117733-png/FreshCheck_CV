@@ -28,33 +28,73 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
+            this.cbMode = new System.Windows.Forms.ComboBox();
+            this.tbThreshold = new System.Windows.Forms.TrackBar();
+            this.chkInvert = new System.Windows.Forms.CheckBox();
+            this.btnApply = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.tbThreshold)).BeginInit();
             this.SuspendLayout();
             // 
-            // button1
+            // cbMode
             // 
-            this.button1.Location = new System.Drawing.Point(57, 63);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(160, 85);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.cbMode.FormattingEnabled = true;
+            this.cbMode.Location = new System.Drawing.Point(13, 16);
+            this.cbMode.Name = "cbMode";
+            this.cbMode.Size = new System.Drawing.Size(159, 20);
+            this.cbMode.TabIndex = 1;
+            // 
+            // tbThreshold
+            // 
+            this.tbThreshold.Location = new System.Drawing.Point(13, 43);
+            this.tbThreshold.Maximum = 255;
+            this.tbThreshold.Name = "tbThreshold";
+            this.tbThreshold.Size = new System.Drawing.Size(159, 45);
+            this.tbThreshold.TabIndex = 2;
+            this.tbThreshold.Value = 128;
+            // 
+            // chkInvert
+            // 
+            this.chkInvert.AutoSize = true;
+            this.chkInvert.Location = new System.Drawing.Point(13, 94);
+            this.chkInvert.Name = "chkInvert";
+            this.chkInvert.Size = new System.Drawing.Size(48, 16);
+            this.chkInvert.TabIndex = 3;
+            this.chkInvert.Text = "반전";
+            this.chkInvert.UseVisualStyleBackColor = true;
+            // 
+            // btnApply
+            // 
+            this.btnApply.Location = new System.Drawing.Point(111, 86);
+            this.btnApply.Name = "btnApply";
+            this.btnApply.Size = new System.Drawing.Size(61, 24);
+            this.btnApply.TabIndex = 4;
+            this.btnApply.TabStop = false;
+            this.btnApply.Text = "적용";
+            this.btnApply.UseVisualStyleBackColor = true;
             // 
             // BinaryProp
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btnApply);
+            this.Controls.Add(this.chkInvert);
+            this.Controls.Add(this.tbThreshold);
+            this.Controls.Add(this.cbMode);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "BinaryProp";
-            this.Size = new System.Drawing.Size(322, 361);
+            this.Size = new System.Drawing.Size(187, 128);
             this.Load += new System.EventHandler(this.BinaryProp_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.tbThreshold)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.ComboBox cbMode;
+        private System.Windows.Forms.TrackBar tbThreshold;
+        private System.Windows.Forms.CheckBox chkInvert;
+        private System.Windows.Forms.Button btnApply;
     }
 }

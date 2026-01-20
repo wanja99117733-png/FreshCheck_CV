@@ -1,4 +1,8 @@
-﻿using System;
+﻿using FreshCheck_CV.Core.Processing;
+using FreshCheck_CV.Models;
+using FreshCheck_CV.Models.FreshCheck_CV.Core.Models;
+using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Drawing;
@@ -11,6 +15,10 @@ namespace FreshCheck_CV.Core
     //검사와 관련된 클래스를 관리하는 클래스
     public class InspStage : IDisposable
     {
+        // 원본 이미지
+        private Bitmap _sourceBitmap = null;
+        // 이진화 처리
+        private readonly BinaryProcessor _binaryProcessor = new BinaryProcessor();
 
         public InspStage() { }
 
@@ -43,6 +51,67 @@ namespace FreshCheck_CV.Core
 
             return bitmap;
         }
+
+        public void LoadImage(string filePath)
+        {
+            if (System.IO.File.Exists(filePath) == false)
+                return;
+
+            using (var temp = (Bitmap)Image.FromFile(filePath))
+            {
+                SetSourceImage(new Bitmap(temp));
+            }
+        }
+
+        public void SetSourceImage(Bitmap bitmap)
+        {
+            if (bitmap == null)
+                return;
+
+            // 기존 원본 존재하면 메모리 해제
+            if (_sourceBitmap != null)
+            {
+                _sourceBitmap.Dispose();
+                _sourceBitmap = null;
+            }
+
+            // 원본 저장
+            _sourceBitmap = new Bitmap(bitmap);
+            // 화면에 원본 표시
+            UpdateDisplay(new Bitmap(_sourceBitmap));
+
+        }
+        public void ShowSource()
+        {
+            if (_sourceBitmap == null)
+                return;
+
+            UpdateDisplay(new Bitmap(_sourceBitmap));
+        }
+
+        public void ApplyBinary(BinaryOptions options)
+        {
+            if (options == null)
+                options = new BinaryOptions();
+
+            // 원본이 없으면 현재 화면에서라도 가져와서 원본으로 설정
+            if (_sourceBitmap == null)
+            {
+                var cur = GetCurrentImage();
+                if (cur == null) return;
+
+                SetSourceImage(cur); // 여기서 화면 원본 표시까지 됨
+            }
+
+            // 항상 원본 기준으로 처리
+            Bitmap result = _binaryProcessor.Apply(_sourceBitmap, options);
+            if (result == null)
+                return;
+
+            // 처리 결과를 화면에 표시
+            UpdateDisplay(result);
+        }
+
 
         #region Disposable
 
