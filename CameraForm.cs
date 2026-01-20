@@ -39,5 +39,21 @@ namespace FreshCheck_CV
 
             imageViewCtrl.Location = new System.Drawing.Point(margin, margin);
         }
+
+        public void UpdateDisplay(Bitmap bitmap = null)
+        {
+            if (imageViewCtrl != null)
+                imageViewCtrl.LoadBitmap(bitmap);
+        }
+
+        public Bitmap GetDisplayImage()
+        {
+            Bitmap curImage = null;
+
+            if (imageViewCtrl != null)
+                curImage = imageViewCtrl.GetCurBitmap();
+
+            return curImage;
+        }
     }
 }
