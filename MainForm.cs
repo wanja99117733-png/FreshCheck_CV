@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,11 @@ namespace FreshCheck_CV
     {
         //#2_DOCKPANEL#1 DockPanel을 전역으로 선언
         private static DockPanel _dockPanel;
+
+        private List<string> _imageFiles = new List<string>();
+        private int _currentIndex = 0;
+        private Timer _cycleTimer = null;
+        private bool _isCycling = false;
 
         public MainForm()
         {
@@ -74,6 +80,28 @@ namespace FreshCheck_CV
                     string filePath = openFileDialog.FileName;
                     cameraForm.LoadImage(filePath);
                 }
+            }
+        }
+        private void LoadImageFolder()
+        {
+            using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
+            {
+                folderDialog.Description = "이미지 폴더 선택";
+
+                if (folderDialog.ShowDialog() != DialogResult.OK)
+                    return;
+
+                _imageFiles = Directory.GetFiles(folderDialog.SelectedPath)
+                    .Where(f =>
+                        f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                        f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                        f.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                _currentIndex = 0;
+
+                if (_imageFiles.Count == 0)
+                    MessageBox.Show("이미지 파일이 없습니다.");
             }
         }
     }
