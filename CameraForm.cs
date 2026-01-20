@@ -1,0 +1,43 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using WeifenLuo.WinFormsUI.Docking;
+
+namespace FreshCheck_CV
+{
+    public partial class CameraForm : DockContent
+    {
+        public CameraForm()
+        {
+            InitializeComponent();
+        }
+
+        //#3_CAMERAVIEW_PROPERTY#1 이미지 경로를 받아 PictureBox에 이미지를 로드하는 메서드
+        public void LoadImage(string filePath)
+        {
+            if (File.Exists(filePath) == false)
+                return;
+
+            //#4_IMAGE_VIEWER#6 이미지 뷰어 컨트롤을 사용하여 이미지를 로드
+            //picMainview.Image = Image.FromFile(filePath);
+            Image bitmap = Image.FromFile(filePath);
+            imageViewCtrl.LoadBitmap((Bitmap)bitmap);
+        }
+
+        private void CameraForm_Resize_1(object sender, EventArgs e)
+        {
+            int margin = 0;
+            imageViewCtrl.Width = this.Width - margin * 2;
+            imageViewCtrl.Height = this.Height - margin * 2;
+
+            imageViewCtrl.Location = new System.Drawing.Point(margin, margin);
+        }
+    }
+}
