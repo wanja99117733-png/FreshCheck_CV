@@ -14,10 +14,48 @@ namespace FreshCheck_CV
 {
     public partial class CameraForm : DockContent
     {
+        private bool _isPickMode = false;
+
+        public event EventHandler<ColorPickedEventArgs> ColorPicked;
         public CameraForm()
         {
             InitializeComponent();
+
+            if (imageViewCtrl != null)
+            {
+                imageViewCtrl.MouseClick += ImageViewCtrl_MouseClick;
+            }
         }
+
+        public void BeginPickColor()
+        {
+            _isPickMode = true;
+        }
+
+        private void ImageViewCtrl_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (_isPickMode == false)
+            {
+                return;
+            }
+
+            _isPickMode = false;
+
+            if (imageViewCtrl == null)
+            {
+                return;
+            }
+
+            if (imageViewCtrl.TryPickColor(e.Location, out Color pickedColor) == false)
+            {
+                return;
+            }
+
+            ColorPicked?.Invoke(this, new ColorPickedEventArgs(pickedColor));
+        }
+        
+
+
 
         //#3_CAMERAVIEW_PROPERTY#1 이미지 경로를 받아 PictureBox에 이미지를 로드하는 메서드
         public void LoadImage(string filePath)
@@ -44,12 +82,7 @@ namespace FreshCheck_CV
 
         public void UpdateDisplay(Bitmap bitmap = null)
         {
-            if (imageViewCtrl == null)
-            {
-                return;
-            }
-
-            if (bitmap == null)
+            if (imageViewCtrl == null || bitmap == null)
             {
                 return;
             }
@@ -64,13 +97,43 @@ namespace FreshCheck_CV
                 return null;
             }
 
-            Bitmap curImage = imageViewCtrl.GetCurBitmap();
-            if (curImage == null)
+            Bitmap cur = imageViewCtrl.GetCurBitmap();
+            if (cur == null)
             {
                 return null;
             }
 
-            return new Bitmap(curImage);
+            return new Bitmap(cur);
+        }
+
+        public Color? TryPickColorFromDisplay(Point clientPoint)
+        {
+            Bitmap bmp = imageViewCtrl?.GetCurBitmap();
+            if (bmp == null)
+            {
+                return null;
+            }
+
+            // 가장 단순한 1차 버전: 컨트롤 좌표를 비트맵 좌표로 비례 매핑(정확도 100%는 아니지만 시작용)
+            int x = (int)(clientPoint.X * (bmp.Width / (float)imageViewCtrl.Width));
+            int y = (int)(clientPoint.Y * (bmp.Height / (float)imageViewCtrl.Height));
+
+            if (x < 0 || x >= bmp.Width || y < 0 || y >= bmp.Height)
+            {
+                return null;
+            }
+
+            return bmp.GetPixel(x, y);
         }
     }
 }
+        public sealed class ColorPickedEventArgs : EventArgs
+        {
+            public ColorPickedEventArgs(Color color)
+            {
+                Color = color;
+            }
+
+            public Color Color { get; }
+        }
+

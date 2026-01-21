@@ -1,5 +1,6 @@
 ﻿
 using FreshCheck_CV.Models;
+using FreshCheck_CV.Models.FreshCheck_CV.Models;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -106,7 +107,7 @@ namespace FreshCheck_CV.Core
             }
 
             // 항상 원본 기준으로 처리
-            Bitmap result = BinaryProcessor.ApplyBinaryOnly(_sourceBitmap, options);
+            Bitmap result = BinaryProcessor.ApplyPreview(_sourceBitmap, options);
             if (result == null)
                 return;
 

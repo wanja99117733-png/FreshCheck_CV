@@ -275,5 +275,29 @@ namespace FreshCheck_CV.UIControl
         {
             FitImageToScreen();
         }
+
+        public bool TryPickColor(Point screenPoint, out Color color)
+        {
+            color = Color.Empty;
+
+            if (_bitmapImage == null)
+            {
+                return false;
+            }
+
+            // 줌/패닝을 반영해 화면좌표 -> 원본좌표 변환
+            PointF v = ScreenToVirtual(new PointF(screenPoint.X, screenPoint.Y));
+
+            int x = (int)Math.Round(v.X);
+            int y = (int)Math.Round(v.Y);
+
+            if (x < 0 || x >= _bitmapImage.Width || y < 0 || y >= _bitmapImage.Height)
+            {
+                return false;
+            }
+
+            color = _bitmapImage.GetPixel(x, y);
+            return true;
+        }
     }
 }

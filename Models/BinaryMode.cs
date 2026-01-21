@@ -10,4 +10,13 @@ namespace FreshCheck_CV.Models
     {
         GrayScale = 0
     }
+
+    public enum ShowBinaryMode : int
+    {
+        None = 0,
+        HighlightRed,
+        HighlightGreen,
+        HighlightBlue,
+        BinaryOnly
+    }
 }

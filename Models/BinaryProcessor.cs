@@ -1,4 +1,5 @@
-﻿using OpenCvSharp;
+﻿using FreshCheck_CV.Models.FreshCheck_CV.Models;
+using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
 using System.Collections.Generic;
@@ -31,8 +32,7 @@ namespace FreshCheck_CV.Models
 
         private static Mat CreateBgrMask(Mat bgr, BinaryOptions options)
         {
-            var lower = new Scalar(options.MinValue, options.MinValue, options.MinValue);
-            var upper = new Scalar(options.MaxValue, options.MaxValue, options.MaxValue);
+            options.GetLowerUpper(out Scalar lower, out Scalar upper);
 
             Mat mask = new Mat();
             Cv2.InRange(bgr, lower, upper, mask);
@@ -75,5 +75,59 @@ namespace FreshCheck_CV.Models
 
             throw new NotSupportedException($"지원하지 않는 채널 수입니다. Channels={channels}, Type={src.Type()}");
         }
+
+        public static Bitmap ApplyPreview(Bitmap sourceBitmap, BinaryOptions options)
+        {
+            if (sourceBitmap is null) throw new ArgumentNullException(nameof(sourceBitmap));
+            if (options is null) throw new ArgumentNullException(nameof(options));
+
+            options.Validate();
+
+            if (options.ShowMode == ShowBinaryMode.None)
+            {
+                return new Bitmap(sourceBitmap);
+            }
+
+            using (Mat src = BitmapConverter.ToMat(sourceBitmap))
+            using (Mat bgr = EnsureBgr(src))
+            using (Mat mask = CreateBgrMask(bgr, options))
+            {
+                if (options.ShowMode == ShowBinaryMode.BinaryOnly)
+                {
+                    using (Mat maskBgr = new Mat())
+                    {
+                        Cv2.CvtColor(mask, maskBgr, ColorConversionCodes.GRAY2BGR);
+                        return BitmapConverter.ToBitmap(maskBgr);
+                    }
+                }
+
+                Scalar color = GetHighlightColor(options.ShowMode);
+
+                using (Mat baseImg = bgr.Clone())
+                using (Mat overlay = bgr.Clone())
+                using (Mat result = new Mat())
+                {
+                    overlay.SetTo(color, mask);
+                    Cv2.AddWeighted(baseImg, 0.7, overlay, 0.3, 0, result);
+                    return BitmapConverter.ToBitmap(result);
+                }
+            }
+        }
+
+        private static Scalar GetHighlightColor(ShowBinaryMode mode)
+        {
+            switch (mode)
+            {
+                case ShowBinaryMode.HighlightRed:
+                    return new Scalar(0, 0, 255);
+                case ShowBinaryMode.HighlightGreen:
+                    return new Scalar(0, 255, 0);
+                case ShowBinaryMode.HighlightBlue:
+                    return new Scalar(255, 0, 0);
+                default:
+                    return new Scalar(0, 0, 255);
+            }
+        }
+
     }
 }
