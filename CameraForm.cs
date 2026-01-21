@@ -61,10 +61,13 @@ namespace FreshCheck_CV
             return curImage;
         }
 
+        private bool _windowOpened = false; // OpenCV 테스팅 창 열려있는지 여부
+
         // 작물과 배경 분리하여 배경 제거하는 함수
         public void RemoveImageBg()
         {
-            Cv2.DestroyAllWindows();
+            if(_windowOpened)
+                Cv2.DestroyAllWindows();
 
             Bitmap curBitmap = Global.Inst.InspStage.GetCurrentImage();
 
@@ -82,34 +85,61 @@ namespace FreshCheck_CV
             Mat hsv = new Mat();
             Cv2.CvtColor(curMat, hsv, ColorConversionCodes.BGR2HSV);
 
-            // mGreen : 초록 오이
-            Mat mGreen = new Mat();
-            Cv2.InRange(hsv, new Scalar(18, 25, 25), new Scalar(95, 255, 255), mGreen);
+            // cucumberGreen : 초록 오이
+            Mat cucumberGreen = new Mat();
+            Cv2.InRange(hsv, new Scalar(18, 25, 25), new Scalar(95, 255, 255), cucumberGreen);
 
-            // mPale : 흰 오이 후보
-            Mat mPale = new Mat();
-            Cv2.InRange(hsv, new Scalar(0, 0, 80), new Scalar(179, 80, 255), mPale);
+            // cucumberPale : 흰 오이 후보
+            Mat cucumberPale = new Mat();
+            Cv2.InRange(hsv, new Scalar(0, 0, 80), new Scalar(179, 80, 255), cucumberPale);
 
             // 초록 마스크를 크게 팽창시켜 "오이 주변 영역"을 만들고,
-            // 그 영역 내부에서만 mPale를 인정합니다.
-            Mat seed = mGreen.Clone();
-
-            // 씨앗이 너무 점처럼만 잡히면 (어두운 이미지 등) seed가 빈약해질 수 있으니
-            // 작은 Close로 씨앗을 조금 보강
-            Mat kSeed = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
-            Cv2.MorphologyEx(seed, seed, MorphTypes.Close, kSeed, iterations: 1);
+            // 그 영역 내부에서만 cucumberPale를 인정합니다.
+            Mat seed = cucumberGreen.Clone();
 
             // 초록 주변 허용 영역(팽창). 커질수록 흰 오이 연결이 쉬워지지만 바닥 유입 위험도 증가
-            Mat kDilate = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(13, 13));
+            Mat kDilate = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
             Mat greenDilated = new Mat();
             Cv2.Dilate(seed, greenDilated, kDilate);
 
-            Mat mPaleFiltered = new Mat();
-            Cv2.BitwiseAnd(mPale, greenDilated, mPaleFiltered);
+            Mat hsvMask = new Mat();
+            Cv2.BitwiseAnd(cucumberPale, greenDilated, hsvMask);
 
-            // 최종 마스크
+            // HSV 최종 마스크
             Mat mask = new Mat();
-            Cv2.BitwiseOr(mGreen, mPaleFiltered, mask);
+            Cv2.BitwiseOr(cucumberGreen, hsvMask, mask);
+
+            /* RGB 필터링 - S */
+            Mat[] bgr = Cv2.Split(curMat);
+            Mat blue = bgr[0];
+            Mat greeen = bgr[1];
+            Mat red = bgr[2];
+
+            // G가 R, B보다 충분히 큰 영역
+            Mat greenGreaterRed = new Mat();
+            Mat greenGreaterBlue = new Mat();
+
+            Mat redPlus = new Mat();
+            Mat bluePlus = new Mat();
+
+            Cv2.Add(red, new Scalar(10), redPlus);
+            Cv2.Add(blue, new Scalar(10), bluePlus);
+
+            Cv2.Compare(greeen, redPlus, greenGreaterRed, CmpType.GT);
+            Cv2.Compare(greeen, bluePlus, greenGreaterBlue, CmpType.GT);
+
+            // G 최소 밝기 조건 (너무 어두운 영역 제거)
+            Mat greenMin = new Mat();
+            Cv2.Threshold(greeen, greenMin, 40, 255, ThresholdTypes.Binary);
+
+            // RGB 최종 마스크
+            Mat rgbMask = new Mat();
+            Cv2.BitwiseAnd(greenGreaterRed, greenGreaterBlue, rgbMask);
+            Cv2.BitwiseAnd(rgbMask, greenMin, rgbMask);
+
+            // 기존 마스크에 추가
+            Cv2.BitwiseOr(mask, rgbMask, mask);
+            /* RGB 필터링 - E */
 
             // 노이즈 제거
             Mat k = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
@@ -120,7 +150,7 @@ namespace FreshCheck_CV
             Cv2.FindContours(mask, out OpenCvSharp.Point[][] contours, out _,
                 RetrievalModes.External, ContourApproximationModes.ApproxSimple);
 
-            Mat finalMask = Mat.Zeros(mask.Size(), MatType.CV_8UC1);
+            Mat finalMask = Mat.Zeros(mask.Size(), MatType.CV_8UC1); // 모든 픽셀값이 0(검정색)인 Mat 생성
 
             int width = mask.Width;
             int height = mask.Height;
@@ -137,10 +167,10 @@ namespace FreshCheck_CV
                 bool touchesBorder =
                     r.X <= 2 || r.Y <= 2 || r.Right >= width - 2 || r.Bottom >= height - 2;
 
-                if (touchesBorder && area > (width * height * 0.30)) // 화면의 10% 이상 + 가장자리 접촉이면 제외
+                if (touchesBorder && area > (width * height * 0.10) && area < (width * height * 0.30)) // 화면의 일정 비율 + 가장자리 접촉이면 제외
                     continue;
 
-                // 통과한 컨투어는 마스크에 누적
+                // 통과한 컨투어는 마스크에 누적(남겨놓을 곳들)
                 Cv2.DrawContours(finalMask, new[] { c }, -1, Scalar.White, thickness: -1);
             }
 
@@ -149,11 +179,15 @@ namespace FreshCheck_CV
 
             Cv2.ImShow("curMat", curMat);
             Cv2.ImShow("hsv", hsv);
-            Cv2.ImShow("mGreen", mGreen);
-            Cv2.ImShow("mPale", mPale);
+            Cv2.ImShow("cucumberGreen", cucumberGreen);
+            Cv2.ImShow("cucumberPale", cucumberPale);
             Cv2.ImShow("mask", mask);
+            Cv2.ImShow("hsvMask", hsvMask);
+            Cv2.ImShow("rgbMask", rgbMask);
             Cv2.ImShow("finalMask", finalMask);
             Cv2.ImShow("result_no_bg", result);
+
+            _windowOpened = true;
         }
 
         // HSV 컬러를 확인하기 위한 캔버스를 띄우는 함수. OpenCV의 HSV는 Scalar를 사용하기 때문에 일반적인 HSV의 값과 다름.
