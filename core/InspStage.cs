@@ -116,6 +116,7 @@ namespace FreshCheck_CV.Core
         }
 
 
+
         #region Disposable
 
         private bool disposed = false; // to detect redundant calls

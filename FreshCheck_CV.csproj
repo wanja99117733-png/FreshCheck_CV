@@ -140,6 +140,21 @@
     <Compile Include="Property\ImageFilterProp.Designer.cs">
       <DependentUpon>ImageFilterProp.cs</DependentUpon>
     </Compile>
+    <Compile Include="Splash\AppInitializer.cs" />
+    <Compile Include="Splash\InitProgress.cs" />
+    <Compile Include="Splash\SplashAplicationContext.cs" />
+    <Compile Include="Splash\SplashForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Splash\Stage_InitGlobal.cs" />
+    <Compile Include="Splash\Stage_InitInspStage.cs" />
+    <Compile Include="Splash\Stage_LoadConfig.cs" />
+    <Compile Include="Splash\Stage_PrepareDirectories.cs" />
+    <Compile Include="Splash\Stage_ReadyMessage.cs" />
+    <Compile Include="Splash\Stage_RegisterExceptionHandlers.cs" />
+    <Compile Include="Splash\StartupContext.cs" />
+    <Compile Include="Splash\StartupContextFactory.cs" />
+    <Compile Include="Splash\StartupProgressHelper.cs" />
     <Compile Include="UIControl\ImageViewCtrl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -169,6 +184,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="Property\BinaryProp.resx">
       <DependentUpon>BinaryProp.cs</DependentUpon>

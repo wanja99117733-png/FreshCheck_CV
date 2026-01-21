@@ -33,9 +33,9 @@ namespace FreshCheck_CV.Core
         {
         }
 
-        public void Initialize()
+        public bool Initialize()
         {
-            _stage.Initialize();
+            return _stage.Initialize();
         }
 
         public void Dispose()
