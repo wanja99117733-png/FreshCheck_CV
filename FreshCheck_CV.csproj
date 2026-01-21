@@ -93,10 +93,10 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WeifenLuo.WinFormsUI.Docking">
-      <HintPath>..\..\프로젝트 참조\ExternalLib\Dll\Docking\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
+      <HintPath>bin\x64\Debug\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
     </Reference>
     <Reference Include="WeifenLuo.WinFormsUI.Docking.ThemeVS2015">
-      <HintPath>..\..\프로젝트 참조\ExternalLib\Dll\Docking\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath>
+      <HintPath>bin\x64\Debug\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -108,6 +108,9 @@
     </Compile>
     <Compile Include="Core\Global.cs" />
     <Compile Include="Core\InspStage.cs" />
+    <Compile Include="Defect\DefectResult.cs" />
+    <Compile Include="Defect\DefectType.cs" />
+    <Compile Include="Defect\IDefectDetector.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -142,6 +145,12 @@
     </Compile>
     <Compile Include="UIControl\ImageViewCtrl.Designer.cs">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UIControl\RangeTrackbar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UIControl\RangeTrackbar.Designer.cs">
+      <DependentUpon>RangeTrackbar.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="CameraForm.resx">
       <DependentUpon>CameraForm.cs</DependentUpon>

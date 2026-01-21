@@ -1,156 +1,43 @@
-﻿
-using FreshCheck_CV.Core.FreshCheck_CV.Core.Models;
-using FreshCheck_CV.Models;
-using FreshCheck_CV.Models.FreshCheck_CV.Core.Models;
-using OpenCvSharp;
+﻿using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace FreshCheck_CV.Core.Processing
+namespace FreshCheck_CV.Models
 {
-    //이진화 처리 전용 클래스
-    //입력(Bitmap) -> OpenCV 처리(Mat) -> 출력(Bitmap)
-    public class BinaryProcessor
+    public static class BinaryProcessor
     {
-        //이진화 적용
-        public Bitmap Apply(Bitmap srcBitmap, BinaryOptions opt)
+        public static Bitmap ApplyBinaryOnly(Bitmap sourceBitmap, BinaryOptions options)
         {
-            if (srcBitmap == null)
-                return null;
+            if (sourceBitmap is null) throw new ArgumentNullException(nameof(sourceBitmap));
+            if (options is null) throw new ArgumentNullException(nameof(options));
 
-            if (opt == null)
-                opt = new BinaryOptions();
+            options.Validate();
 
-            // Bitmap -> Mat
-            using (Mat src = BitmapConverter.ToMat(srcBitmap))
+            using (Mat src = BitmapConverter.ToMat(sourceBitmap))
+            using (Mat bgr = EnsureBgr(src))
+            using (Mat mask = CreateBgrMask(bgr, options))
+            using (Mat maskBgr = new Mat())
             {
-                // 결과 마스크(0/255) Mat
-                using (Mat mask = CreateBinaryMask(src, opt))
-                {
-                    // mask는 1채널(Gray)
-                    // 그대로 Bitmap으로 변환하여 화면에 표시
-                    Bitmap dst = BitmapConverter.ToBitmap(mask);
-                    return dst;
-                }
+                // BinaryOnly: 마스크를 3채널로 바꿔서 화면 표시용 Bitmap 생성
+                Cv2.CvtColor(mask, maskBgr, ColorConversionCodes.GRAY2BGR);
+                return BitmapConverter.ToBitmap(maskBgr);
             }
         }
 
-        // 옵션에 따라 이진화 마스크(Mat)를 생성합니다.
-        // 반환 Mat은 8-bit 1채널(0/255) 마스크를 목표로 합니다.
-        // </summary>
-        private Mat CreateBinaryMask(Mat srcBgr, BinaryOptions opt)
+        private static Mat CreateBgrMask(Mat bgr, BinaryOptions options)
         {
-            // 반환용 Mat
-            Mat mask = new Mat();
-
-            switch (opt.Mode)
-            {
-                case BinaryMode.GrayThreshold:
-                    mask = MakeGrayThreshold(srcBgr, opt.Threshold, opt.Invert);
-                    break;
-
-                case BinaryMode.Otsu:
-                    mask = MakeOtsu(srcBgr, opt.Invert);
-                    break;
-
-                case BinaryMode.Adaptive:
-                    mask = MakeAdaptive(srcBgr, opt.Invert, opt.AdaptiveBlockSize, opt.AdaptiveC);
-                    break;
-
-                case BinaryMode.RgbRange:
-                    mask = MakeRgbRange(srcBgr, opt);
-                    break;
-
-                default:
-                    // 기본은 GrayThreshold
-                    mask = MakeGrayThreshold(srcBgr, opt.Threshold, opt.Invert);
-                    break;
-            }
-
-            return mask;
-        }
-
-        #region Gray 계열 이진화
-
-        private Mat MakeGrayThreshold(Mat srcBgr, int threshold, bool invert)
-        {
-            Mat gray = new Mat();
-            if (srcBgr.Channels() == 1)
-                gray = srcBgr.Clone();
-            else
-                Cv2.CvtColor(srcBgr, gray, ColorConversionCodes.BGR2GRAY);
-
-            ThresholdTypes type = invert ? ThresholdTypes.BinaryInv : ThresholdTypes.Binary;
-
-            Mat bin = new Mat();
-            Cv2.Threshold(gray, bin, threshold, 255, type);
-
-            gray.Dispose();
-            return bin; // 1채널 0/255
-        }
-
-        private Mat MakeOtsu(Mat srcBgr, bool invert)
-        {
-            Mat gray = new Mat();
-            if (srcBgr.Channels() == 1)
-                gray = srcBgr.Clone();
-            else
-                Cv2.CvtColor(srcBgr, gray, ColorConversionCodes.BGR2GRAY);
-
-            ThresholdTypes type = invert ? ThresholdTypes.BinaryInv : ThresholdTypes.Binary;
-            type |= ThresholdTypes.Otsu; // Otsu 플래그 추가
-
-            Mat bin = new Mat();
-            Cv2.Threshold(gray, bin, 0, 255, type);
-
-            gray.Dispose();
-            return bin;
-        }
-
-        private Mat MakeAdaptive(Mat srcBgr, bool invert, int blockSize, int c)
-        {
-            // Adaptive는 blockSize가 반드시 홀수, 3 이상
-            if (blockSize < 3) blockSize = 3;
-            if (blockSize % 2 == 0) blockSize += 1;
-
-            Mat gray = new Mat();
-            if (srcBgr.Channels() == 1)
-                gray = srcBgr.Clone();
-            else
-                Cv2.CvtColor(srcBgr, gray, ColorConversionCodes.BGR2GRAY);
-
-            ThresholdTypes type = invert ? ThresholdTypes.BinaryInv : ThresholdTypes.Binary;
-
-            Mat bin = new Mat();
-            Cv2.AdaptiveThreshold(
-                gray,
-                bin,
-                255,
-                AdaptiveThresholdTypes.GaussianC,
-                type,
-                blockSize,
-                c);
-
-            gray.Dispose();
-            return bin;
-        }
-
-        #endregion
-
-        #region RGB 범위 이진화 (OpenCV는 BGR 순서)
-
-        private Mat MakeRgbRange(Mat srcBgr, BinaryOptions opt)
-        {
-            Scalar lower = new Scalar(opt.MinB, opt.MinG, opt.MinR);
-            Scalar upper = new Scalar(opt.MaxB, opt.MaxG, opt.MaxR);
+            var lower = new Scalar(options.MinValue, options.MinValue, options.MinValue);
+            var upper = new Scalar(options.MaxValue, options.MaxValue, options.MaxValue);
 
             Mat mask = new Mat();
-            Cv2.InRange(srcBgr, lower, upper, mask); // 0/255 마스크 생성
+            Cv2.InRange(bgr, lower, upper, mask);
 
-            // Invert 옵션을 색상 범위 마스크에도 적용하고 싶다면 아래처럼
-            if (opt.Invert)
+            if (options.Invert)
             {
                 Cv2.BitwiseNot(mask, mask);
             }
@@ -158,6 +45,35 @@ namespace FreshCheck_CV.Core.Processing
             return mask;
         }
 
-        #endregion
+        private static Mat EnsureBgr(Mat src)
+        {
+            if (src is null) throw new ArgumentNullException(nameof(src));
+
+            int channels = src.Channels();
+
+            // 이미 3채널이면 그대로 복사
+            if (channels == 3)
+            {
+                return src.Clone();
+            }
+
+            // 1채널(Gray) -> BGR
+            if (channels == 1)
+            {
+                Mat bgr = new Mat();
+                Cv2.CvtColor(src, bgr, ColorConversionCodes.GRAY2BGR);
+                return bgr;
+            }
+
+            // 4채널(BGRA) -> BGR (알파 제거)
+            if (channels == 4)
+            {
+                Mat bgr = new Mat();
+                Cv2.CvtColor(src, bgr, ColorConversionCodes.BGRA2BGR);
+                return bgr;
+            }
+
+            throw new NotSupportedException($"지원하지 않는 채널 수입니다. Channels={channels}, Type={src.Type()}");
+        }
     }
 }

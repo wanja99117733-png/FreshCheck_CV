@@ -29,62 +29,62 @@
         private void InitializeComponent()
         {
             this.cbMode = new System.Windows.Forms.ComboBox();
-            this.tbThreshold = new System.Windows.Forms.TrackBar();
             this.chkInvert = new System.Windows.Forms.CheckBox();
             this.btnApply = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.tbThreshold)).BeginInit();
+            this.rangeTrackbar = new FreshCheck_CV.UIControl.RangeTrackbar();
             this.SuspendLayout();
             // 
             // cbMode
             // 
+            this.cbMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbMode.FormattingEnabled = true;
-            this.cbMode.Location = new System.Drawing.Point(13, 16);
+            this.cbMode.Location = new System.Drawing.Point(19, 24);
+            this.cbMode.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cbMode.Name = "cbMode";
-            this.cbMode.Size = new System.Drawing.Size(159, 20);
+            this.cbMode.Size = new System.Drawing.Size(225, 26);
             this.cbMode.TabIndex = 1;
-            // 
-            // tbThreshold
-            // 
-            this.tbThreshold.Location = new System.Drawing.Point(13, 43);
-            this.tbThreshold.Maximum = 255;
-            this.tbThreshold.Name = "tbThreshold";
-            this.tbThreshold.Size = new System.Drawing.Size(159, 45);
-            this.tbThreshold.TabIndex = 2;
-            this.tbThreshold.Value = 128;
             // 
             // chkInvert
             // 
             this.chkInvert.AutoSize = true;
-            this.chkInvert.Location = new System.Drawing.Point(13, 94);
+            this.chkInvert.Location = new System.Drawing.Point(19, 141);
+            this.chkInvert.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkInvert.Name = "chkInvert";
-            this.chkInvert.Size = new System.Drawing.Size(48, 16);
+            this.chkInvert.Size = new System.Drawing.Size(70, 22);
             this.chkInvert.TabIndex = 3;
             this.chkInvert.Text = "반전";
             this.chkInvert.UseVisualStyleBackColor = true;
             // 
             // btnApply
             // 
-            this.btnApply.Location = new System.Drawing.Point(111, 86);
+            this.btnApply.Location = new System.Drawing.Point(159, 129);
+            this.btnApply.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(61, 24);
+            this.btnApply.Size = new System.Drawing.Size(87, 36);
             this.btnApply.TabIndex = 4;
             this.btnApply.TabStop = false;
             this.btnApply.Text = "적용";
             this.btnApply.UseVisualStyleBackColor = true;
             // 
+            // rangeTrackbar
+            // 
+            this.rangeTrackbar.Location = new System.Drawing.Point(19, 67);
+            this.rangeTrackbar.Name = "rangeTrackbar";
+            this.rangeTrackbar.Size = new System.Drawing.Size(225, 55);
+            this.rangeTrackbar.TabIndex = 5;
+            this.rangeTrackbar.ValueLeft = 80;
+            this.rangeTrackbar.ValueRight = 200;
+            // 
             // BinaryProp
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.rangeTrackbar);
             this.Controls.Add(this.btnApply);
             this.Controls.Add(this.chkInvert);
-            this.Controls.Add(this.tbThreshold);
             this.Controls.Add(this.cbMode);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "BinaryProp";
-            this.Size = new System.Drawing.Size(187, 128);
-            this.Load += new System.EventHandler(this.BinaryProp_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.tbThreshold)).EndInit();
+            this.Size = new System.Drawing.Size(277, 211);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -93,8 +93,8 @@
         #endregion
 
         private System.Windows.Forms.ComboBox cbMode;
-        private System.Windows.Forms.TrackBar tbThreshold;
         private System.Windows.Forms.CheckBox chkInvert;
         private System.Windows.Forms.Button btnApply;
+        private UIControl.RangeTrackbar rangeTrackbar;
     }
 }

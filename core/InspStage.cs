@@ -1,6 +1,5 @@
-﻿using FreshCheck_CV.Core.Processing;
+﻿
 using FreshCheck_CV.Models;
-using FreshCheck_CV.Models.FreshCheck_CV.Core.Models;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -17,8 +16,6 @@ namespace FreshCheck_CV.Core
     {
         // 원본 이미지
         private Bitmap _sourceBitmap = null;
-        // 이진화 처리
-        private readonly BinaryProcessor _binaryProcessor = new BinaryProcessor();
 
         public InspStage() { }
 
@@ -32,6 +29,11 @@ namespace FreshCheck_CV.Core
         // ImageViewCtrl 화면 이미지 업데이트 함수
         public void UpdateDisplay(Bitmap bitmap)
         {
+            if (bitmap == null)
+            {
+                return;
+            }
+
             var cameraForm = MainForm.GetDockForm<CameraForm>();
             if (cameraForm != null)
             {
@@ -104,7 +106,7 @@ namespace FreshCheck_CV.Core
             }
 
             // 항상 원본 기준으로 처리
-            Bitmap result = _binaryProcessor.Apply(_sourceBitmap, options);
+            Bitmap result = BinaryProcessor.ApplyBinaryOnly(_sourceBitmap, options);
             if (result == null)
                 return;
 

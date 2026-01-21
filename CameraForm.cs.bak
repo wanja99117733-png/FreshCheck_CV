@@ -23,14 +23,12 @@ namespace FreshCheck_CV
         public void LoadImage(string filePath)
         {
             if (File.Exists(filePath) == false)
-            {
                 return;
-            }
 
-            using (var temp = (Bitmap)Image.FromFile(filePath))
-            {
-                imageViewCtrl.LoadBitmap(new Bitmap(temp)); // 복사본 전달
-            }
+            //#4_IMAGE_VIEWER#6 이미지 뷰어 컨트롤을 사용하여 이미지를 로드
+            //picMainview.Image = Image.FromFile(filePath);
+            Image bitmap = Image.FromFile(filePath);
+            imageViewCtrl.LoadBitmap((Bitmap)bitmap);
         }
 
         private void CameraForm_Resize_1(object sender, EventArgs e)
@@ -44,33 +42,18 @@ namespace FreshCheck_CV
 
         public void UpdateDisplay(Bitmap bitmap = null)
         {
-            if (imageViewCtrl == null)
-            {
-                return;
-            }
-
-            if (bitmap == null)
-            {
-                return;
-            }
-
-            imageViewCtrl.LoadBitmap(bitmap);
+            if (imageViewCtrl != null)
+                imageViewCtrl.LoadBitmap(bitmap);
         }
 
         public Bitmap GetDisplayImage()
         {
-            if (imageViewCtrl == null)
-            {
-                return null;
-            }
+            Bitmap curImage = null;
 
-            Bitmap curImage = imageViewCtrl.GetCurBitmap();
-            if (curImage == null)
-            {
-                return null;
-            }
+            if (imageViewCtrl != null)
+                curImage = imageViewCtrl.GetCurBitmap();
 
-            return new Bitmap(curImage);
+            return curImage;
         }
     }
 }

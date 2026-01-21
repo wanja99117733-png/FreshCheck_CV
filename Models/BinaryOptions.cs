@@ -1,50 +1,40 @@
-﻿using FreshCheck_CV.Core.FreshCheck_CV.Core.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OpenCvSharp;
 
 namespace FreshCheck_CV.Models
 {
-    namespace FreshCheck_CV.Core.Models
+    public sealed class BinaryOptions
     {
-        // 이진화에 필요한 모든 설정값(파라미터)을 담는 클래스
-        // UI(BinaryProp)에서 값을 만들고, BinaryProcessor로 전달하는 용도
+        public BinaryMode Mode { get; set; } = BinaryMode.GrayScale;
 
-        public class BinaryOptions
+        /// <summary>0~255, B/G/R에 동일 적용</summary>
+        public int MinValue { get; set; } = 0;
+
+        /// <summary>0~255, B/G/R에 동일 적용</summary>
+        public int MaxValue { get; set; } = 255;
+
+        /// <summary>마스크 반전 여부</summary>
+        public bool Invert { get; set; } = false;
+
+        public void Validate()
         {
-            // 어떤 이진화 모드를 쓸지
-            public BinaryMode Mode { get; set; } = BinaryMode.GrayThreshold;
+            if (MinValue < 0 || MinValue > 255)
+            {
+                throw new ArgumentOutOfRangeException(nameof(MinValue));
+            }
 
-            #region Gray(흑백) 이진화 옵션
-            // 고정 임계값(0~255)
-            public int Threshold { get; set; } = 128;
-            // 반전 여부 (검정/흰색 뒤집기)
-            public bool Invert { get; set; } = false;
-            // Adaptive 모드에서 사용하는 블록 크기(홀수, 3 이상)
-            public int AdaptiveBlockSize { get; set; } = 31;
-            // Adaptive 모드에서 사용하는 보정값(C)
-            public int AdaptiveC { get; set; } = 5;
-            #endregion
+            if (MaxValue < 0 || MaxValue > 255)
+            {
+                throw new ArgumentOutOfRangeException(nameof(MaxValue));
+            }
 
-            #region RGB 색상 범위 이진화 옵션 (OpenCV는 BGR 순서)
-            // 최소 B 값 (0~255)
-            public int MinB { get; set; } = 0;
-            // 최대 B 값 (0~255)
-            public int MaxB { get; set; } = 255;
-            // 최소 G 값 (0~255)
-            public int MinG { get; set; } = 0;
-            // 최대 G 값 (0~255)
-            public int MaxG { get; set; } = 255;
-            // 최소 R 값 (0~255)
-            public int MinR { get; set; } = 0;
-            // 최대 R 값 (0~255)
-            public int MaxR { get; set; } = 255;
-
-            #endregion
+            if (MinValue > MaxValue)
+            {
+                throw new ArgumentException("MinValue는 MaxValue보다 클 수 없습니다.");
+            }
         }
     }
-
 }

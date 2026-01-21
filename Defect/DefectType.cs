@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FreshCheck_CV.Models
+namespace FreshCheck_CV.Defect
 {
-    public enum BinaryMode : int
+    public enum DefectType : int
     {
-        GrayScale = 0
+        None = 0,
+        Mold,
+        Scratch
     }
 }
