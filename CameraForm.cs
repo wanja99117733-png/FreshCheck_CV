@@ -85,93 +85,115 @@ namespace FreshCheck_CV
             Mat hsv = new Mat();
             Cv2.CvtColor(curMat, hsv, ColorConversionCodes.BGR2HSV);
 
-            // cucumberGreen : 초록 오이
-            Mat cucumberGreen = new Mat();
-            Cv2.InRange(hsv, new Scalar(18, 20, 20), new Scalar(95, 255, 255), cucumberGreen);
+            // hsvGreen : 초록 오이
+            Mat hsvGreen = new Mat();
+            Cv2.InRange(hsv, new Scalar(18, 20, 20), new Scalar(95, 255, 255), hsvGreen);
 
-            // cucumberPale : 흰 오이 후보
-            Mat cucumberPale = new Mat();
-            Cv2.InRange(hsv, new Scalar(0, 0, 80), new Scalar(179, 80, 255), cucumberPale);
+            // hsvPale : 흰 오이
+            Mat hsvPale = new Mat();
+            Cv2.InRange(hsv, new Scalar(0, 0, 80), new Scalar(179, 80, 255), hsvPale);
 
             // 초록 마스크를 크게 팽창시켜 "오이 주변 영역"을 만들고,
             // 그 영역 내부에서만 cucumberPale를 인정합니다.
-            Mat seed = cucumberGreen.Clone();
+            Mat seed = hsvGreen.Clone();
+            Mat kSeed = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
+            Cv2.MorphologyEx(seed, seed, MorphTypes.Close, kSeed, iterations: 1);
 
             // 초록 주변 허용 영역(팽창). 커질수록 흰 오이 연결이 쉬워지지만 바닥 유입 위험도 증가
-            //Mat kDilate = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(2, 2));
-            //Mat greenDilated = new Mat();
-            //Cv2.Dilate(seed, greenDilated, kDilate);
+            Mat kDilate = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(13, 13));
+            Mat seedDilated = new Mat();
+            Cv2.Dilate(seed, seedDilated, kDilate);
 
-            Mat hsvMask = new Mat();
-            Cv2.BitwiseAnd(cucumberPale, seed, hsvMask);
+            Mat paleNearGreen = new Mat();
+            Cv2.BitwiseAnd(hsvPale, seedDilated, paleNearGreen);
 
             // HSV 최종 마스크
             Mat mask = new Mat();
-            Cv2.BitwiseOr(cucumberGreen, hsvMask, mask);
+            Cv2.BitwiseOr(hsvGreen, paleNearGreen, mask);
+            Mat hsvMask = mask.Clone();
 
             /* RGB 필터링 - S */
             Mat[] bgr = Cv2.Split(curMat);
-            Mat blue = bgr[0];
-            Mat greeen = bgr[1];
-            Mat red = bgr[2];
+            Mat b = bgr[0];
+            Mat g = bgr[1];
+            Mat r = bgr[2];
 
-            // G가 R, B보다 충분히 큰 영역
-            Mat greenGreaterRed = new Mat();
-            Mat greenGreaterBlue = new Mat();
+            /* RGB 초록 마스크 - S */
+            Mat gGtR = new Mat();
+            Mat gGtB = new Mat();
+            Mat rPlus = new Mat();
+            Mat bPlus = new Mat();
 
-            Mat redPlus = new Mat();
-            Mat bluePlus = new Mat();
+            Cv2.Add(r, new Scalar(10), rPlus);
+            Cv2.Add(b, new Scalar(10), bPlus);
 
-            Cv2.Add(red, new Scalar(5), redPlus);
-            Cv2.Add(blue, new Scalar(5), bluePlus);
-
-            Cv2.Compare(greeen, redPlus, greenGreaterRed, CmpType.GT);
-            Cv2.Compare(greeen, bluePlus, greenGreaterBlue, CmpType.GT);
+            Cv2.Compare(g, rPlus, gGtR, CmpType.GT);
+            Cv2.Compare(g, bPlus, gGtB, CmpType.GT);
 
             // G 최소 밝기 조건 (너무 어두운 영역 제거)
-            Mat greenMin = new Mat();
-            Cv2.Threshold(greeen, greenMin, 40, 255, ThresholdTypes.Binary);
+            Mat gMin = new Mat();
+            Cv2.Threshold(g, gMin, 30, 255, ThresholdTypes.Binary);
+
+            Mat rgbGreen = new Mat();
+            Cv2.BitwiseAnd(gGtR, gGtB, rgbGreen);
+            Cv2.BitwiseAnd(rgbGreen, gMin, rgbGreen);
+            /* RGB 초록 마스크 - E */
+            /* RGB 황록 마스크 - S */
+            Mat rGtB = new Mat();
+            Mat gGtB2 = new Mat();
+            Mat bPlus2 = new Mat();
+
+            Cv2.Add(b, new Scalar(20), bPlus2);
+            Cv2.Compare(r, bPlus2, rGtB, CmpType.GT);
+            Cv2.Compare(g, bPlus2, gGtB2, CmpType.GT);
+
+            Mat rMin = new Mat();
+            Cv2.Threshold(r, rMin, 40, 255, ThresholdTypes.Binary);
+
+            Mat rgbYellowGreen = new Mat();
+            Cv2.BitwiseAnd(rGtB, gGtB2, rgbYellowGreen);
+            Cv2.BitwiseAnd(rgbYellowGreen, rMin, rgbYellowGreen);
+            /* RGB 황록 마스크 - E */
 
             // RGB 최종 마스크
             Mat rgbMask = new Mat();
-            Cv2.BitwiseAnd(greenGreaterRed, greenGreaterBlue, rgbMask);
-            Cv2.BitwiseAnd(rgbMask, greenMin, rgbMask);
+            Cv2.BitwiseOr(rgbGreen, rgbYellowGreen, rgbMask);
 
             // 기존 마스크에 추가
-            Cv2.BitwiseOr(mask, rgbMask, mask);
+            Cv2.BitwiseAnd(mask, rgbMask, mask);
             /* RGB 필터링 - E */
 
             // 노이즈 제거
             Mat k = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
             Cv2.MorphologyEx(mask, mask, MorphTypes.Open, k, iterations: 1);
-            Cv2.MorphologyEx(mask, mask, MorphTypes.Close, k, iterations: 1);
+            Cv2.MorphologyEx(mask, mask, MorphTypes.Close, k, iterations: 2);
 
             // 오이만 남기기
             Cv2.FindContours(mask, out OpenCvSharp.Point[][] contours, out _,
                 RetrievalModes.External, ContourApproximationModes.ApproxSimple);
 
             Mat finalMask = Mat.Zeros(mask.Size(), MatType.CV_8UC1); // 모든 픽셀값이 0(검정색)인 Mat 생성
-
             int width = mask.Width;
             int height = mask.Height;
 
-            foreach (var c in contours)
+            foreach (var contour in contours)
             {
-                double area = Cv2.ContourArea(c);
-                if (area < 800) // 너무 작은 노이즈 제거
+                double area = Cv2.ContourArea(contour);
+                if (area < 500) // 너무 작은 노이즈 제거
                     continue;
 
-                Rect r = Cv2.BoundingRect(c);
 
                 // 큰 덩어리면서 가장자리 접촉하면 제외(바닥 제외하기 위함)
-                bool touchesBorder =
-                    r.X <= 2 || r.Y <= 2 || r.Right >= width - 2 || r.Bottom >= height - 2;
+                Rect rect = Cv2.BoundingRect(contour);
 
-                if (touchesBorder && area < (width * height * 0.25)) // 화면의 일정 비율 + 가장자리 접촉이면 제외
+                bool touchesBorder =
+                    rect.X <= 2 || rect.Y <= 2 || rect.Right >= width - 2 || rect.Bottom >= height - 2;
+
+                if (touchesBorder && area < (width * height * 0.2)) // 화면의 일정 비율 + 가장자리 접촉이면 제외
                     continue;
 
                 // 통과한 컨투어는 마스크에 누적(남겨놓을 곳들) 
-                Cv2.DrawContours(finalMask, new[] { c }, -1, Scalar.White, thickness: -1);
+                Cv2.DrawContours(finalMask, new[] { contour }, -1, Scalar.White, thickness: -1);
             }
 
             Mat result = new Mat();
@@ -194,7 +216,7 @@ namespace FreshCheck_CV
             imageList.Add("finalMask", finalMask);
             imageList.Add("result", result);
             SaveTestFile(imageList);
-
+            ShowTestImage(imageList);
 
             _windowOpened = true;
         }
@@ -206,6 +228,16 @@ namespace FreshCheck_CV
             Cv2.ImShow(title, canvas);
         }
 
+        private void ShowTestImage(Dictionary<string, Mat> imageList)
+        {
+            foreach(var image in imageList)
+            {
+                Cv2.ImShow(image.Key, image.Value);
+            }
+        }
+
+
+        // 테스트해본 마스크 파일들 저장하는 함수
         private void SaveTestFile(Dictionary<string, Mat> imageList)
         {
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())
@@ -213,19 +245,21 @@ namespace FreshCheck_CV
                 string baseDir = @"D:\teamProject\debug";
 
                 // 날짜/시간 폴더명 (파일시스템 안전)
-                string timeFolder = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                string saveDir = Path.Combine(baseDir, timeFolder);
+                //string timeFolder = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                //string saveDir = Path.Combine(baseDir, timeFolder);
+                string saveDir = Path.Combine(baseDir, "01");
 
                 // 폴더 생성 (없으면 자동 생성)
                 Directory.CreateDirectory(saveDir);
 
+                string datetime = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
                 // 파일 경로
-                string curMatPath = Path.Combine(saveDir, "_curMat.png");
-                string resultPath = Path.Combine(saveDir, "_result.png");
+                string curMatPath = Path.Combine(saveDir, $"_{datetime}_curMat.png");
+                string resultPath = Path.Combine(saveDir, $"_{datetime}_result.png");
 
-                string hsvPath = Path.Combine(saveDir, "hsv.jpg");
+                string hsvPath = Path.Combine(saveDir, $"{datetime}_hsv.jpg");
 
-                string allMaskPath = Path.Combine(saveDir, "allMask.jpg");
+                string allMaskPath = Path.Combine(saveDir, $"{datetime}_allMask.jpg");
 
                 // Mat 저장
                 Cv2.ImWrite(curMatPath, imageList["curMat"]);
