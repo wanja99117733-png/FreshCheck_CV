@@ -87,7 +87,7 @@ namespace FreshCheck_CV
 
             // cucumberGreen : 초록 오이
             Mat cucumberGreen = new Mat();
-            Cv2.InRange(hsv, new Scalar(18, 25, 25), new Scalar(95, 255, 255), cucumberGreen);
+            Cv2.InRange(hsv, new Scalar(18, 20, 20), new Scalar(95, 255, 255), cucumberGreen);
 
             // cucumberPale : 흰 오이 후보
             Mat cucumberPale = new Mat();
@@ -98,12 +98,12 @@ namespace FreshCheck_CV
             Mat seed = cucumberGreen.Clone();
 
             // 초록 주변 허용 영역(팽창). 커질수록 흰 오이 연결이 쉬워지지만 바닥 유입 위험도 증가
-            Mat kDilate = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
-            Mat greenDilated = new Mat();
-            Cv2.Dilate(seed, greenDilated, kDilate);
+            //Mat kDilate = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(2, 2));
+            //Mat greenDilated = new Mat();
+            //Cv2.Dilate(seed, greenDilated, kDilate);
 
             Mat hsvMask = new Mat();
-            Cv2.BitwiseAnd(cucumberPale, greenDilated, hsvMask);
+            Cv2.BitwiseAnd(cucumberPale, seed, hsvMask);
 
             // HSV 최종 마스크
             Mat mask = new Mat();
@@ -122,8 +122,8 @@ namespace FreshCheck_CV
             Mat redPlus = new Mat();
             Mat bluePlus = new Mat();
 
-            Cv2.Add(red, new Scalar(10), redPlus);
-            Cv2.Add(blue, new Scalar(10), bluePlus);
+            Cv2.Add(red, new Scalar(5), redPlus);
+            Cv2.Add(blue, new Scalar(5), bluePlus);
 
             Cv2.Compare(greeen, redPlus, greenGreaterRed, CmpType.GT);
             Cv2.Compare(greeen, bluePlus, greenGreaterBlue, CmpType.GT);
@@ -144,7 +144,7 @@ namespace FreshCheck_CV
             // 노이즈 제거
             Mat k = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
             Cv2.MorphologyEx(mask, mask, MorphTypes.Open, k, iterations: 1);
-            Cv2.MorphologyEx(mask, mask, MorphTypes.Close, k, iterations: 2);
+            Cv2.MorphologyEx(mask, mask, MorphTypes.Close, k, iterations: 1);
 
             // 오이만 남기기
             Cv2.FindContours(mask, out OpenCvSharp.Point[][] contours, out _,
@@ -167,10 +167,10 @@ namespace FreshCheck_CV
                 bool touchesBorder =
                     r.X <= 2 || r.Y <= 2 || r.Right >= width - 2 || r.Bottom >= height - 2;
 
-                if (touchesBorder && area > (width * height * 0.10) && area < (width * height * 0.30)) // 화면의 일정 비율 + 가장자리 접촉이면 제외
+                if (touchesBorder && area < (width * height * 0.25)) // 화면의 일정 비율 + 가장자리 접촉이면 제외
                     continue;
 
-                // 통과한 컨투어는 마스크에 누적(남겨놓을 곳들)
+                // 통과한 컨투어는 마스크에 누적(남겨놓을 곳들) 
                 Cv2.DrawContours(finalMask, new[] { c }, -1, Scalar.White, thickness: -1);
             }
 
@@ -179,13 +179,22 @@ namespace FreshCheck_CV
 
             Cv2.ImShow("curMat", curMat);
             Cv2.ImShow("hsv", hsv);
-            Cv2.ImShow("cucumberGreen", cucumberGreen);
-            Cv2.ImShow("cucumberPale", cucumberPale);
-            Cv2.ImShow("mask", mask);
-            Cv2.ImShow("hsvMask", hsvMask);
-            Cv2.ImShow("rgbMask", rgbMask);
-            Cv2.ImShow("finalMask", finalMask);
-            Cv2.ImShow("result_no_bg", result);
+            Cv2.ImShow("result", result);
+
+
+            // 테스트 이미지 저장
+            Dictionary<string, Mat> imageList = new Dictionary<string, Mat> ();
+            imageList.Add("curMat", curMat);
+            imageList.Add("hsv", hsv);
+            imageList.Add("cucumberGreen", cucumberGreen);
+            imageList.Add("cucumberPale", cucumberPale);
+            imageList.Add("hsvMask", hsvMask);
+            imageList.Add("rgbMask", rgbMask);
+            imageList.Add("mask", mask);
+            imageList.Add("finalMask", finalMask);
+            imageList.Add("result", result);
+            SaveTestFile(imageList);
+
 
             _windowOpened = true;
         }
@@ -195,6 +204,51 @@ namespace FreshCheck_CV
         {
             Mat canvas = new Mat(200, 200, MatType.CV_8UC3, hsvColor);
             Cv2.ImShow(title, canvas);
+        }
+
+        private void SaveTestFile(Dictionary<string, Mat> imageList)
+        {
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                string baseDir = @"D:\teamProject\debug";
+
+                // 날짜/시간 폴더명 (파일시스템 안전)
+                string timeFolder = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                string saveDir = Path.Combine(baseDir, timeFolder);
+
+                // 폴더 생성 (없으면 자동 생성)
+                Directory.CreateDirectory(saveDir);
+
+                // 파일 경로
+                string curMatPath = Path.Combine(saveDir, "_curMat.png");
+                string resultPath = Path.Combine(saveDir, "_result.png");
+
+                string hsvPath = Path.Combine(saveDir, "hsv.jpg");
+
+                string allMaskPath = Path.Combine(saveDir, "allMask.jpg");
+
+                // Mat 저장
+                Cv2.ImWrite(curMatPath, imageList["curMat"]);
+                Cv2.ImWrite(resultPath, imageList["result"]);
+
+                Cv2.ImWrite(hsvPath, imageList["hsv"]);
+
+                Mat hConcat1 = new Mat();
+                Mat hConcat2 = new Mat();
+                List<Mat> hConcatList1 = new List<Mat> { imageList["cucumberGreen"], imageList["cucumberPale"], imageList["hsvMask"] };
+                List<Mat> hConcatList2 = new List<Mat> { imageList["rgbMask"], imageList["mask"], imageList["finalMask"] };
+                Cv2.HConcat(hConcatList1, hConcat1);
+                Cv2.HConcat(hConcatList2, hConcat2);
+
+                Mat allMask = new Mat();
+                List<Mat> vConcatList = new List<Mat> { hConcat1, hConcat2 };
+                Cv2.VConcat(vConcatList, allMask);
+
+                // Mat 저장
+                Cv2.ImWrite(curMatPath, imageList["curMat"]);
+                Cv2.ImWrite(resultPath, imageList["result"]);
+                Cv2.ImWrite(allMaskPath, allMask);
+            }
         }
     }
 }
