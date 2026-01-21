@@ -53,6 +53,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\VS\GitDockPanelSuite-master\GitDockPanelSuite-master\Lib\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -80,6 +84,12 @@
     </Compile>
     <Compile Include="core\Global.cs" />
     <Compile Include="core\InspStage.cs" />
+    <Compile Include="LogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LogForm.Designer.cs">
+      <DependentUpon>LogForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -112,6 +122,7 @@
     <Compile Include="UIControl\ImageViewCtrl.Designer.cs">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Util\SLogger.cs" />
     <EmbeddedResource Include="CameraForm.resx">
       <DependentUpon>CameraForm.cs</DependentUpon>
     </EmbeddedResource>

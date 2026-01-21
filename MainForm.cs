@@ -56,6 +56,10 @@ namespace FreshCheck_CV
             //속성창 추가
             var propWindow = new PropertiesForm();
             propWindow.Show(_dockPanel, DockState.DockRight);
+
+            //#14_LOGFORM#2 로그창 추가
+            var logWindow = new LogForm();
+            logWindow.Show(propWindow.Pane, DockAlignment.Bottom, 0.3);
         }
         // 이미지가 들어 있는 폴더를 선택하는 메서드
         private void LoadImageFolder()
