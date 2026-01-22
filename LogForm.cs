@@ -19,6 +19,11 @@ namespace FreshCheck_CV
         {
             InitializeComponent();
 
+            //배경 색상 변경
+            this.BackColor = Color.FromArgb(30, 34, 40);
+            listBoxLogs.BackColor = Color.FromArgb(30, 34, 40);
+            listBoxLogs.ForeColor = Color.Gainsboro;
+
             //폼이 닫힐 때 이벤트 제거를 위해 이벤트 추가
             this.FormClosed += LogForm_FormClosed;
             //로그가 추가될 때 이벤트 추가

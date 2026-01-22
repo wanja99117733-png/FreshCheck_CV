@@ -17,6 +17,12 @@ namespace FreshCheck_CV
         public CameraForm()
         {
             InitializeComponent();
+            // 폼 배경
+            this.BackColor = Color.FromArgb(25, 25, 25);
+
+            // 이미지 컨트롤 외 여백 색
+            imageViewCtrl.BackColor = Color.Black;
+
         }
 
         //#3_CAMERAVIEW_PROPERTY#1 이미지 경로를 받아 PictureBox에 이미지를 로드하는 메서드

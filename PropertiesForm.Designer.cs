@@ -39,6 +39,11 @@
             this.tabPropControl.SelectedIndex = 0;
             this.tabPropControl.Size = new System.Drawing.Size(1278, 723);
             this.tabPropControl.TabIndex = 0;
+            this.tabPropControl.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
+            this.tabPropControl.ItemSize = new System.Drawing.Size(0, 1);
+            this.tabPropControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
+            this.tabPropControl.BackColor = System.Drawing.Color.FromArgb(32, 36, 40);
+
             // 
             // PropertiesForm
             // 

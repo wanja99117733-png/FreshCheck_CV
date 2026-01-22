@@ -32,6 +32,10 @@ namespace FreshCheck_CV
 
             this.FormClosing += MainForm_FormClosing;
 
+            //MenuStrip 다크 톤 설정
+            menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
+            menuStrip1.ForeColor = Color.White;
+
             //#2_DOCKPANEL#2 DockPanel 초기화
             _dockPanel = new DockPanel
             {
@@ -39,8 +43,12 @@ namespace FreshCheck_CV
             };
             Controls.Add(_dockPanel);
 
-            // Visual Studio 2015 테마 적용
-            _dockPanel.Theme = new VS2015BlueTheme();
+            //DockPanel 기본 배경색 (빈 영역)
+            _dockPanel.BackColor = Color.FromArgb(28, 32, 38);
+
+            //다크 테마로 변경 (Blue → Dark)
+            _dockPanel.Theme = new VS2015DarkTheme();
+
 
             //#2_DOCKPANEL#6 도킹 윈도우 로드 메서드 호출
             LoadDockingWindows();
@@ -59,6 +67,7 @@ namespace FreshCheck_CV
             //속성창 추가
             var propWindow = new PropertiesForm();
             propWindow.Show(_dockPanel, DockState.DockRight);
+
 
             //#14_LOGFORM#2 로그창 추가
             var logWindow = new LogForm();
