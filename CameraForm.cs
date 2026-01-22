@@ -73,7 +73,7 @@ namespace FreshCheck_CV
 
             // Bitmap 이미지를 Mat 타입으로 변경
             Mat curMat = BitmapConverter.ToMat(curBitmap);
-            Cv2.Resize(curMat, curMat, new OpenCvSharp.Size(0, 0), 0.2, 0.2);
+            Cv2.Resize(curMat, curMat, new OpenCvSharp.Size(0, 0), 0.15, 0.15);
 
 
             // HSV로 변환
@@ -106,10 +106,41 @@ namespace FreshCheck_CV
 
             Mat paleNearGreen = new Mat();
             Cv2.BitwiseAnd(hsvPale, seedDilated, paleNearGreen);
+            /* 오이의 스크래치 영역 추가 - S */
+            // 적갈색(상처) HSV 범위
+            Mat hsvRed1 = new Mat();
+            Mat hsvRed2 = new Mat();
+
+            // Red 영역은 Hue가 양쪽에 걸침
+            Cv2.InRange(hsv, new Scalar(0, 50, 50), new Scalar(15, 255, 255), hsvRed1);
+            Cv2.InRange(hsv, new Scalar(160, 50, 50), new Scalar(179, 255, 255), hsvRed2);
+
+            Mat hsvRed = new Mat();
+            Cv2.BitwiseOr(hsvRed1, hsvRed2, hsvRed);
+
+            Mat seed2 = hsvPale.Clone();
+            Mat kSeed2 = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
+            Cv2.MorphologyEx(seed2, seed2, MorphTypes.Close, kSeed2, iterations: 1);
+
+            Mat kDilate2 = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(13, 13));
+            Mat seedDilated2 = new Mat();
+            Cv2.Dilate(seed2, seedDilated2, kDilate2);
+
+            Mat cucumberSeed = new Mat();
+            Cv2.BitwiseOr(seedDilated, seedDilated2, cucumberSeed);
+
+            // 붉은 스크래치를 오이 근처에서만 허용
+            Mat redNearCucumber = new Mat();
+            Cv2.BitwiseAnd(hsvRed, cucumberSeed, redNearCucumber);
+
+            Mat hsvScratch = redNearCucumber.Clone();
+            /* 오이의 스크래치 영역 추가 - E */
 
             // HSV 최종 마스크
             Mat mask = new Mat();
-            Cv2.BitwiseOr(hsvGreen, paleNearGreen, mask);
+            Cv2.BitwiseAnd(hsvGreen, paleNearGreen, mask);
+            Cv2.BitwiseOr(mask, redNearCucumber, mask);
+
             Mat hsvMask = mask.Clone();
 
             /* RGB 필터링 - S */
@@ -153,14 +184,70 @@ namespace FreshCheck_CV
             Mat rgbYellowGreen = new Mat();
             Cv2.BitwiseAnd(rGtB, gGtB2, rgbYellowGreen);
             Cv2.BitwiseAnd(rgbYellowGreen, rMin, rgbYellowGreen);
+
+
+            Mat rgbSeed = rgbGreen.Clone();
+            Mat rgbKSeed = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
+            Cv2.MorphologyEx(rgbSeed, rgbSeed, MorphTypes.Close, rgbKSeed, iterations: 1);
+
+            Mat rgbKDilate = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(13, 13));
+            Mat rgbSeedDilated = new Mat();
+            Cv2.Dilate(rgbSeed, rgbSeedDilated, rgbKDilate);
+
+            Cv2.BitwiseAnd(rgbYellowGreen, rgbSeedDilated, rgbYellowGreen);
             /* RGB 황록 마스크 - E */
+            /* RGB 아이보리 마스크 - S */
+            // 기본 White 조건
+            Mat diffRG = new Mat();
+            Mat diffRB = new Mat();
+            Mat diffGB = new Mat();
+
+            Cv2.Absdiff(r, g, diffRG);
+            Cv2.Absdiff(r, b, diffRB);
+            Cv2.Absdiff(g, b, diffGB);
+
+            Mat rgOk = new Mat();
+            Mat rbOk = new Mat();
+            Mat gbOk = new Mat();
+
+            Cv2.Threshold(diffRG, rgOk, 18, 255, ThresholdTypes.BinaryInv);
+            Cv2.Threshold(diffRB, rbOk, 22, 255, ThresholdTypes.BinaryInv);
+            Cv2.Threshold(diffGB, gbOk, 22, 255, ThresholdTypes.BinaryInv);
+
+            // 밝기 조건
+            Mat avg = new Mat();
+            Mat bright = new Mat();
+            Cv2.AddWeighted(r, 0.33, g, 0.33, 0, avg);
+            Cv2.AddWeighted(avg, 1.0, b, 0.33, 0, avg);
+            Cv2.Threshold(avg, bright, 90, 255, ThresholdTypes.Binary);
+
+            // 아이보리 색감: R,G가 B보다 약간 큼
+            Mat rGtB2 = new Mat();
+            Mat gGtB3 = new Mat();
+            Mat bPlus3 = new Mat();
+
+            Cv2.Add(b, new Scalar(8), bPlus3);
+            Cv2.Compare(r, bPlus3, rGtB2, CmpType.GT);
+            Cv2.Compare(g, bPlus3, gGtB3, CmpType.GT);
+
+            // Ivory 후보
+            Mat rgbIvory = new Mat();
+            Cv2.BitwiseAnd(rgOk, rbOk, rgbIvory);
+            Cv2.BitwiseAnd(rgbIvory, gbOk, rgbIvory);
+            Cv2.BitwiseAnd(rgbIvory, bright, rgbIvory);
+            Cv2.BitwiseAnd(rgbIvory, rGtB2, rgbIvory);
+            Cv2.BitwiseAnd(rgbIvory, gGtB3, rgbIvory);
+            /* RGB 아이보리 마스크 - E */
 
             // RGB 최종 마스크
             Mat rgbMask = new Mat();
+            Cv2.ImShow("rgbGreen", rgbGreen);
+            Cv2.ImShow("rgbYellowGreen", rgbYellowGreen);
+            Cv2.ImShow("rgbIvory", rgbIvory);
             Cv2.BitwiseOr(rgbGreen, rgbYellowGreen, rgbMask);
-
+            Cv2.BitwiseOr(rgbMask, rgbIvory, rgbMask);
             // 기존 마스크에 추가
-            Cv2.BitwiseAnd(mask, rgbMask, mask);
+            Cv2.BitwiseOr(mask, rgbMask, mask);
             /* RGB 필터링 - E */
 
             // 노이즈 제거
@@ -205,17 +292,18 @@ namespace FreshCheck_CV
 
 
             // 테스트 이미지 저장
+            //SaveFile("curMat", curMat);
+            //SaveFile("hsv", hsv);
             Dictionary<string, Mat> imageList = new Dictionary<string, Mat> ();
-            imageList.Add("curMat", curMat);
-            imageList.Add("hsv", hsv);
-            imageList.Add("cucumberGreen", cucumberGreen);
-            imageList.Add("cucumberPale", cucumberPale);
+            imageList.Add("hsvGreen", hsvGreen);
+            imageList.Add("hsvPale", hsvPale);
+            imageList.Add("hsvScratch", hsvScratch);
             imageList.Add("hsvMask", hsvMask);
             imageList.Add("rgbMask", rgbMask);
             imageList.Add("mask", mask);
             imageList.Add("finalMask", finalMask);
             imageList.Add("result", result);
-            SaveTestFile(imageList);
+            //SaveTestFile(imageList.Values.ToList());
             ShowTestImage(imageList);
 
             _windowOpened = true;
@@ -238,50 +326,68 @@ namespace FreshCheck_CV
 
 
         // 테스트해본 마스크 파일들 저장하는 함수
-        private void SaveTestFile(Dictionary<string, Mat> imageList)
+        private void SaveTestFile(List<Mat> mats)
+        {
+            string baseDir = @"D:\teamProject\debug";
+
+            // 날짜/시간 폴더명 (파일시스템 안전)
+            //string timeFolder = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            //string saveDir = Path.Combine(baseDir, timeFolder);
+            string saveDir = Path.Combine(baseDir, "02");
+
+            // 폴더 생성 (없으면 자동 생성)
+            Directory.CreateDirectory(saveDir);
+
+            string datetime = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+            // 파일 경로
+
+            string allImagePath = Path.Combine(saveDir, $"{datetime}_allImage.jpg");
+
+            Mat baseMat = mats[0];
+
+            Mat grayDummy = new Mat(
+                baseMat.Rows,
+                baseMat.Cols,
+                baseMat.Type(),
+                new Scalar(128, 128, 128)
+            );
+
+            List<Mat> rows = new List<Mat>();
+
+            for (int i = 0; i < mats.Count; i += 3)
+            {
+                Mat[] row = new Mat[3];
+
+                for (int j = 0; j < 3; j++)
+                {
+                    int idx = i + j;
+                    row[j] = (idx < mats.Count) ? mats[idx] : grayDummy;
+                }
+
+                Mat hRow = new Mat();
+                Cv2.HConcat(row, hRow);
+                rows.Add(hRow);
+            }
+
+            Mat result = new Mat();
+            Cv2.VConcat(rows, result);
+            SaveFile("allMask", result);
+        }
+
+        public void SaveFile(string path, Mat mat)
         {
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())
             {
                 string baseDir = @"D:\teamProject\debug";
 
                 // 날짜/시간 폴더명 (파일시스템 안전)
-                //string timeFolder = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                //string saveDir = Path.Combine(baseDir, timeFolder);
-                string saveDir = Path.Combine(baseDir, "01");
+                string timeFolder = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                string saveDir = Path.Combine(baseDir, timeFolder);
 
                 // 폴더 생성 (없으면 자동 생성)
                 Directory.CreateDirectory(saveDir);
 
-                string datetime = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-                // 파일 경로
-                string curMatPath = Path.Combine(saveDir, $"_{datetime}_curMat.png");
-                string resultPath = Path.Combine(saveDir, $"_{datetime}_result.png");
-
-                string hsvPath = Path.Combine(saveDir, $"{datetime}_hsv.jpg");
-
-                string allMaskPath = Path.Combine(saveDir, $"{datetime}_allMask.jpg");
-
-                // Mat 저장
-                Cv2.ImWrite(curMatPath, imageList["curMat"]);
-                Cv2.ImWrite(resultPath, imageList["result"]);
-
-                Cv2.ImWrite(hsvPath, imageList["hsv"]);
-
-                Mat hConcat1 = new Mat();
-                Mat hConcat2 = new Mat();
-                List<Mat> hConcatList1 = new List<Mat> { imageList["cucumberGreen"], imageList["cucumberPale"], imageList["hsvMask"] };
-                List<Mat> hConcatList2 = new List<Mat> { imageList["rgbMask"], imageList["mask"], imageList["finalMask"] };
-                Cv2.HConcat(hConcatList1, hConcat1);
-                Cv2.HConcat(hConcatList2, hConcat2);
-
-                Mat allMask = new Mat();
-                List<Mat> vConcatList = new List<Mat> { hConcat1, hConcat2 };
-                Cv2.VConcat(vConcatList, allMask);
-
-                // Mat 저장
-                Cv2.ImWrite(curMatPath, imageList["curMat"]);
-                Cv2.ImWrite(resultPath, imageList["result"]);
-                Cv2.ImWrite(allMaskPath, allMask);
+                Cv2.ImWrite((path + ".jpg"), mat);
             }
         }
     }
