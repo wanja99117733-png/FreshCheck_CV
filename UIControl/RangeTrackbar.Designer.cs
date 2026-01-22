@@ -1,4 +1,4 @@
-﻿namespace JidamVision4.UIControl
+﻿namespace FreshCheck_CV.UIControl
 {
     partial class RangeTrackbar
     {

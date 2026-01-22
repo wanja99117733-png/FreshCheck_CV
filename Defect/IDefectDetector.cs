@@ -1,4 +1,4 @@
-﻿using FreshCheck_CV.Defect.FreshCheck_CV.Defect;
+﻿using FreshCheck_CV.Defect;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

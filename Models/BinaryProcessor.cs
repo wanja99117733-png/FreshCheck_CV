@@ -1,4 +1,4 @@
-﻿using FreshCheck_CV.Models.FreshCheck_CV.Models;
+﻿using FreshCheck_CV.Models;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;

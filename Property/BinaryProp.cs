@@ -1,6 +1,5 @@
 ﻿using FreshCheck_CV.Core;
 using FreshCheck_CV.Models;
-using FreshCheck_CV.Models.FreshCheck_CV.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static FreshCheck_CV.CameraForm;
 
 namespace FreshCheck_CV.Property
 {
@@ -122,6 +122,13 @@ namespace FreshCheck_CV.Property
             }
 
             Global.Inst.InspStage.ApplyBinary(_options);
+        }
+
+        private void btnRunMold_Click(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.RunMoldInspectionTemp();
+
+            MessageBox.Show("검사 완료");
         }
     }
 }

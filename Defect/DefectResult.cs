@@ -5,8 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FreshCheck_CV.Defect
-{
     namespace FreshCheck_CV.Defect
     {
         public sealed class DefectResult
@@ -22,4 +20,3 @@ namespace FreshCheck_CV.Defect
             public Bitmap OverlayBitmap { get; set; } = null;
         }
     }
-}

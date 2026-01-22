@@ -20,17 +20,35 @@ namespace FreshCheck_CV
 
         public MainForm()
         {
+
             InitializeComponent();
 
-            //#2_DOCKPANEL#2 DockPanel 초기화
-            _dockPanel = new DockPanel
+
+            try
+            {
+                var testMenu = new ToolStripMenuItem("Test");
+                var runMoldItem = new ToolStripMenuItem("Run Mold Inspection (temp)");
+
+                runMoldItem.Click += (s, e) =>
+                {
+                    Global.Inst.InspStage.RunMoldInspectionTemp();
+                };
+
+                testMenu.DropDownItems.Add(runMoldItem);
+
+                menuStrip1.Items.Add(testMenu);
+            }
+            catch { }
+
+                //#2_DOCKPANEL#2 DockPanel 초기화
+                _dockPanel = new DockPanel
             {
                 Dock = DockStyle.Fill
             };
             Controls.Add(_dockPanel);
 
             // Visual Studio 2015 테마 적용
-            _dockPanel.Theme = new VS2015BlueTheme();
+            _dockPanel.Theme = new VS2015DarkTheme(); //S2015BlueTheme();
 
             //#2_DOCKPANEL#6 도킹 윈도우 로드 메서드 호출
             LoadDockingWindows();

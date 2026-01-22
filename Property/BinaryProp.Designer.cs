@@ -33,6 +33,7 @@
             this.btnApply = new System.Windows.Forms.Button();
             this.btnPickColor = new System.Windows.Forms.Button();
             this.lblTargetColor = new System.Windows.Forms.Label();
+            this.btnRunMold = new System.Windows.Forms.Button();
             this.rangeTrackbar = new FreshCheck_CV.UIControl.RangeTrackbar();
             this.SuspendLayout();
             // 
@@ -86,6 +87,16 @@
             this.lblTargetColor.TabIndex = 7;
             this.lblTargetColor.Text = "TargetColor";
             // 
+            // btnRunMold
+            // 
+            this.btnRunMold.Location = new System.Drawing.Point(179, 276);
+            this.btnRunMold.Name = "btnRunMold";
+            this.btnRunMold.Size = new System.Drawing.Size(153, 36);
+            this.btnRunMold.TabIndex = 8;
+            this.btnRunMold.Text = "Mold 검사 임시";
+            this.btnRunMold.UseVisualStyleBackColor = true;
+            this.btnRunMold.Click += new System.EventHandler(this.btnRunMold_Click);
+            // 
             // rangeTrackbar
             // 
             this.rangeTrackbar.Location = new System.Drawing.Point(19, 67);
@@ -99,6 +110,8 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.Controls.Add(this.btnRunMold);
             this.Controls.Add(this.lblTargetColor);
             this.Controls.Add(this.btnPickColor);
             this.Controls.Add(this.rangeTrackbar);
@@ -106,7 +119,7 @@
             this.Controls.Add(this.chkInvert);
             this.Controls.Add(this.cbMode);
             this.Name = "BinaryProp";
-            this.Size = new System.Drawing.Size(354, 392);
+            this.Size = new System.Drawing.Size(354, 366);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -120,5 +133,6 @@
         private UIControl.RangeTrackbar rangeTrackbar;
         private System.Windows.Forms.Button btnPickColor;
         private System.Windows.Forms.Label lblTargetColor;
+        private System.Windows.Forms.Button btnRunMold;
     }
 }

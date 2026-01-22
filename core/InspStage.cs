@@ -1,6 +1,6 @@
 ﻿
+using FreshCheck_CV.Defect;
 using FreshCheck_CV.Models;
-using FreshCheck_CV.Models.FreshCheck_CV.Models;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -15,6 +15,7 @@ namespace FreshCheck_CV.Core
     //검사와 관련된 클래스를 관리하는 클래스
     public class InspStage : IDisposable
     {
+        private BinaryOptions _lastBinaryOptions = new BinaryOptions();
         // 원본 이미지
         private Bitmap _sourceBitmap = null;
 
@@ -94,6 +95,9 @@ namespace FreshCheck_CV.Core
 
         public void ApplyBinary(BinaryOptions options)
         {
+            // 마지막 옵션 저장
+            _lastBinaryOptions = options ?? new BinaryOptions();
+
             if (options == null)
                 options = new BinaryOptions();
 
@@ -115,7 +119,38 @@ namespace FreshCheck_CV.Core
             UpdateDisplay(result);
         }
 
+        public void RunMoldInspectionTemp()
+        {
+            // TODO: 여기 함수명을 실제 프로젝트에 있는 “현재 원본 Bitmap 반환” 함수로 바꾸세요.
+            Bitmap source = GetCurrentImage();
+            if (source == null)
+                return;
 
+            DateTime now = DateTime.Now;
+
+            var detector = new MoldDetector(() => _lastBinaryOptions)
+            {
+                AreaRatioThreshold = 0.01
+            };
+
+            DefectResult result = detector.Detect(source);
+
+            bool isMold = result != null && result.IsDefect && result.Type == DefectType.Mold;
+
+            string label = isMold ? "NG - Mold" : "OK";
+            DefectType saveType = isMold ? DefectType.Mold : DefectType.None;
+
+            DefectImageSaver.Save(source, saveType, now, label);
+
+
+            // Form 추가되면 주석 해제
+
+            // var defectForm = MainForm.GetDockForm<DefectForm>();
+            // defectForm?.AddDefect(...);
+
+            // var resultForm = MainForm.GetDockForm<ResultForm>();
+            // resultForm?.UpdateResult(...);
+        }
 
         #region Disposable
 

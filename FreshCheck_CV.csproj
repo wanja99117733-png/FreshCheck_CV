@@ -108,9 +108,11 @@
     </Compile>
     <Compile Include="Core\Global.cs" />
     <Compile Include="Core\InspStage.cs" />
+    <Compile Include="Defect\DefectImageSaver.cs" />
     <Compile Include="Defect\DefectResult.cs" />
     <Compile Include="Defect\DefectType.cs" />
     <Compile Include="Defect\IDefectDetector.cs" />
+    <Compile Include="Defect\MoldDetector.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -17,7 +17,7 @@ namespace FreshCheck_CV
     //#3_CAMERAVIEW_PROPERTY#3 속성창에 사용할 타입 선언
     public enum PropertyType
     {
-        Binary,
+        Mold,
         Filter
     }
 
@@ -35,7 +35,7 @@ namespace FreshCheck_CV
 
             //#3_CAMERAVIEW_PROPERTY#7 속성 탭을 초기화
             LoadOptionControl(PropertyType.Filter);
-            LoadOptionControl(PropertyType.Binary);
+            LoadOptionControl(PropertyType.Mold);
         }
 
         //#3_CAMERAVIEW_PROPERTY#6 속성탭이 있다면 그것을 반환하고, 없다면 생성
@@ -81,7 +81,7 @@ namespace FreshCheck_CV
             UserControl curProp = null;
             switch (propType)
             {
-                case PropertyType.Binary:
+                case PropertyType.Mold:
                     BinaryProp blobProp = new BinaryProp();
                     curProp = blobProp;
                     break;

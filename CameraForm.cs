@@ -53,7 +53,7 @@ namespace FreshCheck_CV
 
             ColorPicked?.Invoke(this, new ColorPickedEventArgs(pickedColor));
         }
-        
+
 
 
 
@@ -125,8 +125,8 @@ namespace FreshCheck_CV
 
             return bmp.GetPixel(x, y);
         }
-    }
-}
+
+
         public sealed class ColorPickedEventArgs : EventArgs
         {
             public ColorPickedEventArgs(Color color)
@@ -136,4 +136,5 @@ namespace FreshCheck_CV
 
             public Color Color { get; }
         }
-
+    }
+}

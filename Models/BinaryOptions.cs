@@ -7,9 +7,6 @@ using System.Threading.Tasks;
 
 namespace FreshCheck_CV.Models
 {
-
-    namespace FreshCheck_CV.Models
-    {
         public sealed class BinaryOptions
         {
             public ShowBinaryMode ShowMode { get; set; } = ShowBinaryMode.HighlightRed;
@@ -54,7 +51,6 @@ namespace FreshCheck_CV.Models
             }
         }
     }
-}
 //    public sealed class BinaryOptions
 //    {
 //        public BinaryMode Mode { get; set; } = BinaryMode.GrayScale;
