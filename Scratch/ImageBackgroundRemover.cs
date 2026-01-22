@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 
 namespace FreshCheck_CV.Scratch
 {
@@ -179,49 +180,96 @@ namespace FreshCheck_CV.Scratch
         private Mat CreateCucumberMask(Mat bgrMat, Mat hsvMat)
         {
             if (bgrMat == null)
-            {
                 throw new ArgumentNullException(nameof(bgrMat));
-            }
 
             if (hsvMat == null)
-            {
                 throw new ArgumentNullException(nameof(hsvMat));
-            }
 
             // 1) 초록/황록(오이 기본색) 마스크
             Scalar greenLower = new Scalar(18, 25, 25);
             Scalar greenUpper = new Scalar(95, 255, 255);
 
-            // 2) 탈색(하얀/연노랑) 후보 마스크: 과검 줄이려고 V 하한을 좀 올림
+            // 2) 탈색(하얀/연노랑) 후보 마스크
             Scalar paleLower = new Scalar(0, 0, 180);
             Scalar paleUpper = new Scalar(180, 55, 255);
 
+            // 3) 스크래치(주황~다홍) 마스크
+            Scalar scratchLower1 = new Scalar(0, 70, 70);
+            Scalar scratchUpper1 = new Scalar(25, 255, 255);
 
+            Scalar scratchLower2 = new Scalar(165, 70, 70);
+            Scalar scratchUpper2 = new Scalar(180, 255, 255);
+
+            // InRange 결과는 기본적으로 CV_8UC1(1채널 바이너리) 입니다.
             Mat maskGreen = new Mat();
             Mat maskPale = new Mat();
             Mat mergedMask = new Mat();
 
+            Mat maskScratch1 = new Mat();
+            Mat maskScratch2 = new Mat();
+            Mat maskScratch = new Mat();
+
             Cv2.InRange(hsvMat, greenLower, greenUpper, maskGreen);
             Cv2.InRange(hsvMat, paleLower, paleUpper, maskPale);
 
-            // 작은 잡음 제거(과검 방지용, 약하게)
+            Cv2.InRange(hsvMat, scratchLower1, scratchUpper1, maskScratch1);
+            Cv2.InRange(hsvMat, scratchLower2, scratchUpper2, maskScratch2);
+            Cv2.BitwiseOr(maskScratch1, maskScratch2, maskScratch);
+
+            // 작은 잡음 제거(약하게)
             using (Mat openKernel = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(3, 3)))
             {
                 Cv2.MorphologyEx(maskGreen, maskGreen, MorphTypes.Open, openKernel, iterations: 1);
                 Cv2.MorphologyEx(maskPale, maskPale, MorphTypes.Open, openKernel, iterations: 1);
+                Cv2.MorphologyEx(maskScratch, maskScratch, MorphTypes.Open, openKernel, iterations: 1);
             }
 
+            // green + pale 후보
             Cv2.BitwiseOr(maskGreen, maskPale, mergedMask);
 
-            // green(seed)에서 연결된 영역만 남기기 (bellyrot 과검 방지)
+            // green(seed)에서 연결된 영역만 남기기
             Mat connectedMask = KeepOnlySeedConnectedRegion(maskGreen, mergedMask);
 
-            maskGreen.Dispose();
-            maskPale.Dispose();
-            mergedMask.Dispose();
+            // 방어: 시드 연결 실패 등으로 connectedMask가 비면 여기서 끝
+            if (connectedMask == null || connectedMask.Empty() || connectedMask.Width == 0 || connectedMask.Height == 0)
+                return connectedMask;
+
+            // band = Dilate(connectedMask) - Erode(connectedMask)
+            using (Mat dil = new Mat())
+            using (Mat ero = new Mat())
+            using (Mat band = new Mat())
+            using (Mat bandKernel = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(15, 15)))
+            {
+                Cv2.Dilate(connectedMask, dil, bandKernel, iterations: 1);
+                Cv2.Erode(connectedMask, ero, bandKernel, iterations: 1);
+                Cv2.Subtract(dil, ero, band);
+                Cv2.Threshold(band, band, 0, 255, ThresholdTypes.Binary);
+
+                // band가 비는 경우 방어
+                if (band.Empty())
+                    return connectedMask;
+
+                // 스크래치는 "오이 주변(band)에서만" 합cla
+                using (Mat scratchDilated = new Mat())
+                using (Mat scratchOnCucumber = new Mat())
+                using (Mat scratchKernel = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(7, 7)))
+                {
+                    // 범위 조금 늘리기: kernel 5->7 / iterations 1 유지(필요하면 2로)
+                    Cv2.Dilate(maskScratch, scratchDilated, scratchKernel, iterations: 2);
+
+                    // 이제 scratchDilated와 band는 같은 connectedMask 기반 크기라 Resize 불필요
+                    // 오이 주변 band 안에 있는 것만 허용
+                    Cv2.BitwiseAnd(band, scratchDilated, scratchOnCucumber);
+
+                    // 최종 마스크에 스크래치 포함
+                    Cv2.BitwiseOr(connectedMask, scratchOnCucumber, connectedMask);
+                }
+            }
 
             return connectedMask;
         }
+
+
 
         private Mat KeepOnlySeedConnectedRegion(Mat seedMask, Mat candidateMask)
         {
