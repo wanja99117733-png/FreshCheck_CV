@@ -112,6 +112,7 @@
     <Compile Include="Property\ImageFilterProp.Designer.cs">
       <DependentUpon>ImageFilterProp.cs</DependentUpon>
     </Compile>
+    <Compile Include="Scratch\ImageBackgroundRemover.cs" />
     <Compile Include="UIControl\ImageViewCtrl.cs">
       <SubType>UserControl</SubType>
     </Compile>
