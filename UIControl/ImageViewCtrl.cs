@@ -275,5 +275,26 @@ namespace FreshCheck_CV.UIControl
         {
             FitImageToScreen();
         }
+
+
+        // 이미지 클릭한 픽셀 위치 가져오기
+        public bool TryGetImagePoint(System.Drawing.Point screenPoint, out System.Drawing.Point imagePoint)
+        {
+            imagePoint = System.Drawing.Point.Empty;
+
+            if (_bitmapImage == null)
+                return false;
+
+            System.Drawing.PointF virtualPoint = ScreenToVirtual(new System.Drawing.PointF(screenPoint.X, screenPoint.Y));
+
+            int x = (int)(virtualPoint.X + 0.5f);
+            int y = (int)(virtualPoint.Y + 0.5f);
+
+            if (x < 0 || y < 0 || x >= _bitmapImage.Width || y >= _bitmapImage.Height)
+                return false;
+
+            imagePoint = new System.Drawing.Point(x, y);
+            return true;
+        }
     }
 }

@@ -34,13 +34,13 @@ namespace FreshCheck_CV
             Image bitmap = Image.FromFile(filePath);
             imageViewCtrl.LoadBitmap((Bitmap)bitmap);
 
-            Bitmap curBitmap = Global.Inst.InspStage.GetCurrentImage();
+            /*Bitmap curBitmap = Global.Inst.InspStage.GetCurrentImage();
             ImageBackgroundRemover bgRemover = new ImageBackgroundRemover();
             Bitmap bgRemoveImage = bgRemover.RemoveImageBg(curBitmap);
 
             Mat curMat = BitmapConverter.ToMat(bgRemoveImage);
             Cv2.Resize(curMat, curMat, new OpenCvSharp.Size(0, 0), 0.2, 0.2);
-            Cv2.ImShow("d", curMat);
+            Cv2.ImShow("d", curMat);*/
         }
 
         private void CameraForm_Resize_1(object sender, EventArgs e)
@@ -67,6 +67,40 @@ namespace FreshCheck_CV
 
             return curImage;
         }
+
+
+
+        /* Scratch 픽셀값 전달 - S */
+        public event EventHandler<System.Drawing.Point> EyedropperPointPicked;
+
+        private bool _isEyedropperMode;
+
+        public void SetEyedropperMode(bool enable)
+        {
+            _isEyedropperMode = enable;
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            if (imageViewCtrl != null)
+                imageViewCtrl.MouseDown += ImageViewCtrl_MouseDown;
+        }
+
+        private void ImageViewCtrl_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (_isEyedropperMode == false)
+                return;
+
+            System.Drawing.Point imgPoint;
+            if (imageViewCtrl.TryGetImagePoint(e.Location, out imgPoint) == false)
+                return;
+
+            EyedropperPointPicked?.Invoke(this, imgPoint);
+        }
+        /* Scratch 픽셀값 전달 - E */
+
 
         /*private bool _windowOpened = false; // OpenCV 테스팅 창 열려있는지 여부
 
@@ -176,189 +210,189 @@ namespace FreshCheck_CV
             Cv2.BitwiseAnd(gGtR, gGtB, rgbGreen);
             Cv2.BitwiseAnd(rgbGreen, gMin, rgbGreen);
             *//* RGB 초록 마스크 - E */
-            /* RGB 황록 마스크 - S *//*
-            Mat rGtB = new Mat();
-            Mat gGtB2 = new Mat();
-            Mat bPlus2 = new Mat();
+        /* RGB 황록 마스크 - S *//*
+        Mat rGtB = new Mat();
+        Mat gGtB2 = new Mat();
+        Mat bPlus2 = new Mat();
 
-            Cv2.Add(b, new Scalar(20), bPlus2);
-            Cv2.Compare(r, bPlus2, rGtB, CmpType.GT);
-            Cv2.Compare(g, bPlus2, gGtB2, CmpType.GT);
+        Cv2.Add(b, new Scalar(20), bPlus2);
+        Cv2.Compare(r, bPlus2, rGtB, CmpType.GT);
+        Cv2.Compare(g, bPlus2, gGtB2, CmpType.GT);
 
-            Mat rMin = new Mat();
-            Cv2.Threshold(r, rMin, 40, 255, ThresholdTypes.Binary);
+        Mat rMin = new Mat();
+        Cv2.Threshold(r, rMin, 40, 255, ThresholdTypes.Binary);
 
-            Mat rgbYellowGreen = new Mat();
-            Cv2.BitwiseAnd(rGtB, gGtB2, rgbYellowGreen);
-            Cv2.BitwiseAnd(rgbYellowGreen, rMin, rgbYellowGreen);
-
-
-            Mat rgbSeed = rgbGreen.Clone();
-            Mat rgbKSeed = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
-            Cv2.MorphologyEx(rgbSeed, rgbSeed, MorphTypes.Close, rgbKSeed, iterations: 1);
-
-            Mat rgbKDilate = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(13, 13));
-            Mat rgbSeedDilated = new Mat();
-            Cv2.Dilate(rgbSeed, rgbSeedDilated, rgbKDilate);
-
-            Cv2.BitwiseAnd(rgbYellowGreen, rgbSeedDilated, rgbYellowGreen);
-            *//* RGB 황록 마스크 - E */
-            /* RGB 아이보리 마스크 - S *//*
-            // 기본 White 조건
-            Mat diffRG = new Mat();
-            Mat diffRB = new Mat();
-            Mat diffGB = new Mat();
-
-            Cv2.Absdiff(r, g, diffRG);
-            Cv2.Absdiff(r, b, diffRB);
-            Cv2.Absdiff(g, b, diffGB);
-
-            Mat rgOk = new Mat();
-            Mat rbOk = new Mat();
-            Mat gbOk = new Mat();
-
-            Cv2.Threshold(diffRG, rgOk, 18, 255, ThresholdTypes.BinaryInv);
-            Cv2.Threshold(diffRB, rbOk, 22, 255, ThresholdTypes.BinaryInv);
-            Cv2.Threshold(diffGB, gbOk, 22, 255, ThresholdTypes.BinaryInv);
-
-            // 밝기 조건
-            Mat avg = new Mat();
-            Mat bright = new Mat();
-            Cv2.AddWeighted(r, 0.33, g, 0.33, 0, avg);
-            Cv2.AddWeighted(avg, 1.0, b, 0.33, 0, avg);
-            Cv2.Threshold(avg, bright, 90, 255, ThresholdTypes.Binary);
-
-            // 아이보리 색감: R,G가 B보다 약간 큼
-            Mat rGtB2 = new Mat();
-            Mat gGtB3 = new Mat();
-            Mat bPlus3 = new Mat();
-
-            Cv2.Add(b, new Scalar(8), bPlus3);
-            Cv2.Compare(r, bPlus3, rGtB2, CmpType.GT);
-            Cv2.Compare(g, bPlus3, gGtB3, CmpType.GT);
-
-            // Ivory 후보
-            Mat rgbIvory = new Mat();
-            Cv2.BitwiseAnd(rgOk, rbOk, rgbIvory);
-            Cv2.BitwiseAnd(rgbIvory, gbOk, rgbIvory);
-            Cv2.BitwiseAnd(rgbIvory, bright, rgbIvory);
-            Cv2.BitwiseAnd(rgbIvory, rGtB2, rgbIvory);
-            Cv2.BitwiseAnd(rgbIvory, gGtB3, rgbIvory);
-            *//* RGB 아이보리 마스크 - E *//*
-
-            // RGB 최종 마스크
-            Mat rgbMask = new Mat();
-            Cv2.ImShow("rgbGreen", rgbGreen);
-            Cv2.ImShow("rgbYellowGreen", rgbYellowGreen);
-            Cv2.ImShow("rgbIvory", rgbIvory);
-            Cv2.BitwiseOr(rgbGreen, rgbYellowGreen, rgbMask);
-            Cv2.BitwiseOr(rgbMask, rgbIvory, rgbMask);
-            
-            // 기존 마스크에 추가
-            Cv2.BitwiseOr(mask, rgbMask, mask);
-            *//* RGB 필터링 - E *//*
-
-            // 노이즈 제거
-            Mat k = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
-            Cv2.MorphologyEx(mask, mask, MorphTypes.Open, k, iterations: 1);
-            Cv2.MorphologyEx(mask, mask, MorphTypes.Close, k, iterations: 2);
-
-            // 오이만 남기기
-            Cv2.FindContours(mask, out OpenCvSharp.Point[][] contours, out _,
-                RetrievalModes.External, ContourApproximationModes.ApproxSimple);
+        Mat rgbYellowGreen = new Mat();
+        Cv2.BitwiseAnd(rGtB, gGtB2, rgbYellowGreen);
+        Cv2.BitwiseAnd(rgbYellowGreen, rMin, rgbYellowGreen);
 
 
+        Mat rgbSeed = rgbGreen.Clone();
+        Mat rgbKSeed = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
+        Cv2.MorphologyEx(rgbSeed, rgbSeed, MorphTypes.Close, rgbKSeed, iterations: 1);
 
-            // 0) seed (오이 확실영역) : 초록/흰/스크래치
-            Mat finalSeed = new Mat();
-            Cv2.BitwiseOr(hsvGreen, hsvPale, finalSeed);
-            Cv2.BitwiseOr(seed, hsvScratch, finalSeed);
+        Mat rgbKDilate = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(13, 13));
+        Mat rgbSeedDilated = new Mat();
+        Cv2.Dilate(rgbSeed, rgbSeedDilated, rgbKDilate);
 
-            // 1) mask 정리(작게)
-            Mat k3 = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(3, 3));
-            Cv2.MorphologyEx(mask, mask, MorphTypes.Open, k3, iterations: 1);
+        Cv2.BitwiseAnd(rgbYellowGreen, rgbSeedDilated, rgbYellowGreen);
+        *//* RGB 황록 마스크 - E */
+        /* RGB 아이보리 마스크 - S *//*
+        // 기본 White 조건
+        Mat diffRG = new Mat();
+        Mat diffRB = new Mat();
+        Mat diffGB = new Mat();
 
-            // 2) Distance Transform (mask는 0/255여야 함)
-            Mat bin = new Mat();
-            Cv2.Threshold(mask, bin, 0, 255, ThresholdTypes.Binary);
+        Cv2.Absdiff(r, g, diffRG);
+        Cv2.Absdiff(r, b, diffRB);
+        Cv2.Absdiff(g, b, diffGB);
 
-            // 거리변환은 8U 입력 필요
-            Mat dist = new Mat();
-            Cv2.DistanceTransform(bin, dist, DistanceTypes.L2, DistanceTransformMasks.Mask3);
+        Mat rgOk = new Mat();
+        Mat rbOk = new Mat();
+        Mat gbOk = new Mat();
 
-            // 3) "두꺼운 코어"만 남김 (브릿지는 거리값이 얇아서 제거됨)
-            // 0.15로 리사이즈면 보통 2.0~4.0 사이에서 조절
-            Mat core = new Mat();
-            Cv2.Threshold(dist, core, 3.0, 255, ThresholdTypes.Binary); // <-- 여기 숫자 조절
-            core.ConvertTo(core, MatType.CV_8UC1);
+        Cv2.Threshold(diffRG, rgOk, 18, 255, ThresholdTypes.BinaryInv);
+        Cv2.Threshold(diffRB, rbOk, 22, 255, ThresholdTypes.BinaryInv);
+        Cv2.Threshold(diffGB, gbOk, 22, 255, ThresholdTypes.BinaryInv);
 
-            // 4) 코어에서 seed가 닿는 부분만 남김 (오이 코어만 선택)
-            Mat coreSeed = new Mat();
-            Cv2.BitwiseAnd(core, finalSeed, coreSeed);
+        // 밝기 조건
+        Mat avg = new Mat();
+        Mat bright = new Mat();
+        Cv2.AddWeighted(r, 0.33, g, 0.33, 0, avg);
+        Cv2.AddWeighted(avg, 1.0, b, 0.33, 0, avg);
+        Cv2.Threshold(avg, bright, 90, 255, ThresholdTypes.Binary);
 
-            // 5) 마스크 내부로 "복원"(reconstruction): coreSeed를 mask 안에서만 팽창
-            Mat recon = coreSeed.Clone();
-            Mat prev = new Mat();
-            Mat k5 = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
+        // 아이보리 색감: R,G가 B보다 약간 큼
+        Mat rGtB2 = new Mat();
+        Mat gGtB3 = new Mat();
+        Mat bPlus3 = new Mat();
 
-            for (int i = 0; i < 200; i++)
-            {
-                recon.CopyTo(prev);
-                Cv2.Dilate(recon, recon, k5, iterations: 1);
-                Cv2.BitwiseAnd(recon, bin, recon);          // 원래 mask 내부로 제한
-                if (Cv2.CountNonZero(recon ^ prev) == 0)    // 변화 없으면 종료
-                    break;
-            }
+        Cv2.Add(b, new Scalar(8), bPlus3);
+        Cv2.Compare(r, bPlus3, rGtB2, CmpType.GT);
+        Cv2.Compare(g, bPlus3, gGtB3, CmpType.GT);
 
-            // recon이 "바닥 브릿지 제거 + 오이만 복원"된 최종 마스크
-            Mat finalMask = recon;
+        // Ivory 후보
+        Mat rgbIvory = new Mat();
+        Cv2.BitwiseAnd(rgOk, rbOk, rgbIvory);
+        Cv2.BitwiseAnd(rgbIvory, gbOk, rgbIvory);
+        Cv2.BitwiseAnd(rgbIvory, bright, rgbIvory);
+        Cv2.BitwiseAnd(rgbIvory, rGtB2, rgbIvory);
+        Cv2.BitwiseAnd(rgbIvory, gGtB3, rgbIvory);
+        *//* RGB 아이보리 마스크 - E *//*
 
-            //Mat finalMask = Mat.Zeros(mask.Size(), MatType.CV_8UC1); // 모든 픽셀값이 0(검정색)인 Mat 생성
+        // RGB 최종 마스크
+        Mat rgbMask = new Mat();
+        Cv2.ImShow("rgbGreen", rgbGreen);
+        Cv2.ImShow("rgbYellowGreen", rgbYellowGreen);
+        Cv2.ImShow("rgbIvory", rgbIvory);
+        Cv2.BitwiseOr(rgbGreen, rgbYellowGreen, rgbMask);
+        Cv2.BitwiseOr(rgbMask, rgbIvory, rgbMask);
+
+        // 기존 마스크에 추가
+        Cv2.BitwiseOr(mask, rgbMask, mask);
+        *//* RGB 필터링 - E *//*
+
+        // 노이즈 제거
+        Mat k = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
+        Cv2.MorphologyEx(mask, mask, MorphTypes.Open, k, iterations: 1);
+        Cv2.MorphologyEx(mask, mask, MorphTypes.Close, k, iterations: 2);
+
+        // 오이만 남기기
+        Cv2.FindContours(mask, out OpenCvSharp.Point[][] contours, out _,
+            RetrievalModes.External, ContourApproximationModes.ApproxSimple);
 
 
-            int width = mask.Width;
-            int height = mask.Height;
-            double imgArea = width * height;
 
-            const double MIN_AREA = 300;          // 0.15 리사이즈 기준(상황에 맞게 조절)
-            const double BIG_FLOOR_RATIO = 0.20;  // 이 이상 + 가장자리 접촉이면 바닥으로 간주
+        // 0) seed (오이 확실영역) : 초록/흰/스크래치
+        Mat finalSeed = new Mat();
+        Cv2.BitwiseOr(hsvGreen, hsvPale, finalSeed);
+        Cv2.BitwiseOr(seed, hsvScratch, finalSeed);
 
-            foreach (var contour in contours)
-            {
-                double area = Cv2.ContourArea(contour);
-                if (area < MIN_AREA)
-                    continue;
+        // 1) mask 정리(작게)
+        Mat k3 = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(3, 3));
+        Cv2.MorphologyEx(mask, mask, MorphTypes.Open, k3, iterations: 1);
 
-                Rect rect = Cv2.BoundingRect(contour);
+        // 2) Distance Transform (mask는 0/255여야 함)
+        Mat bin = new Mat();
+        Cv2.Threshold(mask, bin, 0, 255, ThresholdTypes.Binary);
 
-                bool touchesBorder =
-                    rect.X <= 2 || rect.Y <= 2 || rect.Right >= width - 2 || rect.Bottom >= height - 2;
+        // 거리변환은 8U 입력 필요
+        Mat dist = new Mat();
+        Cv2.DistanceTransform(bin, dist, DistanceTypes.L2, DistanceTransformMasks.Mask3);
 
-                // 바닥 같은 "거대 덩어리"만 제거 (오이가 가장자리에 닿아도 살림)
-                if (touchesBorder && area < imgArea * BIG_FLOOR_RATIO)
-                    continue;
+        // 3) "두꺼운 코어"만 남김 (브릿지는 거리값이 얇아서 제거됨)
+        // 0.15로 리사이즈면 보통 2.0~4.0 사이에서 조절
+        Mat core = new Mat();
+        Cv2.Threshold(dist, core, 3.0, 255, ThresholdTypes.Binary); // <-- 여기 숫자 조절
+        core.ConvertTo(core, MatType.CV_8UC1);
 
-                Cv2.DrawContours(finalMask, new[] { contour }, -1, Scalar.White, thickness: -1);
-            }
+        // 4) 코어에서 seed가 닿는 부분만 남김 (오이 코어만 선택)
+        Mat coreSeed = new Mat();
+        Cv2.BitwiseAnd(core, finalSeed, coreSeed);
 
-            Mat result = new Mat();
-            curMat.CopyTo(result, finalMask); // 컬러 이미지에서 마지막으로 마스킹 처리한 이미지에 현재 이미지를 덧씌워서 result로 저장함.
+        // 5) 마스크 내부로 "복원"(reconstruction): coreSeed를 mask 안에서만 팽창
+        Mat recon = coreSeed.Clone();
+        Mat prev = new Mat();
+        Mat k5 = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(5, 5));
 
-            Cv2.ImShow("curMat", curMat);
-            Cv2.ImShow("hsv", hsv);
-            Cv2.ImShow("result", result);
-
-            Cv2.ImShow("hsvGreen", hsvGreen);
-            Cv2.ImShow("hsvPale", hsvPale);
-            Cv2.ImShow("hsvScratch", hsvScratch);
-            Cv2.ImShow("hsvMask", hsvMask);
-            Cv2.ImShow("rgbMask", rgbMask);
-            Cv2.ImShow("mask", mask);
-            Cv2.ImShow("finalMask", finalMask);
-            Cv2.ImShow("result", result);
-
-            _windowOpened = true;
+        for (int i = 0; i < 200; i++)
+        {
+            recon.CopyTo(prev);
+            Cv2.Dilate(recon, recon, k5, iterations: 1);
+            Cv2.BitwiseAnd(recon, bin, recon);          // 원래 mask 내부로 제한
+            if (Cv2.CountNonZero(recon ^ prev) == 0)    // 변화 없으면 종료
+                break;
         }
+
+        // recon이 "바닥 브릿지 제거 + 오이만 복원"된 최종 마스크
+        Mat finalMask = recon;
+
+        //Mat finalMask = Mat.Zeros(mask.Size(), MatType.CV_8UC1); // 모든 픽셀값이 0(검정색)인 Mat 생성
+
+
+        int width = mask.Width;
+        int height = mask.Height;
+        double imgArea = width * height;
+
+        const double MIN_AREA = 300;          // 0.15 리사이즈 기준(상황에 맞게 조절)
+        const double BIG_FLOOR_RATIO = 0.20;  // 이 이상 + 가장자리 접촉이면 바닥으로 간주
+
+        foreach (var contour in contours)
+        {
+            double area = Cv2.ContourArea(contour);
+            if (area < MIN_AREA)
+                continue;
+
+            Rect rect = Cv2.BoundingRect(contour);
+
+            bool touchesBorder =
+                rect.X <= 2 || rect.Y <= 2 || rect.Right >= width - 2 || rect.Bottom >= height - 2;
+
+            // 바닥 같은 "거대 덩어리"만 제거 (오이가 가장자리에 닿아도 살림)
+            if (touchesBorder && area < imgArea * BIG_FLOOR_RATIO)
+                continue;
+
+            Cv2.DrawContours(finalMask, new[] { contour }, -1, Scalar.White, thickness: -1);
+        }
+
+        Mat result = new Mat();
+        curMat.CopyTo(result, finalMask); // 컬러 이미지에서 마지막으로 마스킹 처리한 이미지에 현재 이미지를 덧씌워서 result로 저장함.
+
+        Cv2.ImShow("curMat", curMat);
+        Cv2.ImShow("hsv", hsv);
+        Cv2.ImShow("result", result);
+
+        Cv2.ImShow("hsvGreen", hsvGreen);
+        Cv2.ImShow("hsvPale", hsvPale);
+        Cv2.ImShow("hsvScratch", hsvScratch);
+        Cv2.ImShow("hsvMask", hsvMask);
+        Cv2.ImShow("rgbMask", rgbMask);
+        Cv2.ImShow("mask", mask);
+        Cv2.ImShow("finalMask", finalMask);
+        Cv2.ImShow("result", result);
+
+        _windowOpened = true;
+    }
 
 */
         // HSV 컬러를 확인하기 위한 캔버스를 띄우는 함수. OpenCV의 HSV는 Scalar를 사용하기 때문에 일반적인 HSV의 값과 다름.

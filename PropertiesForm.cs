@@ -1,4 +1,5 @@
 ﻿using FreshCheck_CV.Property;
+using FreshCheck_CV.Scratch;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,7 +19,8 @@ namespace FreshCheck_CV
     public enum PropertyType
     {
         Binary,
-        Filter
+        Filter,
+        Scratch
     }
 
     //#2_DOCKPANEL#4 PropertiesForm 클래스 는 도킹 가능하도록 상속을 변경
@@ -36,6 +38,7 @@ namespace FreshCheck_CV
             //#3_CAMERAVIEW_PROPERTY#7 속성 탭을 초기화
             LoadOptionControl(PropertyType.Filter);
             LoadOptionControl(PropertyType.Binary);
+            LoadOptionControl(PropertyType.Scratch);
         }
 
         //#3_CAMERAVIEW_PROPERTY#6 속성탭이 있다면 그것을 반환하고, 없다면 생성
@@ -88,6 +91,10 @@ namespace FreshCheck_CV
                 case PropertyType.Filter:
                     ImageFilterProp filterProp = new ImageFilterProp();
                     curProp = filterProp;
+                    break;
+                case PropertyType.Scratch:
+                    ScratchProp scratchProp = new ScratchProp();
+                    curProp = scratchProp;
                     break;
                 default:
                     MessageBox.Show("유효하지 않은 옵션입니다.");
