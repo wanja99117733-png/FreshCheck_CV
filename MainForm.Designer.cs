@@ -46,7 +46,7 @@
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(800, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(1261, 33);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -80,34 +80,28 @@
             this.ImageFolderOpenToolStripMenuItem.Name = "ImageFolderOpenToolStripMenuItem";
             this.ImageFolderOpenToolStripMenuItem.Size = new System.Drawing.Size(273, 34);
             this.ImageFolderOpenToolStripMenuItem.Text = "Image Folder Open";
-            this.ImageFolderOpenToolStripMenuItem.Click +=
-            new System.EventHandler(this.ImageFolderOpenToolStripMenuItem_Click);
-
-
+            this.ImageFolderOpenToolStripMenuItem.Click += new System.EventHandler(this.ImageFolderOpenToolStripMenuItem_Click);
             // 
             // StartCycleToolStripMenuItem
             // 
             this.StartCycleToolStripMenuItem.Name = "StartCycleToolStripMenuItem";
             this.StartCycleToolStripMenuItem.Size = new System.Drawing.Size(273, 34);
             this.StartCycleToolStripMenuItem.Text = "Start Cycle";
-            this.StartCycleToolStripMenuItem.Click +=
-            new System.EventHandler(this.StartCycleToolStripMenuItem_Click);
-
+            this.StartCycleToolStripMenuItem.Click += new System.EventHandler(this.StartCycleToolStripMenuItem_Click);
             // 
             // StopCycleToolStripMenuItem
             // 
             this.StopCycleToolStripMenuItem.Name = "StopCycleToolStripMenuItem";
             this.StopCycleToolStripMenuItem.Size = new System.Drawing.Size(273, 34);
             this.StopCycleToolStripMenuItem.Text = "Stop Cycle";
-            this.StopCycleToolStripMenuItem.Click +=
-            new System.EventHandler(this.StopCycleToolStripMenuItem_Click);
-
+            this.StopCycleToolStripMenuItem.Click += new System.EventHandler(this.StopCycleToolStripMenuItem_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(38)))));
+            this.ClientSize = new System.Drawing.Size(1261, 757);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";

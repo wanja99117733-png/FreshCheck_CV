@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FreshCheck_CV.Dialogs;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace FreshCheck_CV
@@ -28,6 +29,8 @@ namespace FreshCheck_CV
         public MainForm()
         {
             InitializeComponent();
+
+            this.FormClosing += MainForm_FormClosing;
 
             //#2_DOCKPANEL#2 DockPanel 초기화
             _dockPanel = new DockPanel
@@ -208,6 +211,16 @@ namespace FreshCheck_CV
         private void StopCycleToolStripMenuItem_Click(object sender, EventArgs e)
         {
             StopImageCycle();
+        }
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            using (var dlg = new ExitConfirmForm())
+            {
+                if (dlg.ShowDialog(this) != DialogResult.Yes)
+                {
+                    e.Cancel = true; // 종료 취소
+                }
+            }
         }
 
     }
