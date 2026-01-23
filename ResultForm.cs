@@ -13,9 +13,9 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace FreshCheck_CV
 {
 
-    public partial class LogForm : DockContent
+    public partial class ResultForm : DockContent
     {
-        public LogForm()
+        public ResultForm()
         {
             InitializeComponent();
 

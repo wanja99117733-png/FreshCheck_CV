@@ -1,6 +1,6 @@
 ﻿namespace FreshCheck_CV
 {
-    partial class LogForm
+    partial class ResultForm
     {
         /// <summary>
         /// Required designer variable.

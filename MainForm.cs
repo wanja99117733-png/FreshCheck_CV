@@ -57,21 +57,27 @@ namespace FreshCheck_CV
         //#2_DOCKPANEL#5 도킹 윈도우를 로드하는 메서드
         private void LoadDockingWindows()
         {
-            //도킹해제 금지 설정
             _dockPanel.AllowEndUserDocking = false;
 
-            //메인폼 설정
+            // 중앙 메인 이미지
             var cameraWindow = new CameraForm();
             cameraWindow.Show(_dockPanel, DockState.Document);
 
-            //속성창 추가
+            // 오른쪽 상단 (Scratch / Mold 설정)
             var propWindow = new PropertiesForm();
             propWindow.Show(_dockPanel, DockState.DockRight);
 
+            // 하단 왼쪽 (RunForm)
+            var runWindow = new RunForm();
+            runWindow.Show(_dockPanel, DockState.DockBottom);
 
-            //#14_LOGFORM#2 로그창 추가
-            var logWindow = new LogForm();
-            logWindow.Show(propWindow.Pane, DockAlignment.Bottom, 0.3);
+            // 하단 가운데 (DefectForm)
+            var defectWindow = new DefectForm();
+            defectWindow.Show(runWindow.Pane, DockAlignment.Right, 0.6);
+
+            // 하단 오른쪽 (ResultForm)
+            var resultWindow = new ResultForm();
+            resultWindow.Show(defectWindow.Pane, DockAlignment.Right, 0.5);
         }
         // 이미지가 들어 있는 폴더를 선택하는 메서드
         private void LoadImageFolder()
