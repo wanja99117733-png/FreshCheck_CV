@@ -33,7 +33,6 @@ namespace FreshCheck_CV
             InitializeComponent();
 
 
-            try
             {
                 var testMenu = new ToolStripMenuItem("Test");
                 var runMoldItem = new ToolStripMenuItem("Run Mold Inspection (temp)");
@@ -45,33 +44,37 @@ namespace FreshCheck_CV
 
                 testMenu.DropDownItems.Add(runMoldItem);
 
-            menuStrip1.Renderer = new DarkMenuRenderer();
-            menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
-            menuStrip1.ForeColor = Color.White;
+                menuStrip1.Renderer = new DarkMenuRenderer();
+                menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
+                menuStrip1.ForeColor = Color.White;
 
-            foreach (ToolStripMenuItem topItem in menuStrip1.Items)
-            {
-                ApplyDarkStyle(topItem);
+                foreach (ToolStripMenuItem topItem in menuStrip1.Items)
+                {
+                    ApplyDarkStyle(topItem);
+                }
+
+
+                // MenuStrip 다크
+                menuStrip1.Renderer = new DarkMenuRenderer();
+                menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
+                menuStrip1.ForeColor = Color.White;
+
+                _dockPanel = new DockPanel
+                {
+                    Dock = DockStyle.Fill,
+                    BackColor = Color.FromArgb(28, 32, 38),
+                    Theme = new VS2015DarkTheme()
+                };
+
+                Controls.Add(_dockPanel);
+                _dockPanel.BringToFront();
+
+                LoadDockingWindows();
+
             }
-
-
-            // MenuStrip 다크
-            menuStrip1.Renderer = new DarkMenuRenderer();
-            menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
-            menuStrip1.ForeColor = Color.White;
-
-            _dockPanel = new DockPanel
-            {
-                Dock = DockStyle.Fill,
-                BackColor = Color.FromArgb(28, 32, 38),
-                Theme = new VS2015DarkTheme()
-            };
-
-            Controls.Add(_dockPanel);
-            _dockPanel.BringToFront();
-
-            LoadDockingWindows();
         }
+            
+        
 
 
         //#2_DOCKPANEL#5 도킹 윈도우를 로드하는 메서드

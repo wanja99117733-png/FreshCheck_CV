@@ -113,6 +113,7 @@ namespace FreshCheck_CV.UIControl
             RecalcZoomRatio();
 
             float NewWidth = _bitmapImage.Width * _curZoom;
+            
             float NewHeight = _bitmapImage.Height * _curZoom;
 
             // 이미지가 UserControl 중앙에 배치되도록 정렬

@@ -56,6 +56,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\비전솔루션 1팀\bin\x64\Debug\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
       <HintPath>packages\OpenCvSharp4.4.11.0.20250507\lib\net48\OpenCvSharp.dll</HintPath>
     </Reference>
