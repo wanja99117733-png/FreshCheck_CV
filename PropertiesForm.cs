@@ -33,6 +33,25 @@ namespace FreshCheck_CV
         {
             InitializeComponent();
 
+            //TabControl (Filter / Binary) 다크화
+            tabPropControl.DrawMode = TabDrawMode.OwnerDrawFixed;
+            tabPropControl.ItemSize = new Size(90, 30);
+            tabPropControl.DrawItem += TabPropControl_DrawItem;
+
+            tabPropControl.Paint += TabPropControl_Paint;
+
+            // 탭 페이지(내용 영역) 배경
+            foreach (TabPage page in tabPropControl.TabPages)
+            {
+                page.BackColor = Color.FromArgb(30, 34, 40);
+                page.ForeColor = Color.White;
+            }
+
+            this.BackColor = Color.FromArgb(35, 38, 45);
+
+            tabPropControl.DrawMode = TabDrawMode.OwnerDrawFixed;
+            tabPropControl.DrawItem += TabPropControl_DrawItem;
+
             //#3_CAMERAVIEW_PROPERTY#7 속성 탭을 초기화
             LoadOptionControl(PropertyType.Filter);
             LoadOptionControl(PropertyType.Mold);
@@ -94,6 +113,48 @@ namespace FreshCheck_CV
                     return null;
             }
             return curProp;
+        }
+        private void TabPropControl_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            TabControl tab = sender as TabControl;
+            Graphics g = e.Graphics;
+            Rectangle rect = tab.GetTabRect(e.Index);
+
+            bool selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+
+            Color backColor = selected
+                ? Color.FromArgb(50, 55, 65)
+                : Color.FromArgb(35, 38, 45);
+
+            using (SolidBrush brush = new SolidBrush(backColor))
+                g.FillRectangle(brush, rect);
+
+            TextRenderer.DrawText(
+                g,
+                tab.TabPages[e.Index].Text,
+                tab.Font,
+                rect,
+                Color.White,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter
+            );
+        }
+        //탭 색상변경
+        private void TabPropControl_Paint(object sender, PaintEventArgs e)
+        {
+            TabControl tab = sender as TabControl;
+
+            // 탭 전체 헤더 영역 크기 계산
+            Rectangle headerRect = new Rectangle(
+                0,
+                0,
+                tab.Width,
+                tab.ItemSize.Height + 2
+            );
+
+            using (SolidBrush brush = new SolidBrush(Color.FromArgb(35, 38, 45)))
+            {
+                e.Graphics.FillRectangle(brush, headerRect);
+            }
         }
 
     }

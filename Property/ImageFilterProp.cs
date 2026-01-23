@@ -15,6 +15,12 @@ namespace FreshCheck_CV.Property
         public ImageFilterProp()
         {
             InitializeComponent();
+            this.BackColor = Color.FromArgb(30, 34, 40);
+
+            cbImageFilter.BackColor = Color.FromArgb(45, 45, 48);
+            cbImageFilter.ForeColor = Color.White;
+            cbImageFilter.FlatStyle = FlatStyle.Flat;
+
         }
     }
 }

@@ -52,6 +52,11 @@ namespace FreshCheck_CV
             }
 
             ColorPicked?.Invoke(this, new ColorPickedEventArgs(pickedColor));
+            // 폼 배경
+            this.BackColor = Color.FromArgb(25, 25, 25);
+
+            // 이미지 컨트롤 외 여백 색
+            imageViewCtrl.BackColor = Color.Black;
         }
 
 

@@ -108,6 +108,24 @@
     </Compile>
     <Compile Include="Core\Global.cs" />
     <Compile Include="Core\InspStage.cs" />
+    <Compile Include="DefectForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DefectForm.Designer.cs">
+      <DependentUpon>DefectForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\ExitConfirmForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\ExitConfirmForm.Designer.cs">
+      <DependentUpon>ExitConfirmForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ResultForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ResultForm.Designer.cs">
+      <DependentUpon>ResultForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Defect\DefectImageSaver.cs" />
     <Compile Include="Defect\DefectResult.cs" />
     <Compile Include="Defect\DefectType.cs" />
@@ -157,6 +175,12 @@
     <Compile Include="Splash\StartupContext.cs" />
     <Compile Include="Splash\StartupContextFactory.cs" />
     <Compile Include="Splash\StartupProgressHelper.cs" />
+    <Compile Include="RunForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RunForm.Designer.cs">
+      <DependentUpon>RunForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="UIControl\ImageViewCtrl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -169,8 +193,15 @@
     <Compile Include="UIControl\RangeTrackbar.Designer.cs">
       <DependentUpon>RangeTrackbar.cs</DependentUpon>
     </Compile>
+    <Compile Include="Util\SLogger.cs" />
     <EmbeddedResource Include="CameraForm.resx">
       <DependentUpon>CameraForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DefectForm.resx">
+      <DependentUpon>DefectForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\ExitConfirmForm.resx">
+      <DependentUpon>ExitConfirmForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -193,6 +224,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Property\ImageFilterProp.resx">
       <DependentUpon>ImageFilterProp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RunForm.resx">
+      <DependentUpon>RunForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UIControl\ImageViewCtrl.resx">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>
