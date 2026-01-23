@@ -18,8 +18,6 @@ namespace FreshCheck_CV
     //#3_CAMERAVIEW_PROPERTY#3 속성창에 사용할 타입 선언
     public enum PropertyType
     {
-        Binary,
-        Filter,
         Scratch
     }
 
@@ -36,8 +34,6 @@ namespace FreshCheck_CV
             InitializeComponent();
 
             //#3_CAMERAVIEW_PROPERTY#7 속성 탭을 초기화
-            LoadOptionControl(PropertyType.Filter);
-            LoadOptionControl(PropertyType.Binary);
             LoadOptionControl(PropertyType.Scratch);
         }
 
@@ -84,14 +80,6 @@ namespace FreshCheck_CV
             UserControl curProp = null;
             switch (propType)
             {
-                case PropertyType.Binary:
-                    BinaryProp blobProp = new BinaryProp();
-                    curProp = blobProp;
-                    break;
-                case PropertyType.Filter:
-                    ImageFilterProp filterProp = new ImageFilterProp();
-                    curProp = filterProp;
-                    break;
                 case PropertyType.Scratch:
                     ScratchProp scratchProp = new ScratchProp();
                     curProp = scratchProp;

@@ -162,8 +162,11 @@ namespace FreshCheck_CV.Scratch
         {
             Bitmap curBitmap = Global.Inst.InspStage.GetCurrentImage();
 
+            if (curBitmap == null) return;
+
             // Bitmap 이미지를 Mat 타입으로 변경
             Mat curMat = BitmapConverter.ToMat(curBitmap);
+
             Cv2.Resize(curMat, curMat, new OpenCvSharp.Size(0, 0), 0.15, 0.15);
 
 
