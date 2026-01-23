@@ -28,33 +28,111 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
+            this.cbMode = new System.Windows.Forms.ComboBox();
+            this.chkInvert = new System.Windows.Forms.CheckBox();
+            this.btnApply = new System.Windows.Forms.Button();
+            this.btnPickColor = new System.Windows.Forms.Button();
+            this.lblTargetColor = new System.Windows.Forms.Label();
+            this.btnRunMold = new System.Windows.Forms.Button();
+            this.rangeTrackbar = new FreshCheck_CV.UIControl.RangeTrackbar();
             this.SuspendLayout();
             // 
-            // button1
+            // cbMode
             // 
-            this.button1.Location = new System.Drawing.Point(57, 63);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(160, 85);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.cbMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbMode.FormattingEnabled = true;
+            this.cbMode.Location = new System.Drawing.Point(19, 24);
+            this.cbMode.Margin = new System.Windows.Forms.Padding(4);
+            this.cbMode.Name = "cbMode";
+            this.cbMode.Size = new System.Drawing.Size(313, 26);
+            this.cbMode.TabIndex = 1;
+            // 
+            // chkInvert
+            // 
+            this.chkInvert.AutoSize = true;
+            this.chkInvert.Location = new System.Drawing.Point(48, 214);
+            this.chkInvert.Margin = new System.Windows.Forms.Padding(4);
+            this.chkInvert.Name = "chkInvert";
+            this.chkInvert.Size = new System.Drawing.Size(70, 22);
+            this.chkInvert.TabIndex = 3;
+            this.chkInvert.Text = "반전";
+            this.chkInvert.UseVisualStyleBackColor = true;
+            // 
+            // btnApply
+            // 
+            this.btnApply.Location = new System.Drawing.Point(233, 206);
+            this.btnApply.Margin = new System.Windows.Forms.Padding(4);
+            this.btnApply.Name = "btnApply";
+            this.btnApply.Size = new System.Drawing.Size(99, 36);
+            this.btnApply.TabIndex = 4;
+            this.btnApply.TabStop = false;
+            this.btnApply.Text = "적용";
+            this.btnApply.UseVisualStyleBackColor = true;
+            // 
+            // btnPickColor
+            // 
+            this.btnPickColor.Location = new System.Drawing.Point(233, 141);
+            this.btnPickColor.Name = "btnPickColor";
+            this.btnPickColor.Size = new System.Drawing.Size(99, 33);
+            this.btnPickColor.TabIndex = 6;
+            this.btnPickColor.Text = "스포이드";
+            this.btnPickColor.UseVisualStyleBackColor = true;
+            // 
+            // lblTargetColor
+            // 
+            this.lblTargetColor.AutoSize = true;
+            this.lblTargetColor.Location = new System.Drawing.Point(25, 148);
+            this.lblTargetColor.Name = "lblTargetColor";
+            this.lblTargetColor.Size = new System.Drawing.Size(102, 18);
+            this.lblTargetColor.TabIndex = 7;
+            this.lblTargetColor.Text = "TargetColor";
+            // 
+            // btnRunMold
+            // 
+            this.btnRunMold.Location = new System.Drawing.Point(179, 276);
+            this.btnRunMold.Name = "btnRunMold";
+            this.btnRunMold.Size = new System.Drawing.Size(153, 36);
+            this.btnRunMold.TabIndex = 8;
+            this.btnRunMold.Text = "Mold 검사 임시";
+            this.btnRunMold.UseVisualStyleBackColor = true;
+            this.btnRunMold.Click += new System.EventHandler(this.btnRunMold_Click);
+            // 
+            // rangeTrackbar
+            // 
+            this.rangeTrackbar.Location = new System.Drawing.Point(19, 67);
+            this.rangeTrackbar.Name = "rangeTrackbar";
+            this.rangeTrackbar.Size = new System.Drawing.Size(313, 55);
+            this.rangeTrackbar.TabIndex = 5;
+            this.rangeTrackbar.ValueLeft = 80;
+            this.rangeTrackbar.ValueRight = 200;
             // 
             // BinaryProp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.button1);
+            this.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.Controls.Add(this.btnRunMold);
+            this.Controls.Add(this.lblTargetColor);
+            this.Controls.Add(this.btnPickColor);
+            this.Controls.Add(this.rangeTrackbar);
+            this.Controls.Add(this.btnApply);
+            this.Controls.Add(this.chkInvert);
+            this.Controls.Add(this.cbMode);
             this.Name = "BinaryProp";
-            this.Size = new System.Drawing.Size(322, 361);
-            this.Load += new System.EventHandler(this.BinaryProp_Load);
+            this.Size = new System.Drawing.Size(354, 366);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.ComboBox cbMode;
+        private System.Windows.Forms.CheckBox chkInvert;
+        private System.Windows.Forms.Button btnApply;
+        private UIControl.RangeTrackbar rangeTrackbar;
+        private System.Windows.Forms.Button btnPickColor;
+        private System.Windows.Forms.Label lblTargetColor;
+        private System.Windows.Forms.Button btnRunMold;
     }
 }

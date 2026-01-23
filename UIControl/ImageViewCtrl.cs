@@ -113,6 +113,7 @@ namespace FreshCheck_CV.UIControl
             RecalcZoomRatio();
 
             float NewWidth = _bitmapImage.Width * _curZoom;
+            
             float NewHeight = _bitmapImage.Height * _curZoom;
 
             // 이미지가 UserControl 중앙에 배치되도록 정렬
@@ -216,6 +217,11 @@ namespace FreshCheck_CV.UIControl
             ImageRect.Y -= dy;
         }
 
+        public Bitmap GetCurBitmap()
+        {
+            return _bitmapImage;
+        }
+
         // Virtual <-> Screen 좌표계 변환
         #region 좌표계 변환
         private PointF GetScreenOffset()
@@ -269,6 +275,30 @@ namespace FreshCheck_CV.UIControl
         private void ImageViewCtrl_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             FitImageToScreen();
+        }
+
+        public bool TryPickColor(Point screenPoint, out Color color)
+        {
+            color = Color.Empty;
+
+            if (_bitmapImage == null)
+            {
+                return false;
+            }
+
+            // 줌/패닝을 반영해 화면좌표 -> 원본좌표 변환
+            PointF v = ScreenToVirtual(new PointF(screenPoint.X, screenPoint.Y));
+
+            int x = (int)Math.Round(v.X);
+            int y = (int)Math.Round(v.Y);
+
+            if (x < 0 || x >= _bitmapImage.Width || y < 0 || y >= _bitmapImage.Height)
+            {
+                return false;
+            }
+
+            color = _bitmapImage.GetPixel(x, y);
+            return true;
         }
     }
 }
