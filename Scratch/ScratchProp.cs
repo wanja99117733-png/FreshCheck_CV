@@ -399,7 +399,7 @@ namespace FreshCheck_CV.Scratch
             SaigeAI saigeAI = Global.Inst.InspStage.AIModule; // SaigeAI 인스턴스
 
             AIEngineType engineType = AIEngineType.Segmentation;
-            string modelPath = "D:\\teamProject\\seg_example.saigeseg";
+            string modelPath = "D:\\teamProject\\DetectCucumber_finished.saigeseg";
             saigeAI.LoadEngine(modelPath, engineType);
 
             if (saigeAI == null)

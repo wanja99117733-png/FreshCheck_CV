@@ -137,38 +137,53 @@ namespace FreshCheck_CV.Inspect
         // IADResult를 이용하여 결과를 이미지에 그립니다.
         private void DrawSegResult(SegmentedObject[] segmentedObjects, Bitmap bmp)
         {
-            Graphics g = Graphics.FromImage(bmp);
-            int step = 10;
+            if (segmentedObjects == null || segmentedObjects.Length == 0 || bmp == null)
+                return;
 
-            // outline contour
-            foreach (var prediction in segmentedObjects)
+            using (Graphics g = Graphics.FromImage(bmp))
             {
-                SolidBrush brush = new SolidBrush(Color.FromArgb(127, prediction.ClassInfo.Color));
-                //g.DrawString(prediction.ClassInfo.Name + " : " + prediction.Area, new Font(FontFamily.GenericSansSerif, 50), brush, 10, step);
-                using (GraphicsPath gp = new GraphicsPath(FillMode.Winding)) // 구멍 메꾸도록 fillMode 수정
+                // 전체 영역
+                Rectangle fullRect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+
+                // 오브젝트 전체를 합친 Path
+                using (GraphicsPath allObjPath = new GraphicsPath(FillMode.Winding))
                 {
-                    if (prediction.Contour.Value.Count < 3) continue;
-
-                    // Outer contour
-                    gp.AddPolygon(prediction.Contour.Value.ToArray());
-
-                    // Inner contours (holes)도 넣되, Winding이라서 구멍으로 비지 않고 같이 채워짐
-                    if (prediction.Contour.InnerValue != null)
+                    foreach (var prediction in segmentedObjects)
                     {
-                        foreach (var innerValue in prediction.Contour.InnerValue)
-                        {
-                            if (innerValue == null || innerValue.Count < 3)
-                            {
-                                continue;
-                            }
+                        var contour = prediction?.Contour?.Value;
+                        if (contour == null || contour.Count < 3)
+                            continue;
 
-                            gp.AddPolygon(innerValue.ToArray());
+                        // Outer contour
+                        allObjPath.AddPolygon(contour.ToArray());
+
+                        // Inner contours도 Winding 기준으로 같이 채워지게(구멍 "메움" 효과)
+                        if (prediction.Contour.InnerValue != null)
+                        {
+                            foreach (var innerValue in prediction.Contour.InnerValue)
+                            {
+                                if (innerValue == null || innerValue.Count < 3)
+                                    continue;
+
+                                allObjPath.AddPolygon(innerValue.ToArray());
+                            }
                         }
                     }
 
-                    g.FillPath(brush, gp);
+                    // 오브젝트가 하나도 없으면 전체 검정 처리(원하면 return로 바꿔도 됨)
+                    if (allObjPath.PointCount < 3)
+                    {
+                        g.FillRectangle(Brushes.Black, fullRect);
+                        return;
+                    }
+
+                    // 오브젝트 바깥 영역만 검정으로 덮기
+                    using (Region outside = new Region(fullRect))
+                    {
+                        outside.Exclude(allObjPath);      // 오브젝트 영역 제외
+                        g.FillRegion(Brushes.Black, outside); // 바깥만 검정
+                    }
                 }
-                step += 50;
             }
         }
 
