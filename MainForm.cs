@@ -113,6 +113,9 @@ namespace FreshCheck_CV
         {
             _dockPanel.AllowEndUserDocking = false;
 
+            _dockPanel.DockBottomPortion = 0.15;
+            _dockPanel.DockRightPortion = 0.15;
+
             // 중앙 메인 이미지
             var cameraWindow = new CameraForm();
             cameraWindow.Show(_dockPanel, DockState.Document);
@@ -127,11 +130,11 @@ namespace FreshCheck_CV
 
             // 하단 가운데 (DefectForm)
             var defectWindow = new DefectForm();
-            defectWindow.Show(runWindow.Pane, DockAlignment.Right, 0.6);
+            defectWindow.Show(runWindow.Pane, DockAlignment.Right, 0.8);
 
             // 하단 오른쪽 (ResultForm)
             var resultWindow = new ResultForm();
-            resultWindow.Show(defectWindow.Pane, DockAlignment.Right, 0.5);
+            resultWindow.Show(defectWindow.Pane, DockAlignment.Right, 0.185);
         }
         // 이미지가 들어 있는 폴더를 선택하는 메서드
         private void LoadImageFolder()

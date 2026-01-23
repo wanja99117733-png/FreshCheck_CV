@@ -22,9 +22,9 @@ namespace FreshCheck_CV
             var cps = new StartupProgressHelper.Checkpoint[]
             {
                 new StartupProgressHelper.Checkpoint(   0,  5, "InspStage 준비 중..."),
-                new StartupProgressHelper.Checkpoint( 350, 25, "기본 상태 구성 중..."),
-                new StartupProgressHelper.Checkpoint( 800, 60, "처리 파이프라인 점검 중..."),
-                new StartupProgressHelper.Checkpoint(1300, 90, "초기화 마무리 중..."),
+                new StartupProgressHelper.Checkpoint( 250, 25, "기본 상태 구성 중..."),
+                new StartupProgressHelper.Checkpoint( 400, 60, "처리 파이프라인 점검 중..."),
+                new StartupProgressHelper.Checkpoint(800, 90, "초기화 마무리 중..."),
             };
 
             await StartupProgressHelper.RunWithMinimumDurationAsync(
