@@ -50,16 +50,19 @@
             // chkInvert
             // 
             this.chkInvert.AutoSize = true;
+            this.chkInvert.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkInvert.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.chkInvert.Location = new System.Drawing.Point(48, 214);
             this.chkInvert.Margin = new System.Windows.Forms.Padding(4);
             this.chkInvert.Name = "chkInvert";
-            this.chkInvert.Size = new System.Drawing.Size(70, 22);
+            this.chkInvert.Size = new System.Drawing.Size(74, 29);
             this.chkInvert.TabIndex = 3;
             this.chkInvert.Text = "반전";
             this.chkInvert.UseVisualStyleBackColor = true;
             // 
             // btnApply
             // 
+            this.btnApply.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnApply.Location = new System.Drawing.Point(233, 206);
             this.btnApply.Margin = new System.Windows.Forms.Padding(4);
             this.btnApply.Name = "btnApply";
@@ -71,6 +74,7 @@
             // 
             // btnPickColor
             // 
+            this.btnPickColor.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnPickColor.Location = new System.Drawing.Point(233, 141);
             this.btnPickColor.Name = "btnPickColor";
             this.btnPickColor.Size = new System.Drawing.Size(99, 33);
@@ -81,14 +85,17 @@
             // lblTargetColor
             // 
             this.lblTargetColor.AutoSize = true;
+            this.lblTargetColor.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTargetColor.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.lblTargetColor.Location = new System.Drawing.Point(25, 148);
             this.lblTargetColor.Name = "lblTargetColor";
-            this.lblTargetColor.Size = new System.Drawing.Size(102, 18);
+            this.lblTargetColor.Size = new System.Drawing.Size(103, 25);
             this.lblTargetColor.TabIndex = 7;
             this.lblTargetColor.Text = "TargetColor";
             // 
             // btnRunMold
             // 
+            this.btnRunMold.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnRunMold.Location = new System.Drawing.Point(179, 276);
             this.btnRunMold.Name = "btnRunMold";
             this.btnRunMold.Size = new System.Drawing.Size(153, 36);
@@ -99,6 +106,7 @@
             // 
             // rangeTrackbar
             // 
+            this.rangeTrackbar.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.rangeTrackbar.Location = new System.Drawing.Point(19, 67);
             this.rangeTrackbar.Name = "rangeTrackbar";
             this.rangeTrackbar.Size = new System.Drawing.Size(313, 55);
@@ -110,7 +118,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(38)))));
             this.Controls.Add(this.btnRunMold);
             this.Controls.Add(this.lblTargetColor);
             this.Controls.Add(this.btnPickColor);
