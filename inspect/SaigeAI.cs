@@ -148,11 +148,24 @@ namespace FreshCheck_CV.Inspect
                 using (GraphicsPath gp = new GraphicsPath(FillMode = FillMode.Winding)) // 구멍 메꾸도록 fillMode 수정
                 {
                     if (prediction.Contour.Value.Count < 3) continue;
+
+                    // Outer contour
                     gp.AddPolygon(prediction.Contour.Value.ToArray());
-                    foreach (var innerValue in prediction.Contour.InnerValue)
+
+                    // Inner contours (holes)도 넣되, Winding이라서 구멍으로 비지 않고 같이 채워짐
+                    if (prediction.Contour.InnerValue != null)
                     {
-                        gp.AddPolygon(innerValue.ToArray());
+                        foreach (var innerValue in prediction.Contour.InnerValue)
+                        {
+                            if (innerValue == null || innerValue.Count < 3)
+                            {
+                                continue;
+                            }
+
+                            gp.AddPolygon(innerValue.ToArray());
+                        }
                     }
+
                     g.FillPath(brush, gp);
                 }
                 step += 50;
