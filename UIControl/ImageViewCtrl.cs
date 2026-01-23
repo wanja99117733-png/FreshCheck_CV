@@ -20,6 +20,27 @@ namespace FreshCheck_CV.UIControl
         // 현재 로드된 이미지
         private Bitmap _bitmapImage = null;
 
+
+        // 프리뷰 이미지 변수
+        private Bitmap _previewImage = null;
+
+        public Bitmap PreviewImage
+        {
+            get { return _previewImage; }
+            set
+            {
+                if (_previewImage != null)
+                {
+                    _previewImage.Dispose();
+                    _previewImage = null;
+                }
+
+                _previewImage = value;
+                Invalidate();
+            }
+        }
+
+
         // 더블 버퍼링을 위한 캔버스
         // 더블버퍼링 : 화면 깜빡임을 방지하고 부드러운 펜더링위해 사용
         private Bitmap Canvas = null;
@@ -36,6 +57,7 @@ namespace FreshCheck_CV.UIControl
         // 최소 및 최대 줌 제한 값
         private float MinZoom = 1.0f;
         private const float MaxZoom = 100.0f;
+
 
         public ImageViewCtrl()
         {
@@ -80,6 +102,12 @@ namespace FreshCheck_CV.UIControl
         //#4_IMAGE_VIEWER#5 이미지 로딩 함수
         public void LoadBitmap(Bitmap bitmap)
         {
+            if (_previewImage != null)
+            {
+                _previewImage.Dispose(); // Bitmap 객체가 사용하던 메모리 리소스를 해제
+                _previewImage = null;  //객체를 해제하여 가비지 컬렉션(GC)이 수집할 수 있도록 설정
+            }
+
             // 기존에 로드된 이미지가 있다면 해제 후 초기화, 메모리누수 방지
             if (_bitmapImage != null)
             {
@@ -162,7 +190,10 @@ namespace FreshCheck_CV.UIControl
         {
             base.OnPaint(e);
 
-            if (_bitmapImage != null && Canvas != null)
+
+            Bitmap displayBitmap = _previewImage ?? _bitmapImage; // 프리뷰 이미지가 존재하지 않는다면, 현재 이미지를 가져옴
+
+            if (displayBitmap != null && Canvas != null)
             {
                 // 캔버스를 초기화하고 이미지 그리기
                 using (Graphics g = Graphics.FromImage(Canvas))  // 메모리누수방지
@@ -171,7 +202,7 @@ namespace FreshCheck_CV.UIControl
 
                     //이미지 확대or축소때 화질 최적화 방식(Interpolation Mode) 설정                    
                     g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                    g.DrawImage(_bitmapImage, ImageRect);
+                    g.DrawImage(displayBitmap, ImageRect);
 
                     // 캔버스를 UserControl 화면에 표시
                     e.Graphics.DrawImage(Canvas, 0, 0);

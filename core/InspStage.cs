@@ -44,6 +44,17 @@ namespace FreshCheck_CV.Core
             }
         }
 
+        // ImageViewCtrl 프리뷰 이미지 업데이트 함수
+        public void UpdatePreview(Bitmap bitmap)
+        {
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.UpdatePreview(bitmap);
+            }
+        }
+
+
         // (Bitmap) ImageViewCtrl 현재 이미지 가져오기 함수
         public Bitmap GetCurrentImage()
         {
@@ -52,6 +63,20 @@ namespace FreshCheck_CV.Core
             if (cameraForm != null)
             {
                 bitmap = cameraForm.GetDisplayImage();                
+            }
+
+            return bitmap;
+        }
+
+
+        // (Bitmap) ImageViewCtrl 현재 이미지 가져오기 함수
+        public Bitmap GetPreviewImage()
+        {
+            Bitmap bitmap = null;
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                bitmap = cameraForm.GetPreviewImage();
             }
 
             return bitmap;

@@ -121,22 +121,12 @@
     <Compile Include="Property\ImageFilterProp.Designer.cs">
       <DependentUpon>ImageFilterProp.cs</DependentUpon>
     </Compile>
-    <Compile Include="Scratch\ColorRuleList.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Scratch\ColorRuleList.Designer.cs">
-      <DependentUpon>ColorRuleList.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Scratch\CucumberColorRule.cs" />
-    <Compile Include="Scratch\CucumberMaskBuilder.cs" />
     <Compile Include="Scratch\ScratchProp.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Scratch\ScratchProp.Designer.cs">
       <DependentUpon>ScratchProp.cs</DependentUpon>
     </Compile>
-    <Compile Include="Scratch\HighlightRenderer.cs" />
-    <Compile Include="Scratch\ImageBackgroundRemover.cs" />
     <Compile Include="UIControl\ImageViewCtrl.cs">
       <SubType>UserControl</SubType>
     </Compile>
