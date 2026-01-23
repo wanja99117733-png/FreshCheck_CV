@@ -396,28 +396,28 @@ namespace FreshCheck_CV.Scratch
 
         private void btnTemp2_Click(object sender, EventArgs e)
         {
-            //SaigeAI saigeAI = Global.Inst.InspStage.AIModule; // SaigeAI 인스턴스
+            SaigeAI saigeAI = Global.Inst.InspStage.AIModule; // SaigeAI 인스턴스
 
-            //AIEngineType engineType = AIEngineType.Segmentation;
-            //string modelPath = "D:\\teamProject\\seg_example.saigeseg";
-            //saigeAI.LoadEngine(modelPath, engineType);
+            AIEngineType engineType = AIEngineType.Segmentation;
+            string modelPath = "D:\\teamProject\\seg_example.saigeseg";
+            saigeAI.LoadEngine(modelPath, engineType);
 
-            //if (saigeAI == null)
-            //{
-            //    MessageBox.Show("AI 모듈이 초기화되지 않았습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            if (saigeAI == null)
+            {
+                MessageBox.Show("AI 모듈이 초기화되지 않았습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            //Bitmap bitmap = Global.Inst.InspStage.GetCurrentImage();
-            //if (bitmap is null)
-            //{
-            //    MessageBox.Show("현재 이미지가 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            Bitmap bitmap = Global.Inst.InspStage.GetCurrentImage();
+            if (bitmap is null)
+            {
+                MessageBox.Show("현재 이미지가 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            //saigeAI.InspAIModule(bitmap);
+            saigeAI.InspAIModule(bitmap);
 
-            //Bitmap resultImage = saigeAI.GetResultImage();
+            Bitmap resultImage = saigeAI.GetResultImage();
 
             Global.Inst.InspStage.UpdateDisplay(resultImage);
         }

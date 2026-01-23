@@ -145,7 +145,7 @@ namespace FreshCheck_CV.Inspect
             {
                 SolidBrush brush = new SolidBrush(Color.FromArgb(127, prediction.ClassInfo.Color));
                 //g.DrawString(prediction.ClassInfo.Name + " : " + prediction.Area, new Font(FontFamily.GenericSansSerif, 50), brush, 10, step);
-                using (GraphicsPath gp = new GraphicsPath(FillMode = FillMode.Winding)) // 구멍 메꾸도록 fillMode 수정
+                using (GraphicsPath gp = new GraphicsPath(FillMode.Winding)) // 구멍 메꾸도록 fillMode 수정
                 {
                     if (prediction.Contour.Value.Count < 3) continue;
 
