@@ -29,30 +29,36 @@ namespace FreshCheck_CV
         public MainForm()
         {
             InitializeComponent();
-
             this.FormClosing += MainForm_FormClosing;
 
-            //MenuStrip 다크 톤 설정
+            menuStrip1.Renderer = new DarkMenuRenderer();
             menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
             menuStrip1.ForeColor = Color.White;
 
-            //#2_DOCKPANEL#2 DockPanel 초기화
+            foreach (ToolStripMenuItem topItem in menuStrip1.Items)
+            {
+                ApplyDarkStyle(topItem);
+            }
+
+
+            // MenuStrip 다크
+            menuStrip1.Renderer = new DarkMenuRenderer();
+            menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
+            menuStrip1.ForeColor = Color.White;
+
             _dockPanel = new DockPanel
             {
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(28, 32, 38),
+                Theme = new VS2015DarkTheme()
             };
+
             Controls.Add(_dockPanel);
+            _dockPanel.BringToFront();
 
-            //DockPanel 기본 배경색 (빈 영역)
-            _dockPanel.BackColor = Color.FromArgb(28, 32, 38);
-
-            //다크 테마로 변경 (Blue → Dark)
-            _dockPanel.Theme = new VS2015DarkTheme();
-
-
-            //#2_DOCKPANEL#6 도킹 윈도우 로드 메서드 호출
             LoadDockingWindows();
         }
+
 
         //#2_DOCKPANEL#5 도킹 윈도우를 로드하는 메서드
         private void LoadDockingWindows()
@@ -227,6 +233,8 @@ namespace FreshCheck_CV
         {
             StopImageCycle();
         }
+       
+        //메뉴 버튼 클릭 이벤트
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             using (var dlg = new ExitConfirmForm())
@@ -237,6 +245,40 @@ namespace FreshCheck_CV
                 }
             }
         }
+        class DarkMenuRenderer : ToolStripProfessionalRenderer
+        {
+            public DarkMenuRenderer() : base(new DarkColorTable()) { }
+        }
+
+        class DarkColorTable : ProfessionalColorTable
+        {
+            public override Color MenuItemSelected => Color.FromArgb(63, 63, 70);
+            public override Color MenuItemBorder => Color.FromArgb(45, 45, 48);
+            public override Color MenuBorder => Color.FromArgb(45, 45, 48);
+            public override Color ToolStripDropDownBackground => Color.FromArgb(45, 45, 48);
+            public override Color ImageMarginGradientBegin => Color.FromArgb(45, 45, 48);
+            public override Color ImageMarginGradientMiddle => Color.FromArgb(45, 45, 48);
+            public override Color ImageMarginGradientEnd => Color.FromArgb(45, 45, 48);
+        }
+
+        // MenuStrip 및 하위 메뉴 항목에 다크 테마 색상 적용
+        private void ApplyDarkStyle(ToolStripMenuItem item)
+        {
+            item.ForeColor = Color.White;
+            item.BackColor = Color.FromArgb(45, 45, 48);
+
+            foreach (ToolStripItem subItem in item.DropDownItems)
+            {
+                subItem.ForeColor = Color.White;
+                subItem.BackColor = Color.FromArgb(45, 45, 48);
+
+                if (subItem is ToolStripMenuItem menuItem)
+                {
+                    ApplyDarkStyle(menuItem);
+                }
+            }
+        }
+
 
     }
 }
