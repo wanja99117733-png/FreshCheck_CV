@@ -78,7 +78,27 @@
     <Compile Include="CameraForm.Designer.cs">
       <DependentUpon>CameraForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="KBS.cs" />
+    <Compile Include="Core\Global.cs" />
+    <Compile Include="Core\InspStage.cs" />
+    <Compile Include="DarkMenuRenderer.cs" />
+    <Compile Include="DefectForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DefectForm.Designer.cs">
+      <DependentUpon>DefectForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\ExitConfirmForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\ExitConfirmForm.Designer.cs">
+      <DependentUpon>ExitConfirmForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ResultForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ResultForm.Designer.cs">
+      <DependentUpon>ResultForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -113,6 +133,15 @@
     </Compile>
     <EmbeddedResource Include="CameraForm.resx">
       <DependentUpon>CameraForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DefectForm.resx">
+      <DependentUpon>DefectForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\ExitConfirmForm.resx">
+      <DependentUpon>ExitConfirmForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExamSlidingMenu.resx">
+      <DependentUpon>ExamSlidingMenu.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
