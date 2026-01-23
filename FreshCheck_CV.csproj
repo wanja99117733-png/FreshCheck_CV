@@ -55,6 +55,9 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -134,23 +137,11 @@
     <Compile Include="Core\Global.cs" />
     <Compile Include="Core\InspStage.cs" />
     <Compile Include="DarkMenuRenderer.cs" />
-    <Compile Include="DefectForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DefectForm.Designer.cs">
-      <DependentUpon>DefectForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Dialogs\ExitConfirmForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dialogs\ExitConfirmForm.Designer.cs">
       <DependentUpon>ExitConfirmForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ExamSlidingMenu.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ExamSlidingMenu.Designer.cs">
-      <DependentUpon>ExamSlidingMenu.cs</DependentUpon>
     </Compile>
     <Compile Include="ResultForm.cs">
       <SubType>Form</SubType>
@@ -229,14 +220,8 @@
     <EmbeddedResource Include="CameraForm.resx">
       <DependentUpon>CameraForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DefectForm.resx">
-      <DependentUpon>DefectForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ExitConfirmForm.resx">
       <DependentUpon>ExitConfirmForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ExamSlidingMenu.resx">
-      <DependentUpon>ExamSlidingMenu.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -263,6 +248,9 @@
     <EmbeddedResource Include="RunForm.resx">
       <DependentUpon>RunForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Splash\SplashForm.resx">
+      <DependentUpon>SplashForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UIControl\ImageViewCtrl.resx">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>
     </EmbeddedResource>
@@ -280,7 +268,15 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\Logo.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Icon.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

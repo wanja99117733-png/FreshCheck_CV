@@ -70,5 +70,19 @@ namespace FreshCheck_CV
 
             _lblMessage.Text = string.Format("{0}% - {1}", percent, message);
         }
+
+        private void InitializeComponent()
+        {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SplashForm));
+            this.SuspendLayout();
+            // 
+            // SplashForm
+            // 
+            this.ClientSize = new System.Drawing.Size(278, 244);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "SplashForm";
+            this.ResumeLayout(false);
+
+        }
     }
 }

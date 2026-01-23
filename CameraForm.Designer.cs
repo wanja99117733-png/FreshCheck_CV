@@ -41,7 +41,7 @@
             // 
             // imageViewCtrl
             // 
-            this.imageViewCtrl.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.imageViewCtrl.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.imageViewCtrl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.imageViewCtrl.Location = new System.Drawing.Point(0, 0);
             this.imageViewCtrl.Name = "imageViewCtrl";

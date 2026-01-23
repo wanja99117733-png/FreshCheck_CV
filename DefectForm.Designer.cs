@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-
-namespace FreshCheck_CV
+﻿namespace FreshCheck_CV
 {
     partial class DefectForm
     {
@@ -9,10 +6,7 @@ namespace FreshCheck_CV
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-        
-
-        private FlowLayoutPanel panelDefects;
-
+        private System.Windows.Forms.FlowLayoutPanel flowDefectImages;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -21,7 +15,9 @@ namespace FreshCheck_CV
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
+            {
                 components.Dispose();
+            }
             base.Dispose(disposing);
         }
 
@@ -33,30 +29,29 @@ namespace FreshCheck_CV
         /// </summary>
         private void InitializeComponent()
         {
-            this.panelDefects = new System.Windows.Forms.FlowLayoutPanel();
+            this.flowDefectImages = new System.Windows.Forms.FlowLayoutPanel();
             this.SuspendLayout();
             // 
-            // panelDefects
+            // flowDefectImages
             // 
-            this.panelDefects.AutoScroll = true;
-            this.panelDefects.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(38)))));
-            this.panelDefects.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelDefects.Location = new System.Drawing.Point(0, 0);
-            this.panelDefects.Name = "panelDefects";
-            this.panelDefects.Padding = new System.Windows.Forms.Padding(10);
-            this.panelDefects.Size = new System.Drawing.Size(493, 200);
-            this.panelDefects.TabIndex = 0;
+            this.flowDefectImages.AutoScroll = true;
+            this.flowDefectImages.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowDefectImages.BackColor = System.Drawing.Color.FromArgb(28, 32, 38);
+            this.flowDefectImages.Location = new System.Drawing.Point(0, 0);
+            this.flowDefectImages.Name = "flowDefectImages";
+            this.flowDefectImages.Padding = new System.Windows.Forms.Padding(6);
+            this.flowDefectImages.Size = new System.Drawing.Size(400, 200);
+            this.flowDefectImages.TabIndex = 0;
             // 
             // DefectForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(38)))));
-            this.ClientSize = new System.Drawing.Size(493, 200);
-            this.Controls.Add(this.panelDefects);
+            this.ClientSize = new System.Drawing.Size(400, 200);
+            this.Controls.Add(this.flowDefectImages);
+            this.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.Name = "DefectForm";
             this.Text = "Defect Images";
             this.ResumeLayout(false);
-
         }
 
         #endregion

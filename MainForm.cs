@@ -33,6 +33,10 @@ namespace FreshCheck_CV
         {
 
             InitializeComponent();
+            menuStrip1.Renderer = new DarkMenuRenderer();
+            
+            menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
+            menuStrip1.ForeColor = Color.White;
 
             FormClosing += MainForm_FormClosing;
 
@@ -62,6 +66,12 @@ namespace FreshCheck_CV
                 menuStrip1.Renderer = new DarkMenuRenderer();
                 menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
                 menuStrip1.ForeColor = Color.White;
+
+                foreach (ToolStripMenuItem item in menuStrip1.Items)
+                {
+                    item.DropDown.Renderer = new DarkMenuRenderer();
+                }
+
 
                 _dockPanel = new DockPanel
                 {
@@ -104,8 +114,6 @@ namespace FreshCheck_CV
                 e.Cancel = true;
             }
         }
-
-
 
 
         //#2_DOCKPANEL#5 도킹 윈도우를 로드하는 메서드
@@ -293,13 +301,31 @@ namespace FreshCheck_CV
 
         class DarkColorTable : ProfessionalColorTable
         {
-            public override Color MenuItemSelected => Color.FromArgb(63, 63, 70);
-            public override Color MenuItemBorder => Color.FromArgb(45, 45, 48);
-            public override Color MenuBorder => Color.FromArgb(45, 45, 48);
-            public override Color ToolStripDropDownBackground => Color.FromArgb(45, 45, 48);
-            public override Color ImageMarginGradientBegin => Color.FromArgb(45, 45, 48);
-            public override Color ImageMarginGradientMiddle => Color.FromArgb(45, 45, 48);
-            public override Color ImageMarginGradientEnd => Color.FromArgb(45, 45, 48);
+            // 드롭다운 전체 배경
+            public override Color ToolStripDropDownBackground
+                => Color.FromArgb(45, 45, 48);
+
+            // 마우스 올렸을 때
+            public override Color MenuItemSelected
+                => Color.FromArgb(0, 122, 204);
+
+            // 클릭해서 눌린 상태
+            public override Color MenuItemPressedGradientBegin
+                => Color.FromArgb(63, 63, 70);
+            public override Color MenuItemPressedGradientEnd
+                => Color.FromArgb(63, 63, 70);
+
+            // 테두리
+            public override Color MenuItemBorder
+                => Color.FromArgb(45, 45, 48);
+
+            // 아이콘 왼쪽 여백
+            public override Color ImageMarginGradientBegin
+                => Color.FromArgb(45, 45, 48);
+            public override Color ImageMarginGradientMiddle
+                => Color.FromArgb(45, 45, 48);
+            public override Color ImageMarginGradientEnd
+                => Color.FromArgb(45, 45, 48);
         }
 
         // MenuStrip 및 하위 메뉴 항목에 다크 테마 색상 적용
