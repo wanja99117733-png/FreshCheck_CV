@@ -21,9 +21,9 @@ namespace FreshCheck_CV
             var cps = new StartupProgressHelper.Checkpoint[]
             {
                 new StartupProgressHelper.Checkpoint(   0,  5, "설정 파일 읽는 중..."),
-                new StartupProgressHelper.Checkpoint( 300, 30, "옵션 값 파싱 중..."),
-                new StartupProgressHelper.Checkpoint( 700, 65, "기본값/검증 적용 중..."),
-                new StartupProgressHelper.Checkpoint(1000, 90, "설정 적용 마무리 중..."),
+                new StartupProgressHelper.Checkpoint( 200, 30, "옵션 값 파싱 중..."),
+                new StartupProgressHelper.Checkpoint( 500, 65, "기본값/검증 적용 중..."),
+                new StartupProgressHelper.Checkpoint(700, 90, "설정 적용 마무리 중..."),
             };
 
             await StartupProgressHelper.RunWithMinimumDurationAsync(

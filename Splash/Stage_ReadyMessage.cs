@@ -22,8 +22,8 @@ namespace FreshCheck_CV.Splash
                 var cps = new StartupProgressHelper.Checkpoint[]
                 {
                 new StartupProgressHelper.Checkpoint(  0, 20, "UI 준비 중..."),
-                new StartupProgressHelper.Checkpoint(300, 60, "마지막 점검 중..."),
-                new StartupProgressHelper.Checkpoint(600, 90, "시작 준비 완료"),
+                new StartupProgressHelper.Checkpoint(200, 60, "마지막 점검 중..."),
+                new StartupProgressHelper.Checkpoint(800, 90, "시작 준비 완료"),
                 };
 
                 await StartupProgressHelper.RunWithMinimumDurationAsync(

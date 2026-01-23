@@ -17,6 +17,8 @@ namespace FreshCheck_CV
     // 현재 참조 WeifenLuo.WinFormsUI.Docking, WeifenLuo.WinFormsUI.Docking.Themes.VS2015
     public partial class MainForm : Form
     {
+        private bool _isExitConfirmed;
+
         //#2_DOCKPANEL#1 DockPanel을 전역으로 선언
         private static DockPanel _dockPanel;
 
@@ -32,8 +34,9 @@ namespace FreshCheck_CV
 
             InitializeComponent();
 
+            FormClosing += MainForm_FormClosing;
 
-            try
+
             {
                 var testMenu = new ToolStripMenuItem("Test");
                 var runMoldItem = new ToolStripMenuItem("Run Mold Inspection (temp)");
@@ -45,32 +48,73 @@ namespace FreshCheck_CV
 
                 testMenu.DropDownItems.Add(runMoldItem);
 
-                menuStrip1.Items.Add(testMenu);
-            }
-            catch { }
+                menuStrip1.Renderer = new DarkMenuRenderer();
+                menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
+                menuStrip1.ForeColor = Color.White;
 
-                //#2_DOCKPANEL#2 DockPanel 초기화
+                foreach (ToolStripMenuItem topItem in menuStrip1.Items)
+                {
+                    ApplyDarkStyle(topItem);
+                }
+
+
+                // MenuStrip 다크
+                menuStrip1.Renderer = new DarkMenuRenderer();
+                menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
+                menuStrip1.ForeColor = Color.White;
+
                 _dockPanel = new DockPanel
-            {
-                Dock = DockStyle.Fill
-            };
-            Controls.Add(_dockPanel);
+                {
+                    Dock = DockStyle.Fill,
+                    BackColor = Color.FromArgb(28, 32, 38),
+                    Theme = new VS2015DarkTheme()
+                };
 
-            //DockPanel 기본 배경색 (빈 영역)
-            _dockPanel.BackColor = Color.FromArgb(28, 32, 38);
+                Controls.Add(_dockPanel);
+                _dockPanel.BringToFront();
 
-            //다크 테마로 변경 (Blue → Dark)
-            _dockPanel.Theme = new VS2015DarkTheme();
+                LoadDockingWindows();
 
-
-            //#2_DOCKPANEL#6 도킹 윈도우 로드 메서드 호출
-            LoadDockingWindows();
+            }
         }
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // 이미 확인된 종료면 그냥 통과(무한 팝업 방지)
+            if (_isExitConfirmed)
+                return;
+
+            // 사용자가 창을 닫는 경우에만 확인창을 띄우고 싶으면 아래 조건 유지
+            // (프로세스 종료/윈도우 로그오프 같은 상황에는 방해하지 않기 위함)
+            if (e.CloseReason != CloseReason.UserClosing)
+                return;
+
+            using (var dlg = new ExitConfirmForm())
+            {
+                var result = dlg.ShowDialog(this);
+
+                if (result == DialogResult.Yes)
+                {
+                    _isExitConfirmed = true;
+                    // 여기서 Close()를 다시 호출할 필요는 없습니다.
+                    // 현재 닫힘 흐름이 그대로 진행됩니다.
+                    return;
+                }
+
+                // No면 종료 취소
+                e.Cancel = true;
+            }
+        }
+
+
+
 
         //#2_DOCKPANEL#5 도킹 윈도우를 로드하는 메서드
         private void LoadDockingWindows()
         {
             _dockPanel.AllowEndUserDocking = false;
+
+            _dockPanel.DockBottomPortion = 0.15;
+            _dockPanel.DockRightPortion = 0.15;
 
             // 중앙 메인 이미지
             var cameraWindow = new CameraForm();
@@ -86,11 +130,11 @@ namespace FreshCheck_CV
 
             // 하단 가운데 (DefectForm)
             var defectWindow = new DefectForm();
-            defectWindow.Show(runWindow.Pane, DockAlignment.Right, 0.6);
+            defectWindow.Show(runWindow.Pane, DockAlignment.Right, 0.8);
 
             // 하단 오른쪽 (ResultForm)
             var resultWindow = new ResultForm();
-            resultWindow.Show(defectWindow.Pane, DockAlignment.Right, 0.5);
+            resultWindow.Show(defectWindow.Pane, DockAlignment.Right, 0.185);
         }
         // 이미지가 들어 있는 폴더를 선택하는 메서드
         private void LoadImageFolder()
@@ -218,7 +262,7 @@ namespace FreshCheck_CV
                 openFileDialog.Title = "이미지 파일 선택";
                 openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
                 openFileDialog.Multiselect = false;
-                
+
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = openFileDialog.FileName;
@@ -244,16 +288,41 @@ namespace FreshCheck_CV
         {
             StopImageCycle();
         }
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+
+        class DarkMenuRenderer : ToolStripProfessionalRenderer
         {
-            using (var dlg = new ExitConfirmForm())
+            public DarkMenuRenderer() : base(new DarkColorTable()) { }
+        }
+
+        class DarkColorTable : ProfessionalColorTable
+        {
+            public override Color MenuItemSelected => Color.FromArgb(63, 63, 70);
+            public override Color MenuItemBorder => Color.FromArgb(45, 45, 48);
+            public override Color MenuBorder => Color.FromArgb(45, 45, 48);
+            public override Color ToolStripDropDownBackground => Color.FromArgb(45, 45, 48);
+            public override Color ImageMarginGradientBegin => Color.FromArgb(45, 45, 48);
+            public override Color ImageMarginGradientMiddle => Color.FromArgb(45, 45, 48);
+            public override Color ImageMarginGradientEnd => Color.FromArgb(45, 45, 48);
+        }
+
+        // MenuStrip 및 하위 메뉴 항목에 다크 테마 색상 적용
+        private void ApplyDarkStyle(ToolStripMenuItem item)
+        {
+            item.ForeColor = Color.White;
+            item.BackColor = Color.FromArgb(45, 45, 48);
+
+            foreach (ToolStripItem subItem in item.DropDownItems)
             {
-                if (dlg.ShowDialog(this) != DialogResult.Yes)
+                subItem.ForeColor = Color.White;
+                subItem.BackColor = Color.FromArgb(45, 45, 48);
+
+                if (subItem is ToolStripMenuItem menuItem)
                 {
-                    e.Cancel = true; // 종료 취소
+                    ApplyDarkStyle(menuItem);
                 }
             }
         }
+
 
     }
 }
