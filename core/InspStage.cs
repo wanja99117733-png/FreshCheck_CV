@@ -5,14 +5,27 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FreshCheck_CV.Inspect;
 
 namespace FreshCheck_CV.Core
 {
     //검사와 관련된 클래스를 관리하는 클래스
     public class InspStage : IDisposable
     {
+        SaigeAI _saigeAI; // SaigeAI 인스턴스
 
         public InspStage() { }
+
+        public SaigeAI AIModule
+        {
+            get
+            {
+                if (_saigeAI is null)
+                    _saigeAI = new SaigeAI();
+                return _saigeAI;
+            }
+        }
+
 
         public bool Initialize()
         {

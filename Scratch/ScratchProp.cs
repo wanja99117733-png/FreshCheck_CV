@@ -1,4 +1,5 @@
 ﻿using FreshCheck_CV.Core;
+using FreshCheck_CV.Inspect;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
@@ -32,7 +33,7 @@ namespace FreshCheck_CV.Scratch
 
     public partial class ScratchProp : UserControl
     {
-        private FreshCheck_CV.CameraForm _cameraForm;
+        private CameraForm _cameraForm;
         private bool _isEyedropperWaiting;
 
         public ScratchProp()
@@ -391,6 +392,34 @@ namespace FreshCheck_CV.Scratch
             Cv2.ImShow("mask", mask);
             Cv2.ImShow("finalMask", finalMask);
             Cv2.ImShow("result", result);
+        }
+
+        private void btnTemp2_Click(object sender, EventArgs e)
+        {
+            //SaigeAI saigeAI = Global.Inst.InspStage.AIModule; // SaigeAI 인스턴스
+
+            //AIEngineType engineType = AIEngineType.Segmentation;
+            //string modelPath = "D:\\teamProject\\seg_example.saigeseg";
+            //saigeAI.LoadEngine(modelPath, engineType);
+
+            //if (saigeAI == null)
+            //{
+            //    MessageBox.Show("AI 모듈이 초기화되지 않았습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return;
+            //}
+
+            //Bitmap bitmap = Global.Inst.InspStage.GetCurrentImage();
+            //if (bitmap is null)
+            //{
+            //    MessageBox.Show("현재 이미지가 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return;
+            //}
+
+            //saigeAI.InspAIModule(bitmap);
+
+            //Bitmap resultImage = saigeAI.GetResultImage();
+
+            Global.Inst.InspStage.UpdateDisplay(resultImage);
         }
     }
 }
