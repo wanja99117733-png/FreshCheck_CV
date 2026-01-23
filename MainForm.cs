@@ -17,6 +17,8 @@ namespace FreshCheck_CV
     // 현재 참조 WeifenLuo.WinFormsUI.Docking, WeifenLuo.WinFormsUI.Docking.Themes.VS2015
     public partial class MainForm : Form
     {
+        private bool _isExitConfirmed;
+
         //#2_DOCKPANEL#1 DockPanel을 전역으로 선언
         private static DockPanel _dockPanel;
 
@@ -31,6 +33,8 @@ namespace FreshCheck_CV
         {
 
             InitializeComponent();
+
+            FormClosing += MainForm_FormClosing;
 
 
             {
@@ -73,8 +77,35 @@ namespace FreshCheck_CV
 
             }
         }
-            
-        
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // 이미 확인된 종료면 그냥 통과(무한 팝업 방지)
+            if (_isExitConfirmed)
+                return;
+
+            // 사용자가 창을 닫는 경우에만 확인창을 띄우고 싶으면 아래 조건 유지
+            // (프로세스 종료/윈도우 로그오프 같은 상황에는 방해하지 않기 위함)
+            if (e.CloseReason != CloseReason.UserClosing)
+                return;
+
+            using (var dlg = new ExitConfirmForm())
+            {
+                var result = dlg.ShowDialog(this);
+
+                if (result == DialogResult.Yes)
+                {
+                    _isExitConfirmed = true;
+                    // 여기서 Close()를 다시 호출할 필요는 없습니다.
+                    // 현재 닫힘 흐름이 그대로 진행됩니다.
+                    return;
+                }
+
+                // No면 종료 취소
+                e.Cancel = true;
+            }
+        }
+
+
 
 
         //#2_DOCKPANEL#5 도킹 윈도우를 로드하는 메서드
@@ -228,7 +259,7 @@ namespace FreshCheck_CV
                 openFileDialog.Title = "이미지 파일 선택";
                 openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
                 openFileDialog.Multiselect = false;
-                
+
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = openFileDialog.FileName;
@@ -254,18 +285,7 @@ namespace FreshCheck_CV
         {
             StopImageCycle();
         }
-       
-        //메뉴 버튼 클릭 이벤트
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            using (var dlg = new ExitConfirmForm())
-            {
-                if (dlg.ShowDialog(this) != DialogResult.Yes)
-                {
-                    e.Cancel = true; // 종료 취소
-                }
-            }
-        }
+
         class DarkMenuRenderer : ToolStripProfessionalRenderer
         {
             public DarkMenuRenderer() : base(new DarkColorTable()) { }

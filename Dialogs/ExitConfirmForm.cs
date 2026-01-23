@@ -25,20 +25,23 @@ namespace FreshCheck_CV.Dialogs
         private const int HTCAPTION = 0x2;
 
         //종료 메세지 이벤트
-        private Color exitNormal = Color.FromArgb(60, 110, 180);
-        private Color exitHover = Color.FromArgb(70, 120, 195);
-        private Color exitPress = Color.FromArgb(45, 90, 150);
+        private Color _exitNormal = Color.FromArgb(60, 110, 180);
+        private Color _exitHover = Color.FromArgb(70, 120, 195);
+        private Color _exitPress = Color.FromArgb(45, 90, 150);
 
-        private Color cancelNormal = Color.FromArgb(85, 85, 85);
-        private Color cancelHover = Color.FromArgb(100, 100, 100);
-        private Color cancelPress = Color.FromArgb(65, 65, 65);
+        private Color _cancelNormal = Color.FromArgb(85, 85, 85);
+        private Color _cancelHover = Color.FromArgb(100, 100, 100);
+        private Color _cancelPress = Color.FromArgb(65, 65, 65);
 
 
         public ExitConfirmForm()
         {
             InitializeComponent();
+            btnExit.BackColor = _exitNormal;
+            btnCancel.BackColor = _cancelNormal;
 
-            btnCancel.BackColor = cancelNormal;
+            AcceptButton = btnExit;
+            CancelButton = btnCancel;
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -58,38 +61,38 @@ namespace FreshCheck_CV.Dialogs
         //종료메세지 확인버튼 마우스 이벤트 생성
         private void btnExit_MouseEnter(object sender, EventArgs e)
         {
-            btnExit.BackColor = exitHover;
+            btnExit.BackColor = _exitHover;
         }
         private void btnExit_MouseLeave(object sender, EventArgs e)
         {
-            btnExit.BackColor = exitNormal;
+            btnExit.BackColor = _exitNormal;
         }
         private void btnExit_MouseDown(object sender, MouseEventArgs e)
         {
-            btnExit.BackColor = exitPress;
+            btnExit.BackColor = _exitPress;
         }
         private void btnExit_MouseUp(object sender, MouseEventArgs e)
         {
-            btnExit.BackColor = exitHover;
+            btnExit.BackColor = _exitHover;
         }
         //종료메세지 취소버튼 이벤트
         private void btnCancel_MouseEnter(object sender, EventArgs e)
         {
-            btnCancel.BackColor = cancelHover;
+            btnCancel.BackColor = _cancelHover;
         }
 
         private void btnCancel_MouseLeave(object sender, EventArgs e)
         {
-            btnCancel.BackColor = cancelNormal;
+            btnCancel.BackColor = _cancelNormal;
         }
 
         private void btnCancel_MouseDown(object sender, MouseEventArgs e)
         {
-            btnCancel.BackColor = cancelPress;
+            btnCancel.BackColor = _cancelPress;
         }
         private void btnCancel_MouseUp(object sender, MouseEventArgs e)
         {
-            btnCancel.BackColor = cancelHover;
+            btnCancel.BackColor = _cancelHover;
         }
     }
 }
