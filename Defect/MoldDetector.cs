@@ -51,11 +51,29 @@ namespace FreshCheck_CV.Defect
 
                 bool isDefect = ratio >= AreaRatioThreshold;
 
+                Bitmap overlayBmp = null;
+
+                if (isDefect)
+                {
+                    using (Mat baseImg = bgr.Clone())
+                    using (Mat overlay = bgr.Clone())
+                    using (Mat result = new Mat())
+                    {
+                        Scalar color = new Scalar(0, 0, 255); // 빨강
+                        overlay.SetTo(color, mask);
+
+                        Cv2.AddWeighted(baseImg, 0.7, overlay, 0.3, 0, result);
+                        overlayBmp = BitmapConverter.ToBitmap(result);
+                    }
+                }
+
                 return new DefectResult
                 {
                     Type = isDefect ? DefectType.Mold : DefectType.None,
                     IsDefect = isDefect,
-                    Message = $"Mold ratio={ratio:0.0000}, threshold={AreaRatioThreshold:0.0000}"
+                    AreaRatio = ratio,
+                    Message = $"Mold ratio={ratio:0.0000}, threshold={AreaRatioThreshold:0.0000}",
+                    OverlayBitmap = overlayBmp
                 };
             }
         }

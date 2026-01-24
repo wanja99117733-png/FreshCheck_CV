@@ -41,27 +41,6 @@ namespace FreshCheck_CV
             FormClosing += MainForm_FormClosing;
 
 
-            {
-                var testMenu = new ToolStripMenuItem("Test");
-                var runMoldItem = new ToolStripMenuItem("Run Mold Inspection (temp)");
-
-                runMoldItem.Click += (s, e) =>
-                {
-                    Global.Inst.InspStage.RunMoldInspectionTemp();
-                };
-
-                testMenu.DropDownItems.Add(runMoldItem);
-
-                menuStrip1.Renderer = new DarkMenuRenderer();
-                menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
-                menuStrip1.ForeColor = Color.White;
-
-                foreach (ToolStripMenuItem topItem in menuStrip1.Items)
-                {
-                    ApplyDarkStyle(topItem);
-                }
-
-
                 // MenuStrip 다크
                 menuStrip1.Renderer = new DarkMenuRenderer();
                 menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
@@ -86,7 +65,7 @@ namespace FreshCheck_CV
                 LoadDockingWindows();
 
             }
-        }
+        
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             // 이미 확인된 종료면 그냥 통과(무한 팝업 방지)
@@ -142,7 +121,7 @@ namespace FreshCheck_CV
 
             // 하단 오른쪽 (ResultForm)
             var resultWindow = new ResultForm();
-            resultWindow.Show(defectWindow.Pane, DockAlignment.Right, 0.185);
+            resultWindow.Show(defectWindow.Pane, DockAlignment.Right, 0.8);
         }
         // 이미지가 들어 있는 폴더를 선택하는 메서드
         private void LoadImageFolder()
