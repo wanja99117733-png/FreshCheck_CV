@@ -100,7 +100,7 @@ namespace FreshCheck_CV
         {
             _dockPanel.AllowEndUserDocking = false;
 
-            _dockPanel.DockBottomPortion = 0.15;
+            _dockPanel.DockBottomPortion = 0.23;
             _dockPanel.DockRightPortion = 0.15;
 
             // 중앙 메인 이미지
@@ -117,7 +117,7 @@ namespace FreshCheck_CV
 
             // 하단 가운데 (DefectForm)
             var defectWindow = new DefectForm();
-            defectWindow.Show(runWindow.Pane, DockAlignment.Right, 0.8);
+            defectWindow.Show(runWindow.Pane, DockAlignment.Right, 0.9);
 
             // 하단 오른쪽 (ResultForm)
             var resultWindow = new ResultForm();
