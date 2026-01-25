@@ -22,6 +22,11 @@ namespace FreshCheck_CV.Property
         {
             InitializeComponent();
             InitUi();
+
+            ApplyDarkButton(btnPickColor);
+            ApplyDarkButton(btnApply);
+            ApplyDarkButton(btnRunMold);
+
             HookEvents();
             HookCameraPickEvent();
             ApplyLayoutFixes();
@@ -228,6 +233,17 @@ namespace FreshCheck_CV.Property
             {
                 dlg.ShowDialog(this);
             }
+        }
+        private void ApplyDarkButton(Button btn)
+        {
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 1;
+            btn.FlatAppearance.BorderColor = Color.FromArgb(90, 90, 90);
+
+            btn.BackColor = Color.FromArgb(70, 70, 70);
+            btn.ForeColor = Color.White;
+
+            btn.UseVisualStyleBackColor = false;
         }
 
     }
