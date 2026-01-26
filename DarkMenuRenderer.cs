@@ -37,6 +37,13 @@ namespace FreshCheck_CV
             }
         }
 
+        protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+        {
+            e.TextColor = Color.White;
+            e.TextFont = e.TextFont; // 기본 폰트 유지
+            base.OnRenderItemText(e);
+        }
+
         // 메뉴 아이콘 색 통일 (흰색)
         protected override void OnRenderItemImage(ToolStripItemImageRenderEventArgs e)
         {
@@ -62,5 +69,6 @@ namespace FreshCheck_CV
         {
             // 아무 것도 그리지 않음
         }
+
     }
 }

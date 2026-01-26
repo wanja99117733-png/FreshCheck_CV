@@ -18,6 +18,7 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DrawingColor = System.Drawing.Color;
 using OxText = DocumentFormat.OpenXml.Spreadsheet.Text;
+using FreshCheck_CV.Property;
 
 namespace FreshCheck_CV
 {
@@ -435,8 +436,10 @@ namespace FreshCheck_CV
         {
             if (_viewRecords == null || _viewRecords.Count == 0)
             {
-                MessageBox.Show("내보낼 데이터가 없습니다.", "Export Excel",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                using (var dlg = new DarkMessageForm("내보낼 데이터가 없습니다."))
+                {
+                    dlg.ShowDialog(this.FindForm());
+                }
                 return;
             }
 
@@ -451,10 +454,13 @@ namespace FreshCheck_CV
 
                 CreateXlsxWithFilter(sfd.FileName);
 
-                MessageBox.Show("Excel(.xlsx) 내보내기가 완료되었습니다.", "Export Excel",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                using (var dlg = new DarkMessageForm("Excel(.xlsx) 내보내기가 완료되었습니다."))
+                {
+                    dlg.ShowDialog(this.FindForm());
+                }
             }
         }
+
 
         private void CreateXlsxWithFilter(string filePath)
         {

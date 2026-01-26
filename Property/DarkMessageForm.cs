@@ -17,6 +17,10 @@ namespace FreshCheck_CV.Property
         {
             InitializeComponent();
 
+            lblMessage.AutoSize = false;
+            lblMessage.Dock = DockStyle.Fill;
+            lblMessage.TextAlign = ContentAlignment.MiddleCenter;
+
             this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterParent;
             this.BackColor = Color.FromArgb(28, 32, 38);
