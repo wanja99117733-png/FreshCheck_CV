@@ -28,7 +28,6 @@ namespace FreshCheck_CV.Property
 
         private void InitUi()
         {
-            // cbMode를 "표시 모드" 선택으로 사용 (이름은 나중에 바꿔도 됨)
             cbMode.Items.Clear();
             cbMode.Items.Add(ShowBinaryMode.HighlightRed);
             cbMode.Items.Add(ShowBinaryMode.HighlightGreen);
@@ -37,30 +36,49 @@ namespace FreshCheck_CV.Property
             cbMode.Items.Add(ShowBinaryMode.None);
             cbMode.SelectedItem = ShowBinaryMode.HighlightRed;
 
-            // RangeTrackbar는 "허용오차"로 사용
             rangeTrackbar.Minimum = 0;
             rangeTrackbar.Maximum = 255;
 
-            // 요청하신 기본값
-            rangeTrackbar.ValueLeft = 80;   // 아래 오차
-            rangeTrackbar.ValueRight = 120; // 위 오차
+            // 기본값
+            rangeTrackbar.ValueLeft = 80;   // - 오차
+            rangeTrackbar.ValueRight = 120; // + 오차
 
             chkInvert.Checked = false;
+            chkAutoApply.Checked = false;
 
-            // 초기 표시용 라벨
-            lblTargetColor.Text = "Target: (B=0, G=0, R=0)";
+            // 초기 UI
+            UpdateToleranceLabel();
+            UpdateTargetUi(0, 0, 0);
         }
 
         private void HookEvents()
         {
             btnApply.Click += (s, e) => ApplyFromUi();
-
-            // 즉시 적용 원하면 아래 주석 해제 (Scroll 말고 RangeChanged)
-            // rangeTrackbar.RangeChanged += (s, e) => ApplyFromUi();
-            // chkInvert.CheckedChanged += (s, e) => ApplyFromUi();
-            // cbMode.SelectedIndexChanged += (s, e) => ApplyFromUi();
-
             btnPickColor.Click += (s, e) => BeginPickColor();
+
+            // 트랙바 값 변경 시 라벨 갱신 + (옵션) 자동 적용
+            rangeTrackbar.RangeChanged += (s, e) =>
+            {
+                UpdateToleranceLabel();
+                if (chkAutoApply.Checked) ApplyFromUi();
+            };
+
+            // 보기 모드 / 반전 변경 시 (옵션) 자동 적용
+            cbMode.SelectedIndexChanged += (s, e) =>
+            {
+                if (chkAutoApply.Checked) ApplyFromUi();
+            };
+
+            chkInvert.CheckedChanged += (s, e) =>
+            {
+                if (chkAutoApply.Checked) ApplyFromUi();
+            };
+
+            chkAutoApply.CheckedChanged += (s, e) =>
+            {
+                // 켜는 순간 한 번 적용해주는 게 UX 좋음
+                if (chkAutoApply.Checked) ApplyFromUi();
+            };
         }
 
         private void HookCameraPickEvent()
@@ -93,17 +111,29 @@ namespace FreshCheck_CV.Property
 
         private void CameraForm_ColorPicked(object sender, ColorPickedEventArgs e)
         {
-            // Windows Color는 ARGB지만, OpenCV는 BGR로 쓸 것
             Color c = e.Color;
 
             _options.TargetB = c.B;
             _options.TargetG = c.G;
             _options.TargetR = c.R;
 
-            lblTargetColor.Text = $"Target: (B={_options.TargetB}, G={_options.TargetG}, R={_options.TargetR})";
+            UpdateTargetUi(_options.TargetB, _options.TargetG, _options.TargetR);
 
-            // 픽킹 후 즉시 반영
+            // 픽킹 후 반영
             ApplyFromUi();
+        }
+
+        private void UpdateTargetUi(int b, int g, int r)
+        {
+            lblTargetColor.Text = $"Target: (B={b}, G={g}, R={r})";
+            pnlTargetSwatch.BackColor = Color.FromArgb(r, g, b); // 표시용 Color는 RGB
+        }
+
+        private void UpdateToleranceLabel()
+        {
+            int low = Math.Min(rangeTrackbar.ValueLeft, rangeTrackbar.ValueRight);
+            int high = Math.Max(rangeTrackbar.ValueLeft, rangeTrackbar.ValueRight);
+            lblTolerance.Text = $"허용오차: −{low} / +{high}";
         }
 
         private void ApplyFromUi()
@@ -127,7 +157,6 @@ namespace FreshCheck_CV.Property
         private void btnRunMold_Click(object sender, EventArgs e)
         {
             Global.Inst.InspStage.RunMoldInspectionTemp();
-
             MessageBox.Show("검사 완료");
         }
     }

@@ -59,9 +59,14 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\비전솔루션 1팀\bin\x64\Debug\log4net.dll</HintPath>
+    <Reference Include="DocumentFormat.OpenXml, Version=3.4.1.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>packages\DocumentFormat.OpenXml.3.4.1\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml.Framework, Version=3.4.1.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>packages\DocumentFormat.OpenXml.Framework.3.4.1\lib\net46\DocumentFormat.OpenXml.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>bin\x64\Debug\log4net.dll</HintPath>
     </Reference>
     <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
       <HintPath>packages\OpenCvSharp4.4.11.0.20250507\lib\net48\OpenCvSharp.dll</HintPath>
@@ -69,7 +74,9 @@
     <Reference Include="OpenCvSharp.Extensions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
       <HintPath>packages\OpenCvSharp4.Extensions.4.11.0.20250507\lib\net48\OpenCvSharp.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
+    <Reference Include="System">
+      <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.dll</HintPath>
+    </Reference>
     <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
     </Reference>
@@ -100,11 +107,12 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WeifenLuo.WinFormsUI.Docking">
-      <HintPath>..\비전솔루션 1팀\bin\x64\Debug\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
+      <HintPath>bin\x64\Debug\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
     </Reference>
     <Reference Include="WeifenLuo.WinFormsUI.Docking.ThemeVS2015">
-      <HintPath>..\비전솔루션 1팀\bin\x64\Debug\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath>
+      <HintPath>bin\x64\Debug\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CameraForm.cs">
@@ -122,21 +130,6 @@
     <Compile Include="DefectForm.Designer.cs">
       <DependentUpon>DefectForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\ExitConfirmForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\ExitConfirmForm.Designer.cs">
-      <DependentUpon>ExitConfirmForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ResultForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ResultForm.Designer.cs">
-      <DependentUpon>ResultForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\Global.cs" />
-    <Compile Include="Core\InspStage.cs" />
-    <Compile Include="DarkMenuRenderer.cs" />
     <Compile Include="Dialogs\ExitConfirmForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -216,9 +209,13 @@
     <Compile Include="UIControl\RangeTrackbar.Designer.cs">
       <DependentUpon>RangeTrackbar.cs</DependentUpon>
     </Compile>
+    <Compile Include="Util\ResultRecord.cs" />
     <Compile Include="Util\SLogger.cs" />
     <EmbeddedResource Include="CameraForm.resx">
       <DependentUpon>CameraForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DefectForm.resx">
+      <DependentUpon>DefectForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ExitConfirmForm.resx">
       <DependentUpon>ExitConfirmForm.cs</DependentUpon>
@@ -244,6 +241,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Property\ImageFilterProp.resx">
       <DependentUpon>ImageFilterProp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ResultForm.resx">
+      <DependentUpon>ResultForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="RunForm.resx">
       <DependentUpon>RunForm.cs</DependentUpon>

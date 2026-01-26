@@ -11,18 +11,18 @@ namespace FreshCheck_CV.Defect
 {
     public static class DefectImageSaver
     {
-        public static void Save(Bitmap sourceBitmap, DefectType type, DateTime timestamp, string labelText)
+        public static string Save(Bitmap sourceBitmap, DefectType type, DateTime timestamp, string labelText)
         {
             if (sourceBitmap == null)
                 throw new ArgumentNullException(nameof(sourceBitmap));
 
             string root = AppDomain.CurrentDomain.BaseDirectory;
 
-            // OK / Mold만 현재 사용
             string typeFolder = (type == DefectType.Mold) ? "Mold" : "OK";
 
             string dateFolder = timestamp.ToString("yyyy-MM-dd");
-            string fileName = $"{timestamp:HH-mm-ss-fff}.png";
+            string suffix = (type == DefectType.Mold) ? "Mold" : "OK";
+            string fileName = $"{timestamp:HH-mm-ss-fff}_{suffix}.png";
 
             string dir = Path.Combine(root, "Defect", typeFolder, dateFolder);
             Directory.CreateDirectory(dir);
@@ -33,6 +33,8 @@ namespace FreshCheck_CV.Defect
             {
                 overlay.Save(path, ImageFormat.Png);
             }
+
+            return path;
         }
 
         private static Bitmap DrawLabelTopLeft(Bitmap source, string text)

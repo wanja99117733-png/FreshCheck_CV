@@ -18,5 +18,7 @@ using System.Threading.Tasks;
 
             // 표시용 오버레이
             public Bitmap OverlayBitmap { get; set; } = null;
+
+            public double AreaRatio { get; set; } = 0.0;
         }
     }

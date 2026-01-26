@@ -50,7 +50,7 @@ namespace FreshCheck_CV.Core
             var cameraForm = MainForm.GetDockForm<CameraForm>();
             if (cameraForm != null)
             {
-                bitmap = cameraForm.GetDisplayImage();                
+                bitmap = cameraForm.GetDisplayImage();
             }
 
             return bitmap;
@@ -119,9 +119,10 @@ namespace FreshCheck_CV.Core
             UpdateDisplay(result);
         }
 
+
+
         public void RunMoldInspectionTemp()
         {
-            // TODO: 여기 함수명을 실제 프로젝트에 있는 “현재 원본 Bitmap 반환” 함수로 바꾸세요.
             Bitmap source = GetCurrentImage();
             if (source == null)
                 return;
@@ -137,19 +138,49 @@ namespace FreshCheck_CV.Core
 
             bool isMold = result != null && result.IsDefect && result.Type == DefectType.Mold;
 
+            string resultText = isMold ? "NG" : "OK";
             string label = isMold ? "NG - Mold" : "OK";
             DefectType saveType = isMold ? DefectType.Mold : DefectType.None;
 
-            DefectImageSaver.Save(source, saveType, now, label);
+            string savedPath = DefectImageSaver.Save(source, saveType, now, label);
 
+            // 로그(기록용)
+            Util.SLogger.Write($"Mold Inspection: {label} | {result?.Message} | saved={savedPath}");
 
-            // Form 추가되면 주석 해제
+            // ResultForm: 항상 1건 기록
+            var resultForm = MainForm.GetDockForm<ResultForm>();
+            if (resultForm != null)
+            {
+                var record = new Models.ResultRecord
+                {
+                    Time = now,
+                    Result = resultText,
+                    DefectType = isMold ? "Mold" : "None",
+                    Ratio = result?.AreaRatio ?? 0.0,
+                    SavedPath = savedPath,
+                    Message = result?.Message ?? string.Empty
+                };
 
-            // var defectForm = MainForm.GetDockForm<DefectForm>();
-            // defectForm?.AddDefect(...);
+                resultForm.AddRecord(record);
+            }
 
-            // var resultForm = MainForm.GetDockForm<ResultForm>();
-            // resultForm?.UpdateResult(...);
+            // DefectForm: NG일 때만 마스킹 이미지
+            if (isMold)
+            {
+                var defectForm = MainForm.GetDockForm<DefectForm>();
+                defectForm?.AddDefectImage(
+                    result?.OverlayBitmap,
+                    $"{now:HH:mm:ss.fff}  {label}  ratio={result?.AreaRatio:0.0000}",
+                    savedPath);
+            }
+            else
+            {
+                // OK면 OverlayBitmap이 null일 가능성이 높음(정상)
+                if (result?.OverlayBitmap != null)
+                {
+                    result.OverlayBitmap.Dispose();
+                }
+            }
         }
 
         #region Disposable
