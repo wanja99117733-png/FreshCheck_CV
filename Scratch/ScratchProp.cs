@@ -22,7 +22,7 @@ namespace FreshCheck_CV.Scratch
             SaigeAI saigeAI = Global.Inst.InspStage.AIModule; // SaigeAI 인스턴스
 
             AIEngineType engineType = AIEngineType.Segmentation;
-            string modelPath = "D:\\SaigeModel\\Cucumber_Back_Del.saigeseg";
+            string modelPath = "D:\\SagieModel\\Cu_seg.saigeseg";
             saigeAI.LoadEngine(modelPath, engineType); // 엔진 연결
 
             if (saigeAI == null)
@@ -59,16 +59,11 @@ namespace FreshCheck_CV.Scratch
             //Cv2.ImShow("previewMat", previewMat);
             /* 테스트 용도 - E */
 
-
+            
         }
 
+        // 스크래치 검출 버튼
         private void btnScratchDet_Click(object sender, EventArgs e)
-        {
-            // 기존 코드 그대로 유지...
-        }
-
-        // ★ 새로 추가: 스크래치 검출 버튼
-        private void btnScratchDetect_Click(object sender, EventArgs e)
         {
             SaigeAI saigeAI = Global.Inst.InspStage.AIModule;
             if (saigeAI == null)
@@ -89,7 +84,7 @@ namespace FreshCheck_CV.Scratch
             }
 
             // 2. 스크래치 모델 로드 & 검사
-            string scratchModelPath = "D:\\SaigeModel\\Cucumber_Scratch_Det.saigeseg";
+            string scratchModelPath = "D:\\SagieModel\\Cucumber_Scratch_Det.saigeseg";
             saigeAI.LoadEngine(scratchModelPath, AIEngineType.ScratchSegmentation);
 
             if (!saigeAI.InspAIModule(baseImage))

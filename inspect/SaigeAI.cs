@@ -13,6 +13,8 @@ using SaigeVision.Net.V2;
 using SaigeVision.Net.V2.Detection;
 using SaigeVision.Net.V2.IAD;
 using SaigeVision.Net.V2.Segmentation;
+using OpenCvSharp;
+using OpenCvSharp.Extensions;
 
 namespace FreshCheck_CV.Inspect
 {
@@ -115,7 +117,7 @@ namespace FreshCheck_CV.Inspect
             option.CalcMask = true;  // 마스크 계산 활성화
             option.CalcObjectAreaAndApplyThreshold = true;
             option.CalcObjectScoreAndApplyThreshold = true;
-            option.ObjectScoreThresholdPerClass[0] = 0.5;  // 스크래치 클래스 threshold
+            option.ObjectScoreThresholdPerClass[1] = 0.5;  // 스크래치 클래스 threshold
             _scratchSegEngine.SetInferenceOption(option);
         }
 
