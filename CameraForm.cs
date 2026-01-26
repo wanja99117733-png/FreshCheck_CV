@@ -13,7 +13,7 @@ using WeifenLuo.WinFormsUI.Docking;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using FreshCheck_CV.Scratch;
-
+//dd
 namespace FreshCheck_CV
 {
     public partial class CameraForm : DockContent
