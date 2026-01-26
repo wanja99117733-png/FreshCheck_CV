@@ -66,33 +66,34 @@ namespace FreshCheck_CV.Scratch
         private void btnScratchDet_Click(object sender, EventArgs e)
         {
             SaigeAI saigeAI = Global.Inst.InspStage.AIModule;
-            if (saigeAI == null)
+            if (saigeAI == null) { /* 오류 */ return; }
+
+            // 🔥 1. 배경제거 이미지만 사용 (검사+그리기)
+            Bitmap noBgImage = Global.Inst.InspStage.GetPreviewImage();
+            if (noBgImage == null)
             {
-                MessageBox.Show("AI 모듈이 초기화되지 않았습니다.", "오류",
-                               MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("먼저 [배경제거] 버튼을 눌러주세요!", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            // 1. 입력 이미지: Preview 우선 → 원본
-            Bitmap baseImage = Global.Inst.InspStage.GetPreviewImage()
-                             ?? Global.Inst.InspStage.GetCurrentImage();
-            if (baseImage == null)
-            {
-                MessageBox.Show("검사할 이미지가 없습니다.", "오류",
-                               MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            Console.WriteLine($"배경제거 이미지 크기: {noBgImage.Width}x{noBgImage.Height}");
 
-            // 2. 스크래치 모델 로드 & 검사
+            // 2. 배경제거 이미지로 Scratch 검출+사각형
             string scratchModelPath = "D:\\SagieModel\\Cucumber_Scratch_Det.saigeseg";
             saigeAI.LoadEngine(scratchModelPath, AIEngineType.ScratchSegmentation);
 
-            if (!saigeAI.InspAIModule(baseImage))
+            if (!saigeAI.InspAIModule(noBgImage))  // 🔥 배경제거 이미지로 검출!
+            {
+                MessageBox.Show("Scratch 검출 실패", "오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
+            }
 
-            // 3. 스크래치 결과 객체 + 이미지 → ImageViewCtrl 전달
             SegmentationResult scratchResult = saigeAI.GetScratchResult();
-            Global.Inst.InspStage.UpdatePreviewWithScratch(baseImage, scratchResult);
+            Console.WriteLine($"검출된 Scratch 수: {scratchResult?.SegmentedObjects?.Length ?? 0}");
+
+            // 3. 배경제거 이미지에 사각형 그리기
+            Global.Inst.InspStage.UpdatePreviewWithScratch(noBgImage, scratchResult);
         }
+
     }
 }

@@ -162,23 +162,16 @@ namespace FreshCheck_CV.UIControl
         // 스크래치 결과와 함께 Preview 설정
         public void SetPreviewWithScratch(Bitmap previewImage, SegmentationResult scratchResult)
         {
-            // 기존 PreviewImage 정리
-            PreviewImage = null;
-
-            if (previewImage != null)
+            PreviewImage = previewImage?.Clone() as Bitmap;  // 강제 PreviewImage 설정!
+            _scratchResult = scratchResult;
+                
+            // 🔥 Preview 전용 줌 리셋
+            if (PreviewImage != null)
             {
-                try
-                {
-                    PreviewImage = new Bitmap(previewImage);
-                }
-                catch (Exception ex)
-                {
-                    // 로그 또는 무시
-                    System.Diagnostics.Debug.WriteLine($"Clone 실패: {ex.Message}");
-                }
+                _bitmapImage = PreviewImage.Clone() as Bitmap;  // _bitmapImage도 Preview로!
+                FitImageToScreen();  // 크기 맞춤
             }
 
-            _scratchResult = scratchResult;
             Invalidate();
         }
 
@@ -226,28 +219,36 @@ namespace FreshCheck_CV.UIControl
         {
             base.OnPaint(e);
 
-
-            Bitmap displayBitmap = _previewImage ?? _bitmapImage; // 프리뷰 이미지가 존재하지 않는다면, 현재 이미지를 가져옴
+            // 🔥 수정: PreviewImage 무조건 우선!
+            Bitmap displayBitmap = _previewImage != null ? _previewImage : _bitmapImage;
 
             if (displayBitmap != null && Canvas != null)
             {
-                // 캔버스를 초기화하고 이미지 그리기
-                using (Graphics g = Graphics.FromImage(Canvas))  // 메모리누수방지
+                using (Graphics g = Graphics.FromImage(Canvas))
                 {
-                    g.Clear(Color.Transparent); // 배경을 투명하게 설정
-
-                    //이미지 확대or축소때 화질 최적화 방식(Interpolation Mode) 설정                    
+                    g.Clear(Color.Transparent);
                     g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                    g.DrawImage(displayBitmap, ImageRect);
 
-                    // 스크래치 세그멘테이션 결과가 존재하면 경계 상자 그리기
-                    DrawScratchBoundingBoxes(g);
+                    // 🔥 PreviewImage 크기로 ImageRect 재계산!
+                    if (_previewImage != null)
+                    {
+                        float virtualWidth = _previewImage.Width * _curZoom;
+                        float virtualHeight = _previewImage.Height * _curZoom;
+                        ImageRect = new RectangleF(
+                            (Width - virtualWidth) / 2f,
+                            (Height - virtualHeight) / 2f,
+                            virtualWidth, virtualHeight);
+                    }
 
-                    // 캔버스를 UserControl 화면에 표시
+                    g.DrawImage(displayBitmap, ImageRect);  // 배경제거 이미지!
+
+                    DrawScratchBoundingBoxes(g);  // 사각형!
+
                     e.Graphics.DrawImage(Canvas, 0, 0);
                 }
             }
         }
+
 
         // 사각형 그리기 (줌/스크롤 반영)
         private void DrawScratchBoundingBoxes(Graphics g)
@@ -295,7 +296,15 @@ namespace FreshCheck_CV.UIControl
 
         private RectangleF VirtualToScreen(RectangleF imgRect)
         {
-            throw new NotImplementedException();
+            // 이미 구현된 Rectangle 버전의 로직과 동일하게 작동하도록 구현합니다.
+            PointF offset = GetScreenOffset();
+
+            return new RectangleF(
+                (imgRect.X * _curZoom) + offset.X,
+                (imgRect.Y * _curZoom) + offset.Y,
+                imgRect.Width * _curZoom,
+                imgRect.Height * _curZoom
+            );
         }
 
         //#4_IMAGE_VIEWER#4 마우스휠을 이용한 확대/축소
