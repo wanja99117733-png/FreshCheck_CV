@@ -33,12 +33,6 @@ namespace FreshCheck_CV
         {
 
             InitializeComponent();
-
-            //오픈시 창 최댓값 최솟값
-            this.MinimumSize = new Size(1200, 800);
-            this.Size = new Size(1400, 900);
-            this.StartPosition = FormStartPosition.CenterScreen;
-
             menuStrip1.Renderer = new DarkMenuRenderer();
             
             menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
@@ -107,7 +101,7 @@ namespace FreshCheck_CV
             _dockPanel.AllowEndUserDocking = false;
 
             _dockPanel.DockBottomPortion = 0.23;
-            _dockPanel.DockRightPortion = 0.22;
+            _dockPanel.DockRightPortion = 0.15;
 
             // 중앙 메인 이미지
             var cameraWindow = new CameraForm();
