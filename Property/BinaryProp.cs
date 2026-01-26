@@ -154,10 +154,16 @@ namespace FreshCheck_CV.Property
             Global.Inst.InspStage.ApplyBinary(_options);
         }
 
+
         private void btnRunMold_Click(object sender, EventArgs e)
         {
             Global.Inst.InspStage.RunMoldInspectionTemp();
-            MessageBox.Show("검사 완료");
+
+            using (var dlg = new DarkMessageForm("검사 완료"))
+            {
+                dlg.ShowDialog(this);
+            }
         }
+
     }
 }

@@ -33,6 +33,12 @@ namespace FreshCheck_CV
         {
 
             InitializeComponent();
+
+            //메인폼 사이즈 강제 고정
+            this.MinimumSize = new Size(1250, 800);
+            this.Size = new Size(1450, 900);
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             menuStrip1.Renderer = new DarkMenuRenderer();
             
             menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
