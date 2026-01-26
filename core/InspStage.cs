@@ -21,6 +21,8 @@ namespace FreshCheck_CV.Core
 
         public InspStage() { }
 
+        public InspectionHub Hub { get; } = new InspectionHub();
+
         public bool Initialize()
         {
 
@@ -143,6 +145,19 @@ namespace FreshCheck_CV.Core
             DefectType saveType = isMold ? DefectType.Mold : DefectType.None;
 
             string savedPath = DefectImageSaver.Save(source, saveType, now, label);
+
+            // Inspection Monitor용 집계 이벤트 푸시
+            var dto = new InspectionResultDto
+            {
+                Timestamp = now,
+                IsOk = !isMold,
+                Type = isMold ? MonitorDefectType.Mold : MonitorDefectType.None,
+                Ratio = result?.AreaRatio,
+                SavedPath = savedPath,
+                Message = result?.Message
+            };
+
+            Hub.Push(dto);
 
             // 로그(기록용)
             Util.SLogger.Write($"Mold Inspection: {label} | {result?.Message} | saved={savedPath}");
