@@ -203,6 +203,9 @@
     <Compile Include="RunForm.Designer.cs">
       <DependentUpon>RunForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UIControl\DarkTabControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UIControl\ImageViewCtrl.cs">
       <SubType>UserControl</SubType>
     </Compile>
