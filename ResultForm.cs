@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,13 +21,16 @@ namespace FreshCheck_CV
         private readonly BindingList<ResultRecord> _viewRecords = new BindingList<ResultRecord>();
         private int _seq = 0;
 
+        [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
+        private static extern int SetWindowTheme(IntPtr hWnd, string pszSubAppName, string pszSubIdList);
+
+        private readonly Color _tabClientBack = Color.FromArgb(24, 28, 34);
+
         public ResultForm()
         {
             InitializeComponent();
 
             ApplyDarkThemeToGrid(dgvResults);
-
-            ApplyDarkThemeToTabs(tabMain);
 
             ApplyDarkButton(btnClear);
 
@@ -34,10 +38,10 @@ namespace FreshCheck_CV
 
             ApplyDarkComboBox(cbResultFilter);
 
+            ApplyTabDarkTheme(tabMain);
 
             BackColor = Color.FromArgb(30, 34, 40);
 
-            // Logs 탭을 유지하는 경우 listBoxLogs 스타일
             if (listBoxLogs != null)
             {
                 listBoxLogs.BackColor = Color.FromArgb(30, 34, 40);
@@ -47,7 +51,6 @@ namespace FreshCheck_CV
                 SLogger.LogUpdated += OnLogUpdated;
             }
 
-            // 결과 테이블 바인딩
             if (dgvResults != null)
             {
                 dgvResults.AutoGenerateColumns = true;
@@ -142,8 +145,6 @@ namespace FreshCheck_CV
                 System.Diagnostics.Process.Start(record.SavedPath);
             }
         }
-
-        // 로그 탭 유지 시: 기존 로직 그대로
         private void OnLogUpdated(string logMessage)
         {
             if (listBoxLogs == null)
@@ -181,7 +182,6 @@ namespace FreshCheck_CV
             if (grid == null)
                 return;
 
-            // 기본 옵션
             grid.BorderStyle = BorderStyle.None;
             grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             grid.GridColor = Color.FromArgb(55, 55, 55);
@@ -194,10 +194,8 @@ namespace FreshCheck_CV
             grid.AllowUserToDeleteRows = false;
             grid.AllowUserToResizeRows = false;
 
-            // 배경
             grid.BackgroundColor = Color.FromArgb(30, 34, 40);
 
-            // 셀 스타일
             var cellStyle = new DataGridViewCellStyle
             {
                 BackColor = Color.FromArgb(30, 34, 40),
@@ -208,7 +206,6 @@ namespace FreshCheck_CV
             };
             grid.DefaultCellStyle = cellStyle;
 
-            // 번갈아 행 색
             var altStyle = new DataGridViewCellStyle
             {
                 BackColor = Color.FromArgb(26, 29, 34),
@@ -218,7 +215,6 @@ namespace FreshCheck_CV
             };
             grid.AlternatingRowsDefaultCellStyle = altStyle;
 
-            // 헤더 스타일
             var headerStyle = new DataGridViewCellStyle
             {
                 BackColor = Color.FromArgb(45, 45, 48),
@@ -237,56 +233,6 @@ namespace FreshCheck_CV
 
             grid.RowTemplate.Height = 28;
         }
-
-
-        private void ApplyDarkThemeToTabs(TabControl tab)
-        {
-            if (tab == null)
-                return;
-
-            tab.DrawMode = TabDrawMode.OwnerDrawFixed;
-            tab.SizeMode = TabSizeMode.Fixed;
-            tab.ItemSize = new Size(90, 24); // 탭 크기(원하면 조정)
-            tab.Appearance = TabAppearance.Normal;
-
-            // 페이지 배경
-            foreach (TabPage page in tab.TabPages)
-            {
-                page.BackColor = Color.FromArgb(30, 34, 40);
-                page.ForeColor = Color.Gainsboro;
-            }
-
-            tab.DrawItem -= Tab_DrawItem_Dark; // 중복 구독 방지
-            tab.DrawItem += Tab_DrawItem_Dark;
-        }
-
-        private void Tab_DrawItem_Dark(object sender, DrawItemEventArgs e)
-        {
-            var tab = (TabControl)sender;
-            TabPage page = tab.TabPages[e.Index];
-            Rectangle r = e.Bounds;
-
-            bool selected = (e.Index == tab.SelectedIndex);
-
-            Color back = selected ? Color.FromArgb(45, 45, 48) : Color.FromArgb(30, 34, 40);
-            Color fore = selected ? Color.White : Color.Gainsboro;
-            Color border = Color.FromArgb(70, 70, 70);
-
-            using (var bg = new SolidBrush(back))
-                e.Graphics.FillRectangle(bg, r);
-
-            using (var pen = new Pen(border))
-                e.Graphics.DrawRectangle(pen, r);
-
-            TextRenderer.DrawText(
-                e.Graphics,
-                page.Text,
-                tab.Font,
-                r,
-                fore,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
-        }
-
         private void ApplyDarkButton(Button btn)
         {
             if (btn == null)
@@ -359,10 +305,8 @@ namespace FreshCheck_CV
             if (grid == null || grid.Columns.Count == 0)
                 return;
 
-            // 1) 자동 리사이즈 끄고, 우리가 지정한 폭을 쓰게 함
             grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
 
-            // 2) 컬럼 폭 (원하는 값으로 조절)
             SetColWidth(grid, "No", 60);
             SetColWidth(grid, "Time", 170);
             SetColWidth(grid, "Result", 70);
@@ -370,22 +314,18 @@ namespace FreshCheck_CV
             SetColWidth(grid, "Ratio", 90);
             SetColWidth(grid, "SavedPath", 260);
 
-            // Message는 남는 폭을 모두 차지하게(추천)
             if (grid.Columns.Contains("Message"))
                 grid.Columns["Message"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            // 3) 가운데 정렬(헤더 + 셀)
             CenterAlign(grid, "No");
             CenterAlign(grid, "Time");
             CenterAlign(grid, "Result");
             CenterAlign(grid, "DefectType");
             CenterAlign(grid, "Ratio");
 
-            // SavedPath / Message는 보통 왼쪽 정렬이 읽기 좋음
             LeftAlign(grid, "SavedPath");
             LeftAlign(grid, "Message");
 
-            // 4) 표시 포맷(선택)
             if (grid.Columns.Contains("Ratio"))
                 grid.Columns["Ratio"].DefaultCellStyle.Format = "0.0000";
         }
@@ -414,6 +354,112 @@ namespace FreshCheck_CV
 
             grid.Columns[colName].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleLeft;
             grid.Columns[colName].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        }
+
+        private void ApplyTabDarkTheme(TabControl tab)
+        {
+            if (tab == null) return;
+
+            tab.BackColor = Color.FromArgb(24, 28, 34);
+
+            if (tab.Parent != null)
+            {
+                tab.Parent.BackColor = Color.FromArgb(24, 28, 34);
+                tab.Parent.ForeColor = Color.Gainsboro;
+            }
+
+            tab.ForeColor = Color.Gainsboro;
+
+            foreach (TabPage page in tab.TabPages)
+            {
+                page.UseVisualStyleBackColor = false;
+                page.BackColor = Color.FromArgb(24, 28, 34);
+                page.ForeColor = Color.Gainsboro;
+            }
+
+            tab.DrawMode = TabDrawMode.OwnerDrawFixed;
+            tab.SizeMode = TabSizeMode.Fixed;
+            tab.ItemSize = new Size(120, 28);
+
+            tab.DrawItem -= Tab_DrawItem_Dark;
+            tab.DrawItem += Tab_DrawItem_Dark;
+
+            tab.HandleCreated -= Tab_HandleCreated_DisableTheme;
+            tab.HandleCreated += Tab_HandleCreated_DisableTheme;
+
+            if (tab.IsHandleCreated)
+            {
+                Tab_HandleCreated_DisableTheme(tab, EventArgs.Empty);
+            }
+
+            tab.Invalidate();
+            ApplyTabPageChildrenTheme(tab);
+        }
+
+        private void Tab_HandleCreated_DisableTheme(object sender, EventArgs e)
+        {
+            var tab = sender as TabControl;
+            if (tab == null) return;
+
+            SetWindowTheme(tab.Handle, "", "");
+        }
+
+        private void Tab_DrawItem_Dark(object sender, DrawItemEventArgs e)
+        {
+            var tab = sender as TabControl;
+            if (tab == null) return;
+
+            bool isSelected = (e.Index == tab.SelectedIndex);
+
+            Rectangle rect = tab.GetTabRect(e.Index);
+
+            Color back = isSelected ? Color.FromArgb(45, 50, 58) : Color.FromArgb(30, 34, 40);
+            using (var backBrush = new SolidBrush(back))
+            {
+                e.Graphics.FillRectangle(backBrush, rect);
+            }
+
+            using (var pen = new Pen(Color.FromArgb(70, 70, 70)))
+            {
+                e.Graphics.DrawRectangle(pen, rect);
+            }
+
+            string text = tab.TabPages[e.Index].Text;
+            Color textColor = isSelected ? Color.White : Color.Gainsboro;
+
+            TextRenderer.DrawText(
+                e.Graphics,
+                text,
+                tab.Font,
+                rect,
+                textColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        }
+        private void ApplyDarkToChildren(Control root)
+        {
+            if (root == null) return;
+
+            foreach (Control c in root.Controls)
+            {
+                if (c is Panel || c is TableLayoutPanel || c is FlowLayoutPanel || c is SplitContainer)
+                {
+                    c.BackColor = Color.FromArgb(24, 28, 34);
+                    c.ForeColor = Color.Gainsboro;
+                }
+
+                if (c.HasChildren)
+                    ApplyDarkToChildren(c);
+            }
+        }
+
+        private void ApplyTabPageChildrenTheme(TabControl tab)
+        {
+            if (tab == null) return;
+
+            foreach (TabPage page in tab.TabPages)
+            {
+                ApplyDarkToChildren(page);
+            }
         }
     }
 }
