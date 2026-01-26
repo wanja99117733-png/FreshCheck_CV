@@ -32,6 +32,8 @@ namespace FreshCheck_CV.Inspect
     {
         [Description("Segmentation")]
         Segmentation = 0,
+        [Description("ScratchSeg")]
+        ScratchSegmentation = 1,
     }
 
     public class SaigeAI : IDisposable
@@ -39,6 +41,9 @@ namespace FreshCheck_CV.Inspect
         AIEngineType _engineType;
         SegmentationEngine _segEngine = null;
         SegmentationResult _segResult = null;
+
+        SegmentationEngine _scratchSegEngine = null;
+        SegmentationResult _scratchSegResult = null;
 
         Bitmap _inspImage = null;
 
@@ -51,13 +56,15 @@ namespace FreshCheck_CV.Inspect
         {
             //GPU에 여러개 모델을 넣을 경우, 메모리가 부족할 수 있으므로, 해제
             DisposeMode();
-
             _engineType = engineType;
 
-            switch(_engineType)
+            switch (_engineType)
             {
                 case AIEngineType.Segmentation:
                     LoadSegEngine(modelPath);
+                    break;
+                case AIEngineType.ScratchSegmentation:
+                    LoadScratchSegEngine(modelPath);
                     break;
                 default:
                     throw new NotSupportedException("지원하지 않는 엔진 타입입니다.");
@@ -98,7 +105,19 @@ namespace FreshCheck_CV.Inspect
             _segEngine.SetInferenceOption(option);
         }
 
-
+        public void LoadScratchSegEngine(string modelPath)
+        {
+            _scratchSegEngine = new SegmentationEngine(modelPath, 0);
+            SegmentationOption option = _scratchSegEngine.GetInferenceOption();
+            option.CalcTime = false;  // 실제 검사 시 false 권장
+            option.CalcObject = true;
+            option.CalcScoremap = false;
+            option.CalcMask = true;  // 마스크 계산 활성화
+            option.CalcObjectAreaAndApplyThreshold = true;
+            option.CalcObjectScoreAndApplyThreshold = true;
+            option.ObjectScoreThresholdPerClass[0] = 0.5;  // 스크래치 클래스 threshold
+            _scratchSegEngine.SetInferenceOption(option);
+        }
 
         // 입력된 이미지에서 IAD 검사 진행
         public bool InspAIModule(Bitmap bmpImage)
@@ -125,6 +144,14 @@ namespace FreshCheck_CV.Inspect
                     }
                     // Segmentation 엔진을 이용하여 검사합니다.
                     _segResult = _segEngine.Inspection(srImage);
+                    break;
+                case AIEngineType.ScratchSegmentation:
+                    if (_scratchSegEngine == null)  
+                    {
+                        MessageBox.Show("엔진이 초기화되지 않았습니다. LoadEngine 메서드를 호출하여 엔진을 초기화하세요.");
+                        return false;
+                    }
+                    _scratchSegResult = _scratchSegEngine.Inspection(srImage); 
                     break;
             }
 
@@ -201,16 +228,22 @@ namespace FreshCheck_CV.Inspect
                         return resultImage;
                     DrawSegResult(_segResult.SegmentedObjects, resultImage);
                     break;
+                case AIEngineType.ScratchSegmentation:
+                    return resultImage;
             }
 
             return resultImage;
         }
+        public SegmentationResult GetScratchResult() => _scratchSegResult;
 
         private void DisposeMode()
         {
             //GPU에 여러개 모델을 넣을 경우, 메모리가 부족할 수 있으므로, 해제
             if (_segEngine != null)
                 _segEngine.Dispose();
+
+            if (_scratchSegEngine != null)
+                _scratchSegEngine.Dispose();
         }
 
         #region Disposable

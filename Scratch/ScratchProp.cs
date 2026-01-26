@@ -21,7 +21,7 @@ namespace FreshCheck_CV.Scratch
             SaigeAI saigeAI = Global.Inst.InspStage.AIModule; // SaigeAI 인스턴스
 
             AIEngineType engineType = AIEngineType.Segmentation;
-            string modelPath = "C:\\project\\teamProject\\FreshCheck_CV\\inspect\\Cu_seg.saigeseg";
+            string modelPath = "D:\\Team Project SaigeModol\\Cu_seg.saigeseg";
             saigeAI.LoadEngine(modelPath, engineType); // 엔진 연결
 
             if (saigeAI == null)
@@ -59,6 +59,44 @@ namespace FreshCheck_CV.Scratch
             /* 테스트 용도 - E */
 
 
+        }
+
+        private void btnScratchDet_Click(object sender, EventArgs e)
+        {
+            // 기존 코드 그대로 유지...
+        }
+
+        // ★ 새로 추가: 스크래치 검출 버튼
+        private void btnScratchDetect_Click(object sender, EventArgs e)
+        {
+            SaigeAI saigeAI = Global.Inst.InspStage.AIModule;
+            if (saigeAI == null)
+            {
+                MessageBox.Show("AI 모듈이 초기화되지 않았습니다.", "오류",
+                               MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // 1. 입력 이미지: Preview 우선 → 원본
+            Bitmap baseImage = Global.Inst.InspStage.GetPreviewImage()
+                             ?? Global.Inst.InspStage.GetCurrentImage();
+            if (baseImage == null)
+            {
+                MessageBox.Show("검사할 이미지가 없습니다.", "오류",
+                               MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // 2. 스크래치 모델 로드 & 검사
+            string scratchModelPath = "D:\\Team Project SaigeModol\\scratch_seg.saigeseg";
+            saigeAI.LoadEngine(scratchModelPath, AIEngineType.ScratchSegmentation);
+
+            if (!saigeAI.InspAIModule(baseImage))
+                return;
+
+            // 3. 스크래치 결과 객체 + 이미지 → ImageViewCtrl 전달
+            SegmentationResult scratchResult = saigeAI.GetScratchResult();
+            Global.Inst.InspStage.UpdatePreviewWithScratch(baseImage, scratchResult);
         }
     }
 }

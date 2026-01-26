@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using SagieVision.Net.V2;
 
 
 namespace FreshCheck_CV.UIControl
@@ -58,7 +59,8 @@ namespace FreshCheck_CV.UIControl
         private float MinZoom = 1.0f;
         private const float MaxZoom = 100.0f;
 
-
+        // 스크래치 세그멘테이션 결과 저장용
+        private SegmentationResult _scratchResult = null;
         public ImageViewCtrl()
         {
             InitializeComponent();
@@ -153,6 +155,21 @@ namespace FreshCheck_CV.UIControl
 
             Invalidate();
         }
+        // 스크래치 결과와 함께 Preview 설정
+        public void SetPreviewWithScratch(Bitmap previewImage, SegmentationResult scratchResult)
+        {
+            PreviewImage = previewImage?.Clone(new Rectangle(0, 0, previewImage.Width, previewImage.Height),
+                                             System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            _scratchResult = scratchResult;
+            Invalidate();
+        }
+        // 스크래치 결과만 클리어
+        public void ClearScratchResult()
+        {
+            _scratchResult = null;
+            Invalidate();
+        }
+
 
         //#GROUP ROI#7 현재 이미지를 기준으로 줌 비율 재계산
         private void RecalcZoomRatio()
@@ -204,8 +221,41 @@ namespace FreshCheck_CV.UIControl
                     g.InterpolationMode = InterpolationMode.NearestNeighbor;
                     g.DrawImage(displayBitmap, ImageRect);
 
+                    // 스크래치 세그멘테이션 결과가 존재하면 경계 상자 그리기
+                    DrawScratchBoundingBoxes(g);
+
                     // 캔버스를 UserControl 화면에 표시
                     e.Graphics.DrawImage(Canvas, 0, 0);
+                }
+            }
+        }
+
+        // 사각형 그리기 (줌/스크롤 반영)
+        private void DrawScratchBoundingBoxes(Graphics g)
+        {
+            if (_scratchResult?.SegmentedObjects == null || _scratchResult.SegmentedObjects.Length == 0)
+                return;
+
+            using (Pen pen = new Pen(Color.Red, 3))
+            using (Font font = new Font("Arial", 10, FontStyle.Bold))
+            {
+                foreach (var obj in _scratchResult.SegmentedObjects)
+                {
+                    if (obj?.BoundingBox != null)
+                    {
+                        // 이미지 좌표 → 화면 좌표 변환
+                        RectangleF imgRect = new RectangleF(obj.BoundingBox.Value.X, obj.BoundingBox.Value.Y,
+                                                          obj.BoundingBox.Value.Width, obj.BoundingBox.Value.Height);
+
+                        RectangleF screenRect = VirtualToScreen(imgRect);
+
+                        // 사각형 그리기
+                        g.DrawRectangle(pen, screenRect.X, screenRect.Y, screenRect.Width, screenRect.Height);
+
+                        // 라벨 (Score 표시)
+                        string label = $"Scratch: {obj.Score:F2}";
+                        g.DrawString(label, font, Brushes.Red, screenRect.X, Math.Max(0, screenRect.Y - 20));
+                    }
                 }
             }
         }
