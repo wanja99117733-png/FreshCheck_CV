@@ -35,6 +35,8 @@ namespace FreshCheck_CV
 
             ApplyDarkThemeToGrid(dgvResults);
 
+            ApplyDarkThemeToTabs(tabMain);
+
             ApplyDarkButton(btnClear);
 
             ApplyDarkButton(btnExportCsv);
@@ -257,6 +259,56 @@ namespace FreshCheck_CV
 
             grid.RowTemplate.Height = 28;
         }
+
+
+        private void ApplyDarkThemeToTabs(TabControl tab)
+        {
+            if (tab == null)
+                return;
+
+            tab.DrawMode = TabDrawMode.OwnerDrawFixed;
+            tab.SizeMode = TabSizeMode.Fixed;
+            tab.ItemSize = new Size(90, 24);
+            tab.Appearance = TabAppearance.Normal;
+
+            // 페이지 배경
+            foreach (TabPage page in tab.TabPages)
+            {
+                page.BackColor = DrawingColor.FromArgb(30, 34, 40);
+                page.ForeColor = DrawingColor.Gainsboro;
+            }
+
+            tab.DrawItem -= Tab_DrawItem_Dark;
+            tab.DrawItem += Tab_DrawItem_Dark;
+        }
+
+        private void Tab_DrawItem_Dark(object sender, DrawItemEventArgs e)
+        {
+            var tab = (TabControl)sender;
+            TabPage page = tab.TabPages[e.Index];
+            Rectangle r = e.Bounds;
+
+            bool selected = (e.Index == tab.SelectedIndex);
+
+            DrawingColor back = selected ? DrawingColor.FromArgb(45, 45, 48) : DrawingColor.FromArgb(30, 34, 40);
+            DrawingColor fore = selected ? DrawingColor.White : DrawingColor.Gainsboro;
+            DrawingColor border = DrawingColor.FromArgb(70, 70, 70);
+
+            using (var bg = new SolidBrush(back))
+                e.Graphics.FillRectangle(bg, r);
+
+            using (var pen = new Pen(border))
+                e.Graphics.DrawRectangle(pen, r);
+
+            TextRenderer.DrawText(
+                e.Graphics,
+                page.Text,
+                tab.Font,
+                r,
+                fore,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        }
+
         private void ApplyDarkButton(Button btn)
         {
             if (btn == null)
@@ -508,112 +560,6 @@ namespace FreshCheck_CV
                 columnNumber--;
             }
             return col;
-        }
-
-        private void ApplyTabDarkTheme(TabControl tab)
-        {
-            if (tab == null) return;
-
-            tab.BackColor = Color.FromArgb(24, 28, 34);
-
-            if (tab.Parent != null)
-            {
-                tab.Parent.BackColor = Color.FromArgb(24, 28, 34);
-                tab.Parent.ForeColor = Color.Gainsboro;
-            }
-
-            tab.ForeColor = Color.Gainsboro;
-
-            foreach (TabPage page in tab.TabPages)
-            {
-                page.UseVisualStyleBackColor = false;
-                page.BackColor = Color.FromArgb(24, 28, 34);
-                page.ForeColor = Color.Gainsboro;
-            }
-
-            tab.DrawMode = TabDrawMode.OwnerDrawFixed;
-            tab.SizeMode = TabSizeMode.Fixed;
-            tab.ItemSize = new Size(120, 28);
-
-            tab.DrawItem -= Tab_DrawItem_Dark;
-            tab.DrawItem += Tab_DrawItem_Dark;
-
-            tab.HandleCreated -= Tab_HandleCreated_DisableTheme;
-            tab.HandleCreated += Tab_HandleCreated_DisableTheme;
-
-            if (tab.IsHandleCreated)
-            {
-                Tab_HandleCreated_DisableTheme(tab, EventArgs.Empty);
-            }
-
-            tab.Invalidate();
-            ApplyTabPageChildrenTheme(tab);
-        }
-
-        private void Tab_HandleCreated_DisableTheme(object sender, EventArgs e)
-        {
-            var tab = sender as TabControl;
-            if (tab == null) return;
-
-            SetWindowTheme(tab.Handle, "", "");
-        }
-
-        private void Tab_DrawItem_Dark(object sender, DrawItemEventArgs e)
-        {
-            var tab = sender as TabControl;
-            if (tab == null) return;
-
-            bool isSelected = (e.Index == tab.SelectedIndex);
-
-            Rectangle rect = tab.GetTabRect(e.Index);
-
-            Color back = isSelected ? Color.FromArgb(45, 50, 58) : Color.FromArgb(30, 34, 40);
-            using (var backBrush = new SolidBrush(back))
-            {
-                e.Graphics.FillRectangle(backBrush, rect);
-            }
-
-            using (var pen = new Pen(Color.FromArgb(70, 70, 70)))
-            {
-                e.Graphics.DrawRectangle(pen, rect);
-            }
-
-            string text = tab.TabPages[e.Index].Text;
-            Color textColor = isSelected ? Color.White : Color.Gainsboro;
-
-            TextRenderer.DrawText(
-                e.Graphics,
-                text,
-                tab.Font,
-                rect,
-                textColor,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
-        }
-        private void ApplyDarkToChildren(Control root)
-        {
-            if (root == null) return;
-
-            foreach (Control c in root.Controls)
-            {
-                if (c is Panel || c is TableLayoutPanel || c is FlowLayoutPanel || c is SplitContainer)
-                {
-                    c.BackColor = Color.FromArgb(24, 28, 34);
-                    c.ForeColor = Color.Gainsboro;
-                }
-
-                if (c.HasChildren)
-                    ApplyDarkToChildren(c);
-            }
-        }
-
-        private void ApplyTabPageChildrenTheme(TabControl tab)
-        {
-            if (tab == null) return;
-
-            foreach (TabPage page in tab.TabPages)
-            {
-                ApplyDarkToChildren(page);
-            }
         }
     }
 }
