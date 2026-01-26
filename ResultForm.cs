@@ -29,11 +29,6 @@ namespace FreshCheck_CV
         private readonly BindingList<ResultRecord> _viewRecords = new BindingList<ResultRecord>();
         private int _seq = 0;
 
-        [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
-        private static extern int SetWindowTheme(IntPtr hWnd, string pszSubAppName, string pszSubIdList);
-
-        private readonly Color _tabClientBack = Color.FromArgb(24, 28, 34);
-
         public ResultForm()
         {
             InitializeComponent();
@@ -46,7 +41,6 @@ namespace FreshCheck_CV
 
             ApplyDarkComboBox(cbResultFilter);
 
-            ApplyTabDarkTheme(tabMain);
 
             BackColor = DrawingColor.FromArgb(30, 34, 40);
 
