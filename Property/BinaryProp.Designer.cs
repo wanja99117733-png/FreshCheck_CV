@@ -1,4 +1,6 @@
-﻿namespace FreshCheck_CV.Property
+﻿using System.Windows.Forms;
+
+namespace FreshCheck_CV.Property
 {
     partial class BinaryProp
     {
@@ -29,7 +31,6 @@
             this.grpTolerance = new System.Windows.Forms.GroupBox();
             this.tlpTol = new System.Windows.Forms.TableLayoutPanel();
             this.lblTolerance = new System.Windows.Forms.Label();
-            this.rangeTrackbar = new FreshCheck_CV.UIControl.RangeTrackbar();
             this.chkAutoApply = new System.Windows.Forms.CheckBox();
             this.grpOptions = new System.Windows.Forms.GroupBox();
             this.tlpOptions = new System.Windows.Forms.TableLayoutPanel();
@@ -38,6 +39,7 @@
             this.grpTest = new System.Windows.Forms.GroupBox();
             this.tlpTest = new System.Windows.Forms.TableLayoutPanel();
             this.btnRunMold = new System.Windows.Forms.Button();
+            this.rangeTrackbar = new FreshCheck_CV.UIControl.RangeTrackbar();
             this.tlpRoot.SuspendLayout();
             this.pnlMode.SuspendLayout();
             this.grpTarget.SuspendLayout();
@@ -132,7 +134,7 @@
             this.tlpTarget.Location = new System.Drawing.Point(10, 31);
             this.tlpTarget.Name = "tlpTarget";
             this.tlpTarget.RowCount = 1;
-            this.tlpTarget.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tlpTarget.RowStyles.Add(new RowStyle(SizeType.Absolute, 36F));
             this.tlpTarget.Size = new System.Drawing.Size(362, 40);
             this.tlpTarget.TabIndex = 0;
             // 
@@ -162,8 +164,7 @@
             // btnPickColor
             // 
             this.btnPickColor.BackColor = System.Drawing.Color.White;
-            this.btnPickColor.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnPickColor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPickColor.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnPickColor.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnPickColor.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.btnPickColor.Location = new System.Drawing.Point(274, 3);
@@ -219,33 +220,12 @@
             this.lblTolerance.TabIndex = 0;
             this.lblTolerance.Text = "허용오차: −80 / +120";
             // 
-            // rangeTrackbar
-            // 
-            this.rangeTrackbar.BackColor = System.Drawing.Color.Transparent;
-            this.rangeTrackbar.BubbleBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(38)))), ((int)(((byte)(44)))));
-            this.rangeTrackbar.CornerRadius = 6;
-            this.rangeTrackbar.Dock = System.Windows.Forms.DockStyle.Top;
-            this.rangeTrackbar.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.rangeTrackbar.Location = new System.Drawing.Point(0, 29);
-            this.rangeTrackbar.Margin = new System.Windows.Forms.Padding(0);
-            this.rangeTrackbar.Name = "rangeTrackbar";
-            this.rangeTrackbar.RangeColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(140)))), ((int)(((byte)(220)))));
-            this.rangeTrackbar.Size = new System.Drawing.Size(362, 31);
-            this.rangeTrackbar.TabIndex = 1;
-            this.rangeTrackbar.ThumbBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(120)))), ((int)(((byte)(120)))));
-            this.rangeTrackbar.ThumbColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(235)))), ((int)(((byte)(235)))));
-            this.rangeTrackbar.ThumbDiameter = 16;
-            this.rangeTrackbar.TrackBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(66)))), ((int)(((byte)(74)))));
-            this.rangeTrackbar.TrackThickness = 6;
-            this.rangeTrackbar.ValueLeft = 80;
-            this.rangeTrackbar.ValueRight = 120;
-            // 
             // chkAutoApply
             // 
             this.chkAutoApply.AutoSize = true;
             this.chkAutoApply.Dock = System.Windows.Forms.DockStyle.Top;
             this.chkAutoApply.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.chkAutoApply.Location = new System.Drawing.Point(0, 66);
+            this.chkAutoApply.Location = new System.Drawing.Point(0, 76);
             this.chkAutoApply.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.chkAutoApply.Name = "chkAutoApply";
             this.chkAutoApply.Size = new System.Drawing.Size(362, 29);
@@ -302,7 +282,6 @@
             // 
             this.btnApply.BackColor = System.Drawing.Color.White;
             this.btnApply.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnApply.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnApply.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnApply.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.btnApply.Location = new System.Drawing.Point(274, 3);
@@ -346,7 +325,6 @@
             // 
             this.btnRunMold.BackColor = System.Drawing.Color.White;
             this.btnRunMold.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnRunMold.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRunMold.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnRunMold.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.btnRunMold.Location = new System.Drawing.Point(3, 3);
@@ -356,6 +334,27 @@
             this.btnRunMold.Text = "현재 프레임 테스트";
             this.btnRunMold.UseVisualStyleBackColor = false;
             this.btnRunMold.Click += new System.EventHandler(this.btnRunMold_Click);
+            // 
+            // rangeTrackbar
+            // 
+            this.rangeTrackbar.BackColor = System.Drawing.Color.Transparent;
+            this.rangeTrackbar.BubbleBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(38)))), ((int)(((byte)(44)))));
+            this.rangeTrackbar.CornerRadius = 6;
+            this.rangeTrackbar.Dock = System.Windows.Forms.DockStyle.Top;
+            this.rangeTrackbar.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.rangeTrackbar.Location = new System.Drawing.Point(0, 29);
+            this.rangeTrackbar.Margin = new System.Windows.Forms.Padding(0);
+            this.rangeTrackbar.Name = "rangeTrackbar";
+            this.rangeTrackbar.RangeColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(140)))), ((int)(((byte)(220)))));
+            this.rangeTrackbar.Size = new System.Drawing.Size(362, 41);
+            this.rangeTrackbar.TabIndex = 1;
+            this.rangeTrackbar.ThumbBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(120)))), ((int)(((byte)(120)))));
+            this.rangeTrackbar.ThumbColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(235)))), ((int)(((byte)(235)))));
+            this.rangeTrackbar.ThumbDiameter = 16;
+            this.rangeTrackbar.TrackBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(66)))), ((int)(((byte)(74)))));
+            this.rangeTrackbar.TrackThickness = 6;
+            this.rangeTrackbar.ValueLeft = 80;
+            this.rangeTrackbar.ValueRight = 120;
             // 
             // BinaryProp
             // 

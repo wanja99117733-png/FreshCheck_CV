@@ -157,7 +157,12 @@ namespace FreshCheck_CV.Property
         private void btnRunMold_Click(object sender, EventArgs e)
         {
             Global.Inst.InspStage.RunMoldInspectionTemp();
-            MessageBox.Show("검사 완료");
+
+            using (var dlg = new DarkMessageForm("검사 완료"))
+            {
+                dlg.ShowDialog(this);
+            }
         }
+
     }
 }

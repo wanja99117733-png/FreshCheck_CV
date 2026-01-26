@@ -129,6 +129,12 @@
     <Compile Include="Dialogs\ExitConfirmForm.Designer.cs">
       <DependentUpon>ExitConfirmForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Property\DarkMessageForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Property\DarkMessageForm.Designer.cs">
+      <DependentUpon>DarkMessageForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ResultForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -231,6 +237,9 @@
     </Compile>
     <EmbeddedResource Include="Property\BinaryProp.resx">
       <DependentUpon>BinaryProp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Property\DarkMessageForm.resx">
+      <DependentUpon>DarkMessageForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Property\ImageFilterProp.resx">
       <DependentUpon>ImageFilterProp.cs</DependentUpon>
