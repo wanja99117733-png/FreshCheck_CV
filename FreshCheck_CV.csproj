@@ -59,6 +59,12 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DocumentFormat.OpenXml, Version=3.4.1.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>packages\DocumentFormat.OpenXml.3.4.1\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml.Framework, Version=3.4.1.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>packages\DocumentFormat.OpenXml.Framework.3.4.1\lib\net46\DocumentFormat.OpenXml.Framework.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>bin\x64\Debug\log4net.dll</HintPath>
     </Reference>
@@ -106,6 +112,7 @@
     <Reference Include="WeifenLuo.WinFormsUI.Docking.ThemeVS2015">
       <HintPath>bin\x64\Debug\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CameraForm.cs">
@@ -123,21 +130,6 @@
     <Compile Include="DefectForm.Designer.cs">
       <DependentUpon>DefectForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\ExitConfirmForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\ExitConfirmForm.Designer.cs">
-      <DependentUpon>ExitConfirmForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ResultForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ResultForm.Designer.cs">
-      <DependentUpon>ResultForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\Global.cs" />
-    <Compile Include="Core\InspStage.cs" />
-    <Compile Include="DarkMenuRenderer.cs" />
     <Compile Include="Dialogs\ExitConfirmForm.cs">
       <SubType>Form</SubType>
     </Compile>
