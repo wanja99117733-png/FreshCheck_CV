@@ -154,6 +154,7 @@ namespace FreshCheck_CV.Property
             Global.Inst.InspStage.ApplyBinary(_options);
         }
 
+
         private void btnRunMold_Click(object sender, EventArgs e)
         {
             Global.Inst.InspStage.RunMoldInspectionTemp();
