@@ -159,5 +159,6 @@ namespace FreshCheck_CV.Property
             Global.Inst.InspStage.RunMoldInspectionTemp();
             MessageBox.Show("검사 완료");
         }
+
     }
 }

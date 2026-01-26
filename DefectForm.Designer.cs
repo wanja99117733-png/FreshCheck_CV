@@ -40,13 +40,13 @@
             this.panleDefects.Location = new System.Drawing.Point(0, 0);
             this.panleDefects.Name = "panleDefects";
             this.panleDefects.Padding = new System.Windows.Forms.Padding(6);
-            this.panleDefects.Size = new System.Drawing.Size(400, 200);
+            this.panleDefects.Size = new System.Drawing.Size(497, 200);
             this.panleDefects.TabIndex = 0;
             // 
             // DefectForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(400, 200);
+            this.ClientSize = new System.Drawing.Size(497, 200);
             this.Controls.Add(this.panleDefects);
             this.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.Name = "DefectForm";

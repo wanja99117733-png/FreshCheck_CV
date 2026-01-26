@@ -52,7 +52,7 @@ namespace FreshCheck_CV
             this.panelButtons.Location = new System.Drawing.Point(0, 0);
             this.panelButtons.Name = "panelButtons";
             this.panelButtons.Padding = new System.Windows.Forms.Padding(20);
-            this.panelButtons.Size = new System.Drawing.Size(305, 120);
+            this.panelButtons.Size = new System.Drawing.Size(423, 134);
             this.panelButtons.TabIndex = 0;
             // 
             // btnStart
@@ -98,7 +98,7 @@ namespace FreshCheck_CV
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(38)))));
-            this.ClientSize = new System.Drawing.Size(305, 120);
+            this.ClientSize = new System.Drawing.Size(423, 134);
             this.Controls.Add(this.panelButtons);
             this.Name = "RunForm";
             this.Text = "Run";
