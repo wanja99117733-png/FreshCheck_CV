@@ -5,11 +5,19 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
+using static System.Net.Mime.MediaTypeNames;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DrawingColor = System.Drawing.Color;
+using OxText = DocumentFormat.OpenXml.Spreadsheet.Text;
 
 namespace FreshCheck_CV
 {
@@ -35,19 +43,22 @@ namespace FreshCheck_CV
             ApplyDarkComboBox(cbResultFilter);
 
 
-            BackColor = Color.FromArgb(30, 34, 40);
+            BackColor = DrawingColor.FromArgb(30, 34, 40);
 
-            // Logs 탭을 유지하는 경우 listBoxLogs 스타일
+            if (btnExportCsv != null)
+            {
+                btnExportCsv.Click += (s, e) => ExportXlsx();
+            }
+
             if (listBoxLogs != null)
             {
-                listBoxLogs.BackColor = Color.FromArgb(30, 34, 40);
-                listBoxLogs.ForeColor = Color.Gainsboro;
+                listBoxLogs.BackColor = DrawingColor.FromArgb(30, 34, 40);
+                listBoxLogs.ForeColor = DrawingColor.Gainsboro;
 
                 FormClosed += ResultForm_FormClosed;
                 SLogger.LogUpdated += OnLogUpdated;
             }
 
-            // 결과 테이블 바인딩
             if (dgvResults != null)
             {
                 dgvResults.AutoGenerateColumns = true;
@@ -63,7 +74,9 @@ namespace FreshCheck_CV
                 cbResultFilter.Items.Clear();
                 cbResultFilter.Items.Add("ALL");
                 cbResultFilter.Items.Add("OK");
-                cbResultFilter.Items.Add("NG");
+                cbResultFilter.Items.Add("Mold");
+                cbResultFilter.Items.Add("Scratch");
+
                 cbResultFilter.SelectedIndex = 0;
                 cbResultFilter.SelectedIndexChanged += (s, e) => ApplyFilter();
             }
@@ -98,18 +111,33 @@ namespace FreshCheck_CV
 
             IEnumerable<ResultRecord> q = _allRecords;
 
-            if (filter == "OK")
+
+            if (string.Equals(filter, "ALL", StringComparison.OrdinalIgnoreCase))
+            {
+            }
+
+            else if (string.Equals(filter, "OK", StringComparison.OrdinalIgnoreCase))
+            {
                 q = q.Where(x => string.Equals(x.Result, "OK", StringComparison.OrdinalIgnoreCase));
-            else if (filter == "NG")
-                q = q.Where(x => string.Equals(x.Result, "NG", StringComparison.OrdinalIgnoreCase));
+            }
+            else if (string.Equals(filter, "Mold", StringComparison.OrdinalIgnoreCase))
+            {
+                q = q.Where(x =>
+                    x.DefectType != null &&
+                    string.Equals(x.DefectType.ToString(), "Mold", StringComparison.OrdinalIgnoreCase));
+            }
+            else if (string.Equals(filter, "Scratch", StringComparison.OrdinalIgnoreCase))
+            {
+                q = q.Where(x =>
+                    x.DefectType != null &&
+                    string.Equals(x.DefectType.ToString(), "Scratch", StringComparison.OrdinalIgnoreCase));
+            }
 
             _viewRecords.RaiseListChangedEvents = false;
             _viewRecords.Clear();
 
             foreach (ResultRecord r in q)
-            {
                 _viewRecords.Add(r);
-            }
 
             _viewRecords.RaiseListChangedEvents = true;
             _viewRecords.ResetBindings();
@@ -142,8 +170,6 @@ namespace FreshCheck_CV
                 System.Diagnostics.Process.Start(record.SavedPath);
             }
         }
-
-        // 로그 탭 유지 시: 기존 로직 그대로
         private void OnLogUpdated(string logMessage)
         {
             if (listBoxLogs == null)
@@ -181,12 +207,11 @@ namespace FreshCheck_CV
             if (grid == null)
                 return;
 
-            // 기본 옵션
             grid.BorderStyle = BorderStyle.None;
             grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            grid.GridColor = Color.FromArgb(55, 55, 55);
+            grid.GridColor = DrawingColor.FromArgb(55, 55, 55);
 
-            grid.EnableHeadersVisualStyles = false; // 헤더 스타일을 우리가 지정한 대로 쓰게 함
+            grid.EnableHeadersVisualStyles = false;
             grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             grid.MultiSelect = false;
             grid.ReadOnly = true;
@@ -194,37 +219,33 @@ namespace FreshCheck_CV
             grid.AllowUserToDeleteRows = false;
             grid.AllowUserToResizeRows = false;
 
-            // 배경
-            grid.BackgroundColor = Color.FromArgb(30, 34, 40);
+            grid.BackgroundColor = DrawingColor.FromArgb(30, 34, 40);
 
-            // 셀 스타일
             var cellStyle = new DataGridViewCellStyle
             {
-                BackColor = Color.FromArgb(30, 34, 40),
-                ForeColor = Color.Gainsboro,
-                SelectionBackColor = Color.FromArgb(60, 110, 180),
-                SelectionForeColor = Color.White,
+                BackColor = DrawingColor.FromArgb(30, 34, 40),
+                ForeColor = DrawingColor.Gainsboro,
+                SelectionBackColor = DrawingColor.FromArgb(60, 110, 180),
+                SelectionForeColor = DrawingColor.White,
                 WrapMode = DataGridViewTriState.False
             };
             grid.DefaultCellStyle = cellStyle;
 
-            // 번갈아 행 색
             var altStyle = new DataGridViewCellStyle
             {
-                BackColor = Color.FromArgb(26, 29, 34),
-                ForeColor = Color.Gainsboro,
-                SelectionBackColor = Color.FromArgb(60, 110, 180),
-                SelectionForeColor = Color.White
+                BackColor = DrawingColor.FromArgb(26, 29, 34),
+                ForeColor = DrawingColor.Gainsboro,
+                SelectionBackColor = DrawingColor.FromArgb(60, 110, 180),
+                SelectionForeColor = DrawingColor.White
             };
             grid.AlternatingRowsDefaultCellStyle = altStyle;
 
-            // 헤더 스타일
             var headerStyle = new DataGridViewCellStyle
             {
-                BackColor = Color.FromArgb(45, 45, 48),
-                ForeColor = Color.White,
-                SelectionBackColor = Color.FromArgb(45, 45, 48),
-                SelectionForeColor = Color.White,
+                BackColor = DrawingColor.FromArgb(45, 45, 48),
+                ForeColor = DrawingColor.White,
+                SelectionBackColor = DrawingColor.FromArgb(45, 45, 48),
+                SelectionForeColor = DrawingColor.White,
                 Alignment = DataGridViewContentAlignment.MiddleLeft,
                 WrapMode = DataGridViewTriState.False
             };
@@ -246,17 +267,17 @@ namespace FreshCheck_CV
 
             tab.DrawMode = TabDrawMode.OwnerDrawFixed;
             tab.SizeMode = TabSizeMode.Fixed;
-            tab.ItemSize = new Size(90, 24); // 탭 크기(원하면 조정)
+            tab.ItemSize = new Size(90, 24);
             tab.Appearance = TabAppearance.Normal;
 
             // 페이지 배경
             foreach (TabPage page in tab.TabPages)
             {
-                page.BackColor = Color.FromArgb(30, 34, 40);
-                page.ForeColor = Color.Gainsboro;
+                page.BackColor = DrawingColor.FromArgb(30, 34, 40);
+                page.ForeColor = DrawingColor.Gainsboro;
             }
 
-            tab.DrawItem -= Tab_DrawItem_Dark; // 중복 구독 방지
+            tab.DrawItem -= Tab_DrawItem_Dark;
             tab.DrawItem += Tab_DrawItem_Dark;
         }
 
@@ -268,9 +289,9 @@ namespace FreshCheck_CV
 
             bool selected = (e.Index == tab.SelectedIndex);
 
-            Color back = selected ? Color.FromArgb(45, 45, 48) : Color.FromArgb(30, 34, 40);
-            Color fore = selected ? Color.White : Color.Gainsboro;
-            Color border = Color.FromArgb(70, 70, 70);
+            DrawingColor back = selected ? DrawingColor.FromArgb(45, 45, 48) : DrawingColor.FromArgb(30, 34, 40);
+            DrawingColor fore = selected ? DrawingColor.White : DrawingColor.Gainsboro;
+            DrawingColor border = DrawingColor.FromArgb(70, 70, 70);
 
             using (var bg = new SolidBrush(back))
                 e.Graphics.FillRectangle(bg, r);
@@ -294,9 +315,9 @@ namespace FreshCheck_CV
 
             btn.FlatStyle = FlatStyle.Flat;
             btn.FlatAppearance.BorderSize = 1;
-            btn.FlatAppearance.BorderColor = Color.FromArgb(70, 70, 70);
-            btn.BackColor = Color.FromArgb(45, 45, 48);
-            btn.ForeColor = Color.White;
+            btn.FlatAppearance.BorderColor = DrawingColor.FromArgb(70, 70, 70);
+            btn.BackColor = DrawingColor.FromArgb(45, 45, 48);
+            btn.ForeColor = DrawingColor.White;
 
             btn.MouseEnter -= DarkButton_MouseEnter;
             btn.MouseLeave -= DarkButton_MouseLeave;
@@ -308,13 +329,13 @@ namespace FreshCheck_CV
         private void DarkButton_MouseEnter(object sender, EventArgs e)
         {
             var btn = (Button)sender;
-            btn.BackColor = Color.FromArgb(60, 60, 64);
+            btn.BackColor = DrawingColor.FromArgb(60, 60, 64);
         }
 
         private void DarkButton_MouseLeave(object sender, EventArgs e)
         {
             var btn = (Button)sender;
-            btn.BackColor = Color.FromArgb(45, 45, 48);
+            btn.BackColor = DrawingColor.FromArgb(45, 45, 48);
         }
 
         private void ApplyDarkComboBox(ComboBox cb)
@@ -324,8 +345,8 @@ namespace FreshCheck_CV
 
             cb.DrawMode = DrawMode.OwnerDrawFixed;
             cb.DropDownStyle = ComboBoxStyle.DropDownList;
-            cb.BackColor = Color.FromArgb(45, 45, 48);
-            cb.ForeColor = Color.White;
+            cb.BackColor = DrawingColor.FromArgb(45, 45, 48);
+            cb.ForeColor = DrawingColor.White;
 
             cb.DrawItem -= Combo_DrawItem_Dark;
             cb.DrawItem += Combo_DrawItem_Dark;
@@ -341,8 +362,8 @@ namespace FreshCheck_CV
 
             bool selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
 
-            Color back = selected ? Color.FromArgb(60, 110, 180) : Color.FromArgb(45, 45, 48);
-            Color fore = Color.White;
+            DrawingColor back = selected ? DrawingColor.FromArgb(60, 110, 180) : DrawingColor.FromArgb(45, 45, 48);
+            DrawingColor fore = DrawingColor.White;
 
             using (var b = new SolidBrush(back))
                 e.Graphics.FillRectangle(b, e.Bounds);
@@ -359,10 +380,8 @@ namespace FreshCheck_CV
             if (grid == null || grid.Columns.Count == 0)
                 return;
 
-            // 1) 자동 리사이즈 끄고, 우리가 지정한 폭을 쓰게 함
             grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
 
-            // 2) 컬럼 폭 (원하는 값으로 조절)
             SetColWidth(grid, "No", 60);
             SetColWidth(grid, "Time", 170);
             SetColWidth(grid, "Result", 70);
@@ -370,22 +389,18 @@ namespace FreshCheck_CV
             SetColWidth(grid, "Ratio", 90);
             SetColWidth(grid, "SavedPath", 260);
 
-            // Message는 남는 폭을 모두 차지하게(추천)
             if (grid.Columns.Contains("Message"))
                 grid.Columns["Message"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            // 3) 가운데 정렬(헤더 + 셀)
             CenterAlign(grid, "No");
             CenterAlign(grid, "Time");
             CenterAlign(grid, "Result");
             CenterAlign(grid, "DefectType");
             CenterAlign(grid, "Ratio");
 
-            // SavedPath / Message는 보통 왼쪽 정렬이 읽기 좋음
             LeftAlign(grid, "SavedPath");
             LeftAlign(grid, "Message");
 
-            // 4) 표시 포맷(선택)
             if (grid.Columns.Contains("Ratio"))
                 grid.Columns["Ratio"].DefaultCellStyle.Format = "0.0000";
         }
@@ -414,6 +429,136 @@ namespace FreshCheck_CV
 
             grid.Columns[colName].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleLeft;
             grid.Columns[colName].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        }
+
+        private void ExportXlsx()
+        {
+            if (_viewRecords == null || _viewRecords.Count == 0)
+            {
+                MessageBox.Show("내보낼 데이터가 없습니다.", "Export Excel",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (var sfd = new SaveFileDialog())
+            {
+                sfd.Filter = "Excel 파일 (*.xlsx)|*.xlsx";
+                sfd.Title = "결과 Excel 내보내기";
+                sfd.FileName = $"results_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                if (sfd.ShowDialog(this) != DialogResult.OK)
+                    return;
+
+                CreateXlsxWithFilter(sfd.FileName);
+
+                MessageBox.Show("Excel(.xlsx) 내보내기가 완료되었습니다.", "Export Excel",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void CreateXlsxWithFilter(string filePath)
+        {
+            string[] headers = { "No", "Time", "Result", "DefectType", "Ratio", "SavedPath", "Message" };
+
+            uint rowCount = (uint)_viewRecords.Count + 1; // header 포함
+            using (SpreadsheetDocument doc = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook))
+            {
+                WorkbookPart wbPart = doc.AddWorkbookPart();
+                wbPart.Workbook = new Workbook();
+
+                WorksheetPart wsPart = wbPart.AddNewPart<WorksheetPart>();
+
+                // ===== SheetData 생성 =====
+                var sheetData = new SheetData();
+
+                // Header row
+                var headerRow = new Row { RowIndex = 1 };
+                for (int i = 0; i < headers.Length; i++)
+                    headerRow.Append(CreateTextCell(i + 1, 1, headers[i]));
+                sheetData.Append(headerRow);
+
+                // Data rows
+                for (int r = 0; r < _viewRecords.Count; r++)
+                {
+                    ResultRecord rec = _viewRecords[r];
+                    uint rowIndex = (uint)(r + 2);
+
+                    var row = new Row { RowIndex = rowIndex };
+                    row.Append(CreateTextCell(1, rowIndex, rec.No.ToString()));
+                    row.Append(CreateTextCell(2, rowIndex, rec.Time.ToString("yyyy-MM-dd HH:mm:ss")));
+                    row.Append(CreateTextCell(3, rowIndex, rec.Result ?? ""));
+                    row.Append(CreateTextCell(4, rowIndex, rec.DefectType?.ToString() ?? ""));
+                    row.Append(CreateTextCell(5, rowIndex, rec.Ratio.ToString("0.0000")));
+                    row.Append(CreateTextCell(6, rowIndex, rec.SavedPath ?? ""));
+                    row.Append(CreateTextCell(7, rowIndex, rec.Message ?? ""));
+                    sheetData.Append(row);
+                }
+
+                // ===== AutoFilter (Result, DefectType, Message만 버튼 표시) =====
+                string lastCol = GetExcelColumnName(headers.Length); // 7 -> G
+                string filterRange = $"A1:{lastCol}{rowCount}";
+
+                var autoFilter = new AutoFilter { Reference = filterRange };
+
+                int[] enableCols = { 2, 3, 6 }; // 0-based: C(Result), D(DefectType), G(Message)
+                for (int colId = 0; colId < headers.Length; colId++)
+                {
+                    if (!enableCols.Contains(colId))
+                    {
+                        autoFilter.Append(new FilterColumn
+                        {
+                            ColumnId = (uint)colId,
+                            HiddenButton = true
+                        });
+                    }
+                }
+
+                // ===== Worksheet 구성 (순서 중요: SheetData -> AutoFilter) =====
+                var worksheet = new Worksheet();
+                worksheet.Append(sheetData);
+                worksheet.Append(autoFilter);
+
+                wsPart.Worksheet = worksheet;
+                wsPart.Worksheet.Save();
+
+                // ===== (중요) Workbook에 Sheet 등록 =====
+                Sheets sheets = wbPart.Workbook.AppendChild(new Sheets());
+
+                Sheet sheet = new Sheet
+                {
+                    Id = wbPart.GetIdOfPart(wsPart),
+                    SheetId = 1,
+                    Name = "Results"
+                };
+                sheets.Append(sheet);
+
+                wbPart.Workbook.Save();
+            }
+        }
+        private static Cell CreateTextCell(int columnIndex, uint rowIndex, string text)
+        {
+            var cell = new Cell
+            {
+                CellReference = GetExcelColumnName(columnIndex) + rowIndex,
+                DataType = CellValues.InlineString
+            };
+
+            cell.InlineString = new InlineString(new OxText(text ?? ""));
+            return cell;
+        }
+
+        // 1->A, 2->B ... 27->AA
+        private static string GetExcelColumnName(int columnNumber)
+        {
+            string col = "";
+            while (columnNumber > 0)
+            {
+                int mod = (columnNumber - 1) % 26;
+                col = (char)('A' + mod) + col;
+                columnNumber = (columnNumber - mod) / 26;
+                columnNumber--;
+            }
+            return col;
         }
     }
 }
