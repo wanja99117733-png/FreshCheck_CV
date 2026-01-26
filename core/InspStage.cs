@@ -6,9 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FreshCheck_CV.Inspect;
+using SaigeVision.Net.V2.Segmentation;
+
 
 namespace FreshCheck_CV.Core
 {
+    
     //검사와 관련된 클래스를 관리하는 클래스
     public class InspStage : IDisposable
     {
@@ -84,8 +87,9 @@ namespace FreshCheck_CV.Core
         
         public void UpdatePreviewWithScratch(Bitmap bitmap, SegmentationResult scratchResult)
         {
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
             // CameraForm 호출 (기존 패턴)
-            cameraForm?.UpdatePreviewWithScratch(bitmap, scratchResult);
+            cameraForm.UpdatePreviewWithScratch(bitmap, scratchResult);
         }
 
         #region Disposable

@@ -53,17 +53,20 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MvCameraControl.Net">
+      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\HikRobot\MvCameraControl.Net.dll</HintPath>
+    </Reference>
     <Reference Include="OpenCvSharp">
-      <HintPath>..\ExternalLib\ExternalLib\Dll\OpenCv\OpenCvSharp.dll</HintPath>
+      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\OpenCv\OpenCvSharp.dll</HintPath>
     </Reference>
     <Reference Include="OpenCvSharp.Extensions">
-      <HintPath>..\ExternalLib\ExternalLib\Dll\OpenCv\OpenCvSharp.Extensions.dll</HintPath>
+      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\OpenCv\OpenCvSharp.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="SaigeVision.Net.Core.V2">
-      <HintPath>..\ExternalLib\Dll\Saige\SaigeVision.Net.Core.V2.dll</HintPath>
+      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Saige\SaigeVision.Net.Core.V2.dll</HintPath>
     </Reference>
     <Reference Include="SaigeVision.Net.V2">
-      <HintPath>..\ExternalLib\Dll\Saige\SaigeVision.Net.V2.dll</HintPath>
+      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Saige\SaigeVision.Net.V2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -78,11 +81,11 @@
     <Reference Include="System.Xml" />
     <Reference Include="WeifenLuo.WinFormsUI.Docking, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5cded1a1a0a7b481, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ExternalLib\Dll\Docking\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
+      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Docking\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
     </Reference>
     <Reference Include="WeifenLuo.WinFormsUI.Docking.ThemeVS2015, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5cded1a1a0a7b481, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ExternalLib\Dll\Docking\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath>
+      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Docking\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

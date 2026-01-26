@@ -42,8 +42,8 @@ namespace FreshCheck_CV.Inspect
         SegmentationEngine _segEngine = null;
         SegmentationResult _segResult = null;
 
-        SegmentationEngine _scratchSegEngine = null;
-        SegmentationResult _scratchSegResult = null;
+        private SegmentationEngine _scratchSegEngine = null;
+        private SegmentationResult _scratchSegResult = null;
 
         Bitmap _inspImage = null;
 

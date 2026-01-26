@@ -13,6 +13,8 @@ using WeifenLuo.WinFormsUI.Docking;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using FreshCheck_CV.Scratch;
+using FreshCheck_CV.Inspect;
+using SaigeVision.Net.V2.Segmentation;
 
 namespace FreshCheck_CV
 {
@@ -64,8 +66,6 @@ namespace FreshCheck_CV
 
             return curImage;
         }
-
-
 
         public Bitmap GetPreviewImage()
         {

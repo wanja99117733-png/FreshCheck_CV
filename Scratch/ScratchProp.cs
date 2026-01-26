@@ -2,6 +2,7 @@
 using FreshCheck_CV.Inspect;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
+using SaigeVision.Net.V2.Segmentation;
 using System;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace FreshCheck_CV.Scratch
             SaigeAI saigeAI = Global.Inst.InspStage.AIModule; // SaigeAI 인스턴스
 
             AIEngineType engineType = AIEngineType.Segmentation;
-            string modelPath = "D:\\Team Project SaigeModol\\Cu_seg.saigeseg";
+            string modelPath = "D:\\SaigeModel\\Cucumber_Back_Del.saigeseg";
             saigeAI.LoadEngine(modelPath, engineType); // 엔진 연결
 
             if (saigeAI == null)
@@ -88,7 +89,7 @@ namespace FreshCheck_CV.Scratch
             }
 
             // 2. 스크래치 모델 로드 & 검사
-            string scratchModelPath = "D:\\Team Project SaigeModol\\scratch_seg.saigeseg";
+            string scratchModelPath = "D:\\SaigeModel\\Cucumber_Scratch_Det.saigeseg";
             saigeAI.LoadEngine(scratchModelPath, AIEngineType.ScratchSegmentation);
 
             if (!saigeAI.InspAIModule(baseImage))

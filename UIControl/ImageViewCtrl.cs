@@ -8,7 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
-using SagieVision.Net.V2;
+using SaigeVision.Net.V2;
+using SaigeVision.Net.V2.Segmentation;
+using SaigeVision.Net.Core.V2;
+using FreshCheck_CV.Inspect;
+
 
 
 namespace FreshCheck_CV.UIControl
@@ -158,11 +162,26 @@ namespace FreshCheck_CV.UIControl
         // 스크래치 결과와 함께 Preview 설정
         public void SetPreviewWithScratch(Bitmap previewImage, SegmentationResult scratchResult)
         {
-            PreviewImage = previewImage?.Clone(new Rectangle(0, 0, previewImage.Width, previewImage.Height),
-                                             System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            // 기존 PreviewImage 정리
+            PreviewImage = null;
+
+            if (previewImage != null)
+            {
+                try
+                {
+                    PreviewImage = new Bitmap(previewImage);
+                }
+                catch (Exception ex)
+                {
+                    // 로그 또는 무시
+                    System.Diagnostics.Debug.WriteLine($"Clone 실패: {ex.Message}");
+                }
+            }
+
             _scratchResult = scratchResult;
             Invalidate();
         }
+
         // 스크래치 결과만 클리어
         public void ClearScratchResult()
         {
@@ -241,23 +260,42 @@ namespace FreshCheck_CV.UIControl
             {
                 foreach (var obj in _scratchResult.SegmentedObjects)
                 {
-                    if (obj?.BoundingBox != null)
+                    if (obj == null)
+                        continue;
+
+                    // ★ BoundingBox 대신 Contour 사용 (안전)
+                    var contour = obj.Contour?.Value;
+                    if (contour == null || contour.Count < 3)
+                        continue;
+
+                    // ★ Contour에서 최소 바운딩 박스 계산
+                    float minX = contour.Min(p => p.X), maxX = contour.Max(p => p.X);
+                    float minY = contour.Min(p => p.Y), maxY = contour.Max(p => p.Y);
+
+                    RectangleF boundingRect = new RectangleF(minX, minY, maxX - minX, maxY - minY);
+
+                    // 화면 좌표 변환
+                    RectangleF screenRect = VirtualToScreen(boundingRect);
+
+                    if (screenRect.Width > 0 && screenRect.Height > 0)
                     {
-                        // 이미지 좌표 → 화면 좌표 변환
-                        RectangleF imgRect = new RectangleF(obj.BoundingBox.Value.X, obj.BoundingBox.Value.Y,
-                                                          obj.BoundingBox.Value.Width, obj.BoundingBox.Value.Height);
-
-                        RectangleF screenRect = VirtualToScreen(imgRect);
-
                         // 사각형 그리기
                         g.DrawRectangle(pen, screenRect.X, screenRect.Y, screenRect.Width, screenRect.Height);
 
-                        // 라벨 (Score 표시)
+                        // Score 라벨
                         string label = $"Scratch: {obj.Score:F2}";
                         g.DrawString(label, font, Brushes.Red, screenRect.X, Math.Max(0, screenRect.Y - 20));
                     }
                 }
             }
+        }
+
+
+
+
+        private RectangleF VirtualToScreen(RectangleF imgRect)
+        {
+            throw new NotImplementedException();
         }
 
         //#4_IMAGE_VIEWER#4 마우스휠을 이용한 확대/축소
