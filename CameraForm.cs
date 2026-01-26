@@ -42,7 +42,13 @@ namespace FreshCheck_CV
 
             imageViewCtrl.Location = new System.Drawing.Point(margin, margin);
         }
-
+        public void UpdatePreviewWithScratch(Bitmap bitmap, SegmentationResult scratchResult)
+        {
+            if (imageViewCtrl != null)
+            {
+                imageViewCtrl.SetPreviewWithScratch(bitmap, scratchResult);
+            }
+        }
         public void UpdateDisplay(Bitmap bitmap = null)
         {
             if (imageViewCtrl != null)
@@ -72,6 +78,7 @@ namespace FreshCheck_CV
             {
                 imageViewCtrl.PreviewImage = bitmap;
                 imageViewCtrl.Invalidate(); // 다시 그려줌. OnPaint 함수 호출.
+                imageViewCtrl.ClearScratchResult();
             }
         }
 

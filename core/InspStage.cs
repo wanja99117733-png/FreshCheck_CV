@@ -81,6 +81,12 @@ namespace FreshCheck_CV.Core
 
             return bitmap;
         }
+        
+        public void UpdatePreviewWithScratch(Bitmap bitmap, SegmentationResult scratchResult)
+        {
+            // CameraForm 호출 (기존 패턴)
+            cameraForm?.UpdatePreviewWithScratch(bitmap, scratchResult);
+        }
 
         #region Disposable
 
