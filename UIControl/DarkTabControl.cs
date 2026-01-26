@@ -7,16 +7,19 @@ namespace FreshCheck_CV.UIControl
 {
     public class DarkTabControl : TabControl
     {
-        // 다크 테마 색상 정의
+        // 테마 색상 정의
         private Color _backgroundColor = Color.FromArgb(30, 30, 30);
         private Color _tabColor = Color.FromArgb(45, 45, 48);
         private Color _selectedTabColor = Color.FromArgb(60, 60, 60);
+        private Color _hoverTabColor = Color.FromArgb(75, 75, 80); // 마우스 오버 시 색상
         private Color _textColor = Color.FromArgb(240, 240, 240);
+        private Color _borderColor = Color.FromArgb(60, 60, 60);
+
+        // 현재 마우스가 올라가 있는 탭의 인덱스
+        private int _hoverIndex = -1;
 
         public DarkTabControl()
         {
-            // 1. 핵심 설정: 컨트롤의 모든 영역을 직접 그리겠다고 선언합니다.
-            // UserPaint를 true로 설정해야 배경 영역(하얀 부분)을 제어할 수 있습니다.
             this.SetStyle(ControlStyles.AllPaintingInWmPaint |
                           ControlStyles.UserPaint |
                           ControlStyles.ResizeRedraw |
@@ -24,58 +27,89 @@ namespace FreshCheck_CV.UIControl
 
             this.DoubleBuffered = true;
             this.SizeMode = TabSizeMode.Fixed;
-            this.ItemSize = new Size(100, 30); // 탭 버튼 크기
+            this.ItemSize = new Size(100, 30);
+        }
+
+        // 마우스가 움직일 때 어떤 탭 위에 있는지 확인
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            int oldHoverIndex = _hoverIndex;
+            _hoverIndex = -1;
+
+            for (int i = 0; i < this.TabCount; i++)
+            {
+                if (this.GetTabRect(i).Contains(e.Location))
+                {
+                    _hoverIndex = i;
+                    break;
+                }
+            }
+
+            // 마우스가 올라간 탭이 바뀌었을 때만 다시 그리기 (성능 최적화)
+            if (oldHoverIndex != _hoverIndex)
+            {
+                this.Invalidate();
+            }
+        }
+
+        // 마우스가 컨트롤을 벗어나면 효과 제거
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            _hoverIndex = -1;
+            this.Invalidate();
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
             Graphics g = e.Graphics;
 
-            // --- 1. 배경색 칠하기 (하얀색 여백 제거) ---
-            // 전체 배경을 어두운 색으로 채웁니다.
-            using (SolidBrush bgBrush = new SolidBrush(Color.FromArgb(30, 30, 30)))
+            // 1. 배경 채우기
+            using (SolidBrush bgBrush = new SolidBrush(_backgroundColor))
             {
                 g.FillRectangle(bgBrush, this.ClientRectangle);
             }
 
-            // --- 2. 탭 버튼(헤더) 그리기 ---
+            // 2. 탭 헤더 그리기
             for (int i = 0; i < this.TabCount; i++)
             {
                 Rectangle tabRect = this.GetTabRect(i);
                 bool isSelected = (this.SelectedIndex == i);
+                bool isHovered = (_hoverIndex == i);
 
-                // 선택된 탭과 선택되지 않은 탭의 색상 구분
-                Color tabColor = isSelected ? Color.FromArgb(60, 60, 60) : Color.FromArgb(45, 45, 48);
+                // 색상 결정 우선순위: 선택됨 > 마우스 오버 > 기본
+                Color currentTabColor;
+                if (isSelected) currentTabColor = _selectedTabColor;
+                else if (isHovered) currentTabColor = _hoverTabColor;
+                else currentTabColor = _tabColor;
 
-                using (SolidBrush tabBrush = new SolidBrush(tabColor))
+                using (SolidBrush tabBrush = new SolidBrush(currentTabColor))
                 {
                     g.FillRectangle(tabBrush, tabRect);
                 }
 
-                // 탭 텍스트 그리기
-                TextRenderer.DrawText(g, this.TabPages[i].Text, this.Font, tabRect, Color.White,
+                // 탭 텍스트
+                TextRenderer.DrawText(g, this.TabPages[i].Text, this.Font, tabRect, _textColor,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
 
-                // 탭 테두리 (버튼 사이의 아주 얇은 구분선)
+                // 탭 간 구분선
                 using (Pen p = new Pen(Color.FromArgb(20, 20, 20)))
                 {
                     g.DrawRectangle(p, tabRect);
                 }
             }
 
-            // --- 3. 메인 콘텐츠 영역 테두리 그리기 (중요!) ---
-            // TabPage가 들어가는 영역의 하얀 테두리를 다크한 색상으로 덮어버립니다.
+            // 3. 메인 영역 테두리
             if (this.TabCount > 0)
             {
                 Rectangle pageRect = this.DisplayRectangle;
-                // 테두리를 1픽셀 정도 바깥으로 확장하여 깔끔하게 그립니다.
                 pageRect.Inflate(1, 1);
-                using (Pen p = new Pen(Color.FromArgb(60, 60, 60), 1))
+                using (Pen p = new Pen(_borderColor, 1))
                 {
                     g.DrawRectangle(p, pageRect);
                 }
             }
         }
-
     }
 }
