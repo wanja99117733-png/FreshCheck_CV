@@ -219,7 +219,11 @@ namespace FreshCheck_CV
         {
             if (_imageFilePaths.Count == 0)
             {
-                MessageBox.Show("먼저 이미지 폴더를 선택하세요.");
+                using (var dlg = new FreshCheck_CV.Property.DarkMessageForm(
+                    "먼저 이미지 폴더를 선택하세요."))
+                {
+                    dlg.ShowDialog(this);
+                }
                 return;
             }
 
@@ -234,7 +238,6 @@ namespace FreshCheck_CV
             _imageCycleTimer?.Stop();
             _isImageCycling = false;
         }
-
 
         //#2_DOCKPANEL#6 쉽게 도킹패널에 접근하기 위한 정적 함수
         //제네릭 함수 사용를 이용해 입력된 타입의 폼 객체 얻기

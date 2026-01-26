@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FreshCheck_CV.Core;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace FreshCheck_CV
@@ -17,6 +18,7 @@ namespace FreshCheck_CV
         {
             InitializeComponent();
             ApplyDarkTheme();
+            
         }
 
         private void ApplyDarkTheme()
@@ -27,17 +29,52 @@ namespace FreshCheck_CV
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            // TODO: 검사 시작 로직 연결
+            SetButtonsEnabled(false); // ← 누른 순간 전부 잠금
+
+            try
+            {
+                Global.Inst.InspStage.RunMoldInspectionTemp();
+            }
+            finally
+            {
+                SetButtonsEnabled(true); // ← 작업 끝나면 복구
+            }
         }
 
         private void btnPause_Click(object sender, EventArgs e)
         {
-            // TODO: 검사 일시정지 로직
+            SetButtonsEnabled(false);
+
+            try
+            {
+                // Pause 처리 (현재는 없음)
+            }
+            finally
+            {
+                SetButtonsEnabled(true);
+            }
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            // TODO: 검사 종료 로직
+            SetButtonsEnabled(false);
+
+            try
+            {
+                // Stop 처리 (현재는 없음)
+            }
+            finally
+            {
+                SetButtonsEnabled(true);
+            }
         }
+        
+        private void SetButtonsEnabled(bool enabled)
+        {
+            btnStart.Enabled = enabled;
+            btnPause.Enabled = enabled;
+            btnStop.Enabled = enabled;
+        }
+
     }
 }
