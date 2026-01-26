@@ -93,7 +93,7 @@ namespace FreshCheck_CV.Inspect
             option.CalcObjectAreaAndApplyThreshold = true;
             option.CalcObjectScoreAndApplyThreshold = true;
             option.OversizedImageHandling = OverSizeImageFlags.do_not_inspect;
-
+                
             //option.ObjectScoreThresholdPerClass[1] = 0;
             //option.ObjectScoreThresholdPerClass[2] = 0;
 
