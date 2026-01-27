@@ -31,7 +31,6 @@ namespace FreshCheck_CV.Property
             this.grpTolerance = new System.Windows.Forms.GroupBox();
             this.tlpTol = new System.Windows.Forms.TableLayoutPanel();
             this.lblTolerance = new System.Windows.Forms.Label();
-            this.rangeTrackbar = new FreshCheck_CV.UIControl.RangeTrackbar();
             this.chkAutoApply = new System.Windows.Forms.CheckBox();
             this.grpOptions = new System.Windows.Forms.GroupBox();
             this.tlpOptions = new System.Windows.Forms.TableLayoutPanel();
@@ -40,6 +39,7 @@ namespace FreshCheck_CV.Property
             this.btnRunMold = new System.Windows.Forms.Button();
             this.btnEraseBg = new System.Windows.Forms.Button();
             this.btnScratchDet = new System.Windows.Forms.Button();
+            this.rangeTrackbar = new FreshCheck_CV.UIControl.RangeTrackbar();
             this.tlpRoot.SuspendLayout();
             this.pnlMode.SuspendLayout();
             this.grpTarget.SuspendLayout();
@@ -234,27 +234,6 @@ namespace FreshCheck_CV.Property
             this.lblTolerance.TabIndex = 0;
             this.lblTolerance.Text = "허용오차: −80 / +120";
             // 
-            // rangeTrackbar
-            // 
-            this.rangeTrackbar.BackColor = System.Drawing.Color.Transparent;
-            this.rangeTrackbar.BubbleBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(38)))), ((int)(((byte)(44)))));
-            this.rangeTrackbar.CornerRadius = 6;
-            this.rangeTrackbar.Dock = System.Windows.Forms.DockStyle.Top;
-            this.rangeTrackbar.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.rangeTrackbar.Location = new System.Drawing.Point(0, 31);
-            this.rangeTrackbar.Margin = new System.Windows.Forms.Padding(0);
-            this.rangeTrackbar.Name = "rangeTrackbar";
-            this.rangeTrackbar.RangeColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(140)))), ((int)(((byte)(220)))));
-            this.rangeTrackbar.Size = new System.Drawing.Size(422, 42);
-            this.rangeTrackbar.TabIndex = 1;
-            this.rangeTrackbar.ThumbBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(120)))), ((int)(((byte)(120)))));
-            this.rangeTrackbar.ThumbColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(235)))), ((int)(((byte)(235)))));
-            this.rangeTrackbar.ThumbDiameter = 16;
-            this.rangeTrackbar.TrackBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(66)))), ((int)(((byte)(74)))));
-            this.rangeTrackbar.TrackThickness = 6;
-            this.rangeTrackbar.ValueLeft = 80;
-            this.rangeTrackbar.ValueRight = 120;
-            // 
             // chkAutoApply
             // 
             this.chkAutoApply.AutoSize = true;
@@ -370,6 +349,27 @@ namespace FreshCheck_CV.Property
             this.btnScratchDet.Text = "Scratch 검출";
             this.btnScratchDet.UseVisualStyleBackColor = true;
             this.btnScratchDet.Click += new System.EventHandler(this.btnScratchDet_Click);
+            // 
+            // rangeTrackbar
+            // 
+            this.rangeTrackbar.BackColor = System.Drawing.Color.Transparent;
+            this.rangeTrackbar.BubbleBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(38)))), ((int)(((byte)(44)))));
+            this.rangeTrackbar.CornerRadius = 6;
+            this.rangeTrackbar.Dock = System.Windows.Forms.DockStyle.Top;
+            this.rangeTrackbar.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.rangeTrackbar.Location = new System.Drawing.Point(0, 31);
+            this.rangeTrackbar.Margin = new System.Windows.Forms.Padding(0);
+            this.rangeTrackbar.Name = "rangeTrackbar";
+            this.rangeTrackbar.RangeColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(140)))), ((int)(((byte)(220)))));
+            this.rangeTrackbar.Size = new System.Drawing.Size(422, 42);
+            this.rangeTrackbar.TabIndex = 1;
+            this.rangeTrackbar.ThumbBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(120)))), ((int)(((byte)(120)))));
+            this.rangeTrackbar.ThumbColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(235)))), ((int)(((byte)(235)))));
+            this.rangeTrackbar.ThumbDiameter = 16;
+            this.rangeTrackbar.TrackBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(66)))), ((int)(((byte)(74)))));
+            this.rangeTrackbar.TrackThickness = 6;
+            this.rangeTrackbar.ValueLeft = 80;
+            this.rangeTrackbar.ValueRight = 120;
             // 
             // BinaryProp
             // 

@@ -111,6 +111,10 @@ namespace FreshCheck_CV.Property
 
         private void HookEvents()
         {
+            btnPickColor.Click += (s, e) =>
+            {
+                BeginPickColor();
+            };
                         
             rangeTrackbar.RangeChanged += (s, e) =>
             {
@@ -269,5 +273,6 @@ namespace FreshCheck_CV.Property
             // 3. 원본 이미지(originalImage) 위에 검출된 결과(scratchResult)의 사각형을 그림
             Global.Inst.InspStage.UpdatePreviewWithScratch(originalImage, scratchResult);
         }
+
     }
 }
