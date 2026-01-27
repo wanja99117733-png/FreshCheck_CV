@@ -1,6 +1,9 @@
 ﻿
 using FreshCheck_CV.Defect;
+using FreshCheck_CV.Grab;
+using FreshCheck_CV.Inspect;
 using FreshCheck_CV.Models;
+using SaigeVision.Net.V2.Segmentation;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -9,8 +12,6 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FreshCheck_CV.Inspect;
-using SaigeVision.Net.V2.Segmentation;
 
 
 namespace FreshCheck_CV.Core
@@ -22,6 +23,7 @@ namespace FreshCheck_CV.Core
         private BinaryOptions _lastBinaryOptions = new BinaryOptions();
         // 원본 이미지
         private Bitmap _sourceBitmap = null;
+        private GrabModel _grabManager = null;
         SaigeAI _saigeAI; // SaigeAI 인스턴스
 
         public InspStage() { }
@@ -162,8 +164,13 @@ namespace FreshCheck_CV.Core
             UpdateDisplay(result);
         }
 
+        public void Grab(int bufferIndex)
+        {
+            if (_grabManager == null)
+                return;
 
-
+            _grabManager.Grab(bufferIndex, true);
+        }
         public void RunMoldInspectionTemp()
         {
             Bitmap source = GetCurrentImage();

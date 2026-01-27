@@ -51,11 +51,13 @@ namespace FreshCheck_CV
 
         private void btnStart_Click(object sender, EventArgs e)
         {
+            
             _isInspectEnabled = true;
 
             // RUN 표시
             Global.Inst?.InspStage?.Hub?.SetRunning(true);
 
+            
             // 이벤트 중복 구독 방지
             if (MainForm.Instance != null)
             {
@@ -241,5 +243,9 @@ namespace FreshCheck_CV
             }
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.Grab(0);
+        }
     }
 }
