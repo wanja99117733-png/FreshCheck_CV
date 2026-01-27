@@ -119,8 +119,8 @@ namespace FreshCheck_CV.Property
             this.grpTarget.Location = new System.Drawing.Point(8, 38);
             this.grpTarget.Margin = new System.Windows.Forms.Padding(0, 0, 0, 7);
             this.grpTarget.Name = "grpTarget";
-            this.grpTarget.Padding = new System.Windows.Forms.Padding(7, 7, 7, 7);
-            this.grpTarget.Size = new System.Drawing.Size(241, 78);
+            this.grpTarget.Padding = new System.Windows.Forms.Padding(10);
+            this.grpTarget.Size = new System.Drawing.Size(382, 117);
             this.grpTarget.TabIndex = 2;
             this.grpTarget.TabStop = false;
             this.grpTarget.Text = "타깃 색상";
@@ -130,7 +130,7 @@ namespace FreshCheck_CV.Property
             this.tlpTarget.AutoSize = true;
             this.tlpTarget.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tlpTarget.ColumnCount = 2;
-            this.tlpTarget.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tlpTarget.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 29F));
             this.tlpTarget.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpTarget.Controls.Add(this.pnlTargetSwatch, 0, 0);
             this.tlpTarget.Controls.Add(this.lblTargetColor, 1, 0);
@@ -140,9 +140,9 @@ namespace FreshCheck_CV.Property
             this.tlpTarget.Margin = new System.Windows.Forms.Padding(0);
             this.tlpTarget.Name = "tlpTarget";
             this.tlpTarget.RowCount = 2;
-            this.tlpTarget.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21F));
-            this.tlpTarget.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
-            this.tlpTarget.Size = new System.Drawing.Size(227, 50);
+            this.tlpTarget.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
+            this.tlpTarget.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 44F));
+            this.tlpTarget.Size = new System.Drawing.Size(362, 76);
             this.tlpTarget.TabIndex = 0;
             // 
             // pnlTargetSwatch
@@ -153,7 +153,7 @@ namespace FreshCheck_CV.Property
             this.pnlTargetSwatch.Margin = new System.Windows.Forms.Padding(0, 3, 6, 3);
             this.pnlTargetSwatch.Name = "pnlTargetSwatch";
             this.tlpTarget.SetRowSpan(this.pnlTargetSwatch, 2);
-            this.pnlTargetSwatch.Size = new System.Drawing.Size(14, 44);
+            this.pnlTargetSwatch.Size = new System.Drawing.Size(20, 68);
             this.pnlTargetSwatch.TabIndex = 0;
             // 
             // lblTargetColor
@@ -162,10 +162,10 @@ namespace FreshCheck_CV.Property
             this.lblTargetColor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblTargetColor.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTargetColor.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.lblTargetColor.Location = new System.Drawing.Point(28, 3);
-            this.lblTargetColor.Margin = new System.Windows.Forms.Padding(8, 3, 0, 0);
+            this.lblTargetColor.Location = new System.Drawing.Point(41, 4);
+            this.lblTargetColor.Margin = new System.Windows.Forms.Padding(12, 4, 0, 0);
             this.lblTargetColor.Name = "lblTargetColor";
-            this.lblTargetColor.Size = new System.Drawing.Size(199, 18);
+            this.lblTargetColor.Size = new System.Drawing.Size(321, 28);
             this.lblTargetColor.TabIndex = 1;
             this.lblTargetColor.Text = "Target : (B=0, G=0, R=0)";
             this.lblTargetColor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -176,11 +176,11 @@ namespace FreshCheck_CV.Property
             this.btnPickColor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnPickColor.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnPickColor.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnPickColor.Location = new System.Drawing.Point(20, 26);
-            this.btnPickColor.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
-            this.btnPickColor.MinimumSize = new System.Drawing.Size(0, 24);
+            this.btnPickColor.Location = new System.Drawing.Point(29, 40);
+            this.btnPickColor.Margin = new System.Windows.Forms.Padding(0, 8, 0, 0);
+            this.btnPickColor.MinimumSize = new System.Drawing.Size(0, 36);
             this.btnPickColor.Name = "btnPickColor";
-            this.btnPickColor.Size = new System.Drawing.Size(207, 24);
+            this.btnPickColor.Size = new System.Drawing.Size(333, 36);
             this.btnPickColor.TabIndex = 2;
             this.btnPickColor.Text = "  스포이드";
             this.btnPickColor.UseVisualStyleBackColor = false;
@@ -193,11 +193,11 @@ namespace FreshCheck_CV.Property
             this.grpTolerance.Dock = System.Windows.Forms.DockStyle.Top;
             this.grpTolerance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grpTolerance.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.grpTolerance.Location = new System.Drawing.Point(8, 123);
-            this.grpTolerance.Margin = new System.Windows.Forms.Padding(0, 0, 0, 9);
+            this.grpTolerance.Location = new System.Drawing.Point(11, 183);
+            this.grpTolerance.Margin = new System.Windows.Forms.Padding(0, 0, 0, 14);
             this.grpTolerance.Name = "grpTolerance";
-            this.grpTolerance.Padding = new System.Windows.Forms.Padding(7, 7, 7, 7);
-            this.grpTolerance.Size = new System.Drawing.Size(241, 119);
+            this.grpTolerance.Padding = new System.Windows.Forms.Padding(10);
+            this.grpTolerance.Size = new System.Drawing.Size(382, 178);
             this.grpTolerance.TabIndex = 3;
             this.grpTolerance.TabStop = false;
             this.grpTolerance.Text = "허용오차(민감도)";
@@ -216,10 +216,10 @@ namespace FreshCheck_CV.Property
             this.tlpTol.Margin = new System.Windows.Forms.Padding(0);
             this.tlpTol.Name = "tlpTol";
             this.tlpTol.RowCount = 3;
-            this.tlpTol.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 17F));
-            this.tlpTol.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 53F));
-            this.tlpTol.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 19F));
-            this.tlpTol.Size = new System.Drawing.Size(227, 89);
+            this.tlpTol.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tlpTol.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 80F));
+            this.tlpTol.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
+            this.tlpTol.Size = new System.Drawing.Size(362, 134);
             this.tlpTol.TabIndex = 0;
             // 
             // lblTolerance
@@ -230,7 +230,7 @@ namespace FreshCheck_CV.Property
             this.lblTolerance.Location = new System.Drawing.Point(0, 0);
             this.lblTolerance.Margin = new System.Windows.Forms.Padding(0, 0, 0, 3);
             this.lblTolerance.Name = "lblTolerance";
-            this.lblTolerance.Size = new System.Drawing.Size(227, 14);
+            this.lblTolerance.Size = new System.Drawing.Size(362, 21);
             this.lblTolerance.TabIndex = 0;
             this.lblTolerance.Text = "허용오차: −80 / +120";
             // 
@@ -239,30 +239,9 @@ namespace FreshCheck_CV.Property
             this.rangeTrackbar.BackColor = System.Drawing.Color.Transparent;
             this.rangeTrackbar.BubbleBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(38)))), ((int)(((byte)(44)))));
             this.rangeTrackbar.CornerRadius = 6;
-            this.rangeTrackbar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rangeTrackbar.ForeColor = System.Drawing.Color.White;
-            this.rangeTrackbar.Location = new System.Drawing.Point(0, 18);
-            this.rangeTrackbar.Margin = new System.Windows.Forms.Padding(0, 1, 0, 1);
-            this.rangeTrackbar.Name = "rangeTrackbar";
-            this.rangeTrackbar.RangeColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(140)))), ((int)(((byte)(220)))));
-            this.rangeTrackbar.Size = new System.Drawing.Size(227, 51);
-            this.rangeTrackbar.TabIndex = 1;
-            this.rangeTrackbar.ThumbBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(120)))), ((int)(((byte)(120)))));
-            this.rangeTrackbar.ThumbColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(235)))), ((int)(((byte)(235)))));
-            this.rangeTrackbar.ThumbDiameter = 16;
-            this.rangeTrackbar.TrackBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(66)))), ((int)(((byte)(74)))));
-            this.rangeTrackbar.TrackThickness = 6;
-            this.rangeTrackbar.ValueLeft = 80;
-            this.rangeTrackbar.ValueRight = 120;
-            // 
-            // rangeTrackbar
-            // 
-            this.rangeTrackbar.BackColor = System.Drawing.Color.Transparent;
-            this.rangeTrackbar.BubbleBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(38)))), ((int)(((byte)(44)))));
-            this.rangeTrackbar.CornerRadius = 6;
             this.rangeTrackbar.Dock = System.Windows.Forms.DockStyle.Top;
-            this.rangeTrackbar.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.rangeTrackbar.Location = new System.Drawing.Point(0, 21);
+            this.rangeTrackbar.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.rangeTrackbar.Location = new System.Drawing.Point(0, 25);
             this.rangeTrackbar.Margin = new System.Windows.Forms.Padding(0);
             this.rangeTrackbar.Name = "rangeTrackbar";
             this.rangeTrackbar.RangeColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(140)))), ((int)(((byte)(220)))));
@@ -284,7 +263,7 @@ namespace FreshCheck_CV.Property
             this.chkAutoApply.Location = new System.Drawing.Point(0, 73);
             this.chkAutoApply.Margin = new System.Windows.Forms.Padding(0, 3, 0, 0);
             this.chkAutoApply.Name = "chkAutoApply";
-            this.chkAutoApply.Size = new System.Drawing.Size(227, 16);
+            this.chkAutoApply.Size = new System.Drawing.Size(362, 25);
             this.chkAutoApply.TabIndex = 2;
             this.chkAutoApply.Text = "자동 적용";
             this.chkAutoApply.UseVisualStyleBackColor = true;
@@ -297,8 +276,8 @@ namespace FreshCheck_CV.Property
             this.grpOptions.Dock = System.Windows.Forms.DockStyle.Top;
             this.grpOptions.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grpOptions.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.grpOptions.Location = new System.Drawing.Point(8, 251);
-            this.grpOptions.Margin = new System.Windows.Forms.Padding(0, 0, 0, 7);
+            this.grpOptions.Location = new System.Drawing.Point(11, 375);
+            this.grpOptions.Margin = new System.Windows.Forms.Padding(0, 0, 0, 10);
             this.grpOptions.Name = "grpOptions";
             this.grpOptions.Padding = new System.Windows.Forms.Padding(7, 7, 7, 7);
             this.grpOptions.Size = new System.Drawing.Size(241, 57);
@@ -357,7 +336,7 @@ namespace FreshCheck_CV.Property
             this.grpTest.Dock = System.Windows.Forms.DockStyle.Top;
             this.grpTest.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grpTest.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.grpTest.Location = new System.Drawing.Point(8, 315);
+            this.grpTest.Location = new System.Drawing.Point(11, 469);
             this.grpTest.Margin = new System.Windows.Forms.Padding(0);
             this.grpTest.Name = "grpTest";
             this.grpTest.Padding = new System.Windows.Forms.Padding(7, 7, 7, 7);
@@ -403,7 +382,7 @@ namespace FreshCheck_CV.Property
             this.Controls.Add(this.tlpRoot);
             this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "BinaryProp";
-            this.Size = new System.Drawing.Size(257, 551);
+            this.Size = new System.Drawing.Size(404, 531);
             this.tlpRoot.ResumeLayout(false);
             this.tlpRoot.PerformLayout();
             this.pnlMode.ResumeLayout(false);

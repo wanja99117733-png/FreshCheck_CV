@@ -219,6 +219,7 @@ namespace FreshCheck_CV
                 _currentImageIndex = 0;
             }
         }
+
         // 이미지 사이클링용 타이머를 한 번만 생성하는 메서드
         private void EnsureImageCycleTimer()
         {
