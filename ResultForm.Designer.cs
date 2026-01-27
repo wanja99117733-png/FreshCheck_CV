@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tabMain = new System.Windows.Forms.TabControl();
+            this.tabMain = new FreshCheck_CV.UIControl.DarkTabControl();
             this.tabResults = new System.Windows.Forms.TabPage();
             this.dgvResults = new System.Windows.Forms.DataGridView();
             this.panelTop = new System.Windows.Forms.Panel();
