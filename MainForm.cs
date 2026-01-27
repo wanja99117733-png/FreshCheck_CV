@@ -15,6 +15,7 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace FreshCheck_CV
 {
     // 현재 참조 WeifenLuo.WinFormsUI.Docking, WeifenLuo.WinFormsUI.Docking.Themes.VS2015
+    // 참조 추가 OpenCvSharp, OpenCvSharp.Extensions
     public partial class MainForm : Form
     {
         private bool _isExitConfirmed;

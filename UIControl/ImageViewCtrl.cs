@@ -8,6 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using SaigeVision.Net.V2;
+using SaigeVision.Net.V2.Segmentation;
+using SaigeVision.Net.Core.V2;
+using FreshCheck_CV.Inspect;
+
 
 
 namespace FreshCheck_CV.UIControl
@@ -19,6 +24,27 @@ namespace FreshCheck_CV.UIControl
 
         // 현재 로드된 이미지
         private Bitmap _bitmapImage = null;
+
+
+        // 프리뷰 이미지 변수
+        private Bitmap _previewImage = null;
+
+        public Bitmap PreviewImage
+        {
+            get { return _previewImage; }
+            set
+            {
+                if (_previewImage != null)
+                {
+                    _previewImage.Dispose();
+                    _previewImage = null;
+                }
+
+                _previewImage = value;
+                Invalidate();
+            }
+        }
+
 
         // 더블 버퍼링을 위한 캔버스
         // 더블버퍼링 : 화면 깜빡임을 방지하고 부드러운 펜더링위해 사용
@@ -37,6 +63,8 @@ namespace FreshCheck_CV.UIControl
         private float MinZoom = 1.0f;
         private const float MaxZoom = 100.0f;
 
+        // 스크래치 세그멘테이션 결과 저장용
+        private SegmentationResult _scratchResult = null;
         public ImageViewCtrl()
         {
             InitializeComponent();
@@ -80,6 +108,12 @@ namespace FreshCheck_CV.UIControl
         //#4_IMAGE_VIEWER#5 이미지 로딩 함수
         public void LoadBitmap(Bitmap bitmap)
         {
+            if (_previewImage != null)
+            {
+                _previewImage.Dispose(); // Bitmap 객체가 사용하던 메모리 리소스를 해제
+                _previewImage = null;  //객체를 해제하여 가비지 컬렉션(GC)이 수집할 수 있도록 설정
+            }
+
             // 기존에 로드된 이미지가 있다면 해제 후 초기화, 메모리누수 방지
             if (_bitmapImage != null)
             {
@@ -126,6 +160,29 @@ namespace FreshCheck_CV.UIControl
 
             Invalidate();
         }
+        // 스크래치 결과와 함께 Preview 설정
+        public void SetPreviewWithScratch(Bitmap previewImage, SegmentationResult scratchResult)
+        {
+            PreviewImage = previewImage?.Clone() as Bitmap;  // 강제 PreviewImage 설정!
+            _scratchResult = scratchResult;
+                
+            // 🔥 Preview 전용 줌 리셋
+            if (PreviewImage != null)
+            {
+                _bitmapImage = PreviewImage.Clone() as Bitmap;  // _bitmapImage도 Preview로!
+                FitImageToScreen();  // 크기 맞춤
+            }
+
+            Invalidate();
+        }
+
+        // 스크래치 결과만 클리어
+        public void ClearScratchResult()
+        {
+            _scratchResult = null;
+            Invalidate();
+        }
+
 
         //#GROUP ROI#7 현재 이미지를 기준으로 줌 비율 재계산
         private void RecalcZoomRatio()
@@ -163,21 +220,92 @@ namespace FreshCheck_CV.UIControl
         {
             base.OnPaint(e);
 
-            if (_bitmapImage != null && Canvas != null)
+            // 🔥 수정: PreviewImage 무조건 우선!
+            Bitmap displayBitmap = _previewImage != null ? _previewImage : _bitmapImage;
+
+            if (displayBitmap != null && Canvas != null)
             {
-                // 캔버스를 초기화하고 이미지 그리기
-                using (Graphics g = Graphics.FromImage(Canvas))  // 메모리누수방지
+                using (Graphics g = Graphics.FromImage(Canvas))
                 {
-                    g.Clear(Color.Transparent); // 배경을 투명하게 설정
-
-                    //이미지 확대or축소때 화질 최적화 방식(Interpolation Mode) 설정                    
+                    g.Clear(Color.Transparent);
                     g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                    g.DrawImage(_bitmapImage, ImageRect);
 
-                    // 캔버스를 UserControl 화면에 표시
+                    // 🔥 PreviewImage 크기로 ImageRect 재계산!
+                    if (_previewImage != null)
+                    {
+                        float virtualWidth = _previewImage.Width * _curZoom;
+                        float virtualHeight = _previewImage.Height * _curZoom;
+                        ImageRect = new RectangleF(
+                            (Width - virtualWidth) / 2f,
+                            (Height - virtualHeight) / 2f,
+                            virtualWidth, virtualHeight);
+                    }
+
+                    g.DrawImage(displayBitmap, ImageRect);  // 배경제거 이미지!
+
+                    DrawScratchBoundingBoxes(g);  // 사각형!
+
                     e.Graphics.DrawImage(Canvas, 0, 0);
                 }
             }
+        }
+
+
+        // 사각형 그리기 (줌/스크롤 반영)
+        private void DrawScratchBoundingBoxes(Graphics g)
+        {
+            if (_scratchResult?.SegmentedObjects == null || _scratchResult.SegmentedObjects.Length == 0)
+                return;
+
+            using (Pen pen = new Pen(Color.Red, 3))
+            using (Font font = new Font("Arial", 10, FontStyle.Bold))
+            {
+                foreach (var obj in _scratchResult.SegmentedObjects)
+                {
+                    if (obj == null)
+                        continue;
+
+                    // ★ BoundingBox 대신 Contour 사용 (안전)
+                    var contour = obj.Contour?.Value;
+                    if (contour == null || contour.Count < 3)
+                        continue;
+
+                    // ★ Contour에서 최소 바운딩 박스 계산
+                    float minX = contour.Min(p => p.X), maxX = contour.Max(p => p.X);
+                    float minY = contour.Min(p => p.Y), maxY = contour.Max(p => p.Y);
+
+                    RectangleF boundingRect = new RectangleF(minX, minY, maxX - minX, maxY - minY);
+
+                    // 화면 좌표 변환
+                    RectangleF screenRect = VirtualToScreen(boundingRect);
+
+                    if (screenRect.Width > 0 && screenRect.Height > 0)
+                    {
+                        // 사각형 그리기
+                        g.DrawRectangle(pen, screenRect.X, screenRect.Y, screenRect.Width, screenRect.Height);
+
+                        // Score 라벨
+                        string label = $"Scratch: {obj.Score:F2}";
+                        g.DrawString(label, font, Brushes.Red, screenRect.X, Math.Max(0, screenRect.Y - 20));
+                    }
+                }
+            }
+        }
+
+
+
+
+        private RectangleF VirtualToScreen(RectangleF imgRect)
+        {
+            // 이미 구현된 Rectangle 버전의 로직과 동일하게 작동하도록 구현합니다.
+            PointF offset = GetScreenOffset();
+
+            return new RectangleF(
+                (imgRect.X * _curZoom) + offset.X,
+                (imgRect.Y * _curZoom) + offset.Y,
+                imgRect.Width * _curZoom,
+                imgRect.Height * _curZoom
+            );
         }
 
         //#4_IMAGE_VIEWER#4 마우스휠을 이용한 확대/축소
@@ -298,6 +426,27 @@ namespace FreshCheck_CV.UIControl
             }
 
             color = _bitmapImage.GetPixel(x, y);
+            return true;
+        }
+
+
+        // 이미지 클릭한 픽셀 위치 가져오기
+        public bool TryGetImagePoint(System.Drawing.Point screenPoint, out System.Drawing.Point imagePoint)
+        {
+            imagePoint = System.Drawing.Point.Empty;
+
+            if (_bitmapImage == null)
+                return false;
+
+            System.Drawing.PointF virtualPoint = ScreenToVirtual(new System.Drawing.PointF(screenPoint.X, screenPoint.Y));
+
+            int x = (int)(virtualPoint.X + 0.5f);
+            int y = (int)(virtualPoint.Y + 0.5f);
+
+            if (x < 0 || y < 0 || x >= _bitmapImage.Width || y >= _bitmapImage.Height)
+                return false;
+
+            imagePoint = new System.Drawing.Point(x, y);
             return true;
         }
     }

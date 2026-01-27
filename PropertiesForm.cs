@@ -1,4 +1,5 @@
 ﻿using FreshCheck_CV.Property;
+using FreshCheck_CV.Scratch;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

@@ -8,7 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FreshCheck_CV.Core;
 using WeifenLuo.WinFormsUI.Docking;
+using OpenCvSharp;
+using OpenCvSharp.Extensions;
+using FreshCheck_CV.Scratch;
+using FreshCheck_CV.Inspect;
+using SaigeVision.Net.V2.Segmentation;
 
 namespace FreshCheck_CV
 {
@@ -74,6 +80,9 @@ namespace FreshCheck_CV
             {
                 imageViewCtrl.LoadBitmap(new Bitmap(temp)); // 복사본 전달
             }
+            //#4_IMAGE_VIEWER#6 이미지 뷰어 컨트롤을 사용하여 이미지를 로드
+            Image bitmap = Image.FromFile(filePath);
+            imageViewCtrl.LoadBitmap((Bitmap)bitmap);
         }
 
         private void CameraForm_Resize_1(object sender, EventArgs e)
@@ -84,7 +93,13 @@ namespace FreshCheck_CV
 
             imageViewCtrl.Location = new System.Drawing.Point(margin, margin);
         }
-
+        public void UpdatePreviewWithScratch(Bitmap bitmap, SegmentationResult scratchResult)
+        {
+            if (imageViewCtrl != null)
+            {
+                imageViewCtrl.SetPreviewWithScratch(bitmap, scratchResult);
+            }
+        }
         public void UpdateDisplay(Bitmap bitmap = null)
         {
             if (imageViewCtrl == null || bitmap == null)
@@ -140,6 +155,27 @@ namespace FreshCheck_CV
             }
 
             public Color Color { get; }
+        }
+
+        public Bitmap GetPreviewImage()
+        {
+            return imageViewCtrl.PreviewImage;
+        }
+
+        public void UpdatePreview(Bitmap bitmap)
+        {
+            if (imageViewCtrl != null)
+            {
+                imageViewCtrl.PreviewImage = bitmap;
+                imageViewCtrl.Invalidate(); // 다시 그려줌. OnPaint 함수 호출.
+                imageViewCtrl.ClearScratchResult();
+            }
+        }
+
+        public void ClearPreviewImage()
+        {
+            if (imageViewCtrl != null)
+                imageViewCtrl.PreviewImage = null;
         }
     }
 }

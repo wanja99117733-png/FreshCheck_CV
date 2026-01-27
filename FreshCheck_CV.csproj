@@ -80,6 +80,9 @@
     <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
     </Reference>
+    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing.Common, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Drawing.Common.8.0.11\lib\net462\System.Drawing.Common.dll</HintPath>
@@ -164,6 +167,9 @@
     <Compile Include="Defect\DefectType.cs" />
     <Compile Include="Defect\IDefectDetector.cs" />
     <Compile Include="Defect\MoldDetector.cs" />
+    <Compile Include="Grab\GrabModel.cs" />
+    <Compile Include="Grab\HikRobotCam.cs" />
+    <Compile Include="Inspect\SaigeAI.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -216,6 +222,12 @@
     </Compile>
     <Compile Include="UIControl\DarkTabControl.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Scratch\ScratchProp.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Scratch\ScratchProp.Designer.cs">
+      <DependentUpon>ScratchProp.cs</DependentUpon>
     </Compile>
     <Compile Include="UIControl\ImageViewCtrl.cs">
       <SubType>UserControl</SubType>
@@ -273,6 +285,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Splash\SplashForm.resx">
       <DependentUpon>SplashForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Scratch\ScratchProp.resx">
+      <DependentUpon>ScratchProp.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UIControl\ImageViewCtrl.resx">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>

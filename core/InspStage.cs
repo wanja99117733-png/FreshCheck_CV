@@ -9,17 +9,33 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FreshCheck_CV.Inspect;
+using SaigeVision.Net.V2.Segmentation;
+
 
 namespace FreshCheck_CV.Core
 {
+    
     //검사와 관련된 클래스를 관리하는 클래스
     public class InspStage : IDisposable
     {
         private BinaryOptions _lastBinaryOptions = new BinaryOptions();
         // 원본 이미지
         private Bitmap _sourceBitmap = null;
+        SaigeAI _saigeAI; // SaigeAI 인스턴스
 
         public InspStage() { }
+
+        public SaigeAI AIModule
+        {
+            get
+            {
+                if (_saigeAI is null)
+                    _saigeAI = new SaigeAI();
+                return _saigeAI;
+            }
+        }
+
 
         public InspectionHub Hub { get; } = new InspectionHub();
 
@@ -45,6 +61,17 @@ namespace FreshCheck_CV.Core
             }
         }
 
+        // ImageViewCtrl 프리뷰 이미지 업데이트 함수
+        public void UpdatePreview(Bitmap bitmap)
+        {
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.UpdatePreview(bitmap);
+            }
+        }
+
+
         // (Bitmap) ImageViewCtrl 현재 이미지 가져오기 함수
         public Bitmap GetCurrentImage()
         {
@@ -53,6 +80,20 @@ namespace FreshCheck_CV.Core
             if (cameraForm != null)
             {
                 bitmap = cameraForm.GetDisplayImage();
+            }
+
+            return bitmap;
+        }
+
+
+        // (Bitmap) ImageViewCtrl 현재 이미지 가져오기 함수
+        public Bitmap GetPreviewImage()
+        {
+            Bitmap bitmap = null;
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                bitmap = cameraForm.GetPreviewImage();
             }
 
             return bitmap;
@@ -196,6 +237,14 @@ namespace FreshCheck_CV.Core
                     result.OverlayBitmap.Dispose();
                 }
             }
+        }
+
+        
+        public void UpdatePreviewWithScratch(Bitmap bitmap, SegmentationResult scratchResult)
+        {
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            // CameraForm 호출 (기존 패턴)
+            cameraForm.UpdatePreviewWithScratch(bitmap, scratchResult);
         }
 
         #region Disposable
