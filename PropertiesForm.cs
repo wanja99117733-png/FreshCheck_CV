@@ -1,5 +1,4 @@
 ﻿using FreshCheck_CV.Property;
-using FreshCheck_CV.Scratch;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,8 +17,7 @@ namespace FreshCheck_CV
     //#3_CAMERAVIEW_PROPERTY#3 속성창에 사용할 타입 선언
     public enum PropertyType
     {
-        Mold,
-        Scratch,
+        InspOption,
         Monitor
     }
 
@@ -55,8 +53,7 @@ namespace FreshCheck_CV
             tabPropControl.DrawItem += TabPropControl_DrawItem;
 
             //#3_CAMERAVIEW_PROPERTY#7 속성 탭을 초기화
-            LoadOptionControl(PropertyType.Scratch);
-            LoadOptionControl(PropertyType.Mold);
+            LoadOptionControl(PropertyType.InspOption);
             LoadOptionControl(PropertyType.Monitor);
         }
 
@@ -103,13 +100,9 @@ namespace FreshCheck_CV
             UserControl curProp = null;
             switch (propType)
             {
-                case PropertyType.Mold:
+                case PropertyType.InspOption:
                     BinaryProp blobProp = new BinaryProp();
                     curProp = blobProp;
-                    break;
-                case PropertyType.Scratch:
-                    ScratchProp scratchProp = new ScratchProp();
-                    curProp = scratchProp;
                     break;
                 case PropertyType.Monitor:
                     curProp = new Property.InspectionMonitorProp();

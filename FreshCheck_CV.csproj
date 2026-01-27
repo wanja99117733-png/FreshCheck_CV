@@ -231,12 +231,6 @@
     <Compile Include="UIControl\DarkTabControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Scratch\ScratchProp.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Scratch\ScratchProp.Designer.cs">
-      <DependentUpon>ScratchProp.cs</DependentUpon>
-    </Compile>
     <Compile Include="UIControl\ImageViewCtrl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -293,9 +287,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Splash\SplashForm.resx">
       <DependentUpon>SplashForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Scratch\ScratchProp.resx">
-      <DependentUpon>ScratchProp.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UIControl\ImageViewCtrl.resx">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>

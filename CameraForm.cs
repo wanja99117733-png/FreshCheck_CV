@@ -12,7 +12,6 @@ using FreshCheck_CV.Core;
 using WeifenLuo.WinFormsUI.Docking;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
-using FreshCheck_CV.Scratch;
 using FreshCheck_CV.Inspect;
 using SaigeVision.Net.V2.Segmentation;
 
