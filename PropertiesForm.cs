@@ -108,8 +108,8 @@ namespace FreshCheck_CV
                     curProp = blobProp;
                     break;
                 case PropertyType.Scratch:
-                    ImageFilterProp filterProp = new ImageFilterProp();
-                    curProp = filterProp;
+                    ScratchProp scratchProp = new ScratchProp();
+                    curProp = scratchProp;
                     break;
                 case PropertyType.Monitor:
                     curProp = new Property.InspectionMonitorProp();

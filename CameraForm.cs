@@ -126,7 +126,7 @@ namespace FreshCheck_CV
             return new Bitmap(cur);
         }
 
-        public Color? TryPickColorFromDisplay(Point clientPoint)
+        public Color? TryPickColorFromDisplay(System.Drawing.Point clientPoint)
         {
             Bitmap bmp = imageViewCtrl?.GetCurBitmap();
             if (bmp == null)
