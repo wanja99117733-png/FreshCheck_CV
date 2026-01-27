@@ -1,4 +1,5 @@
-﻿using FreshCheck_CV.Core;
+﻿
+using FreshCheck_CV.Core;
 using FreshCheck_CV.Inspect;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;

@@ -284,9 +284,6 @@ namespace FreshCheck_CV.UIControl
                         // 사각형 그리기
                         g.DrawRectangle(pen, screenRect.X, screenRect.Y, screenRect.Width, screenRect.Height);
 
-                        // Score 라벨
-                        string label = $"Scratch: {obj.Score:F2}";
-                        g.DrawString(label, font, Brushes.Red, screenRect.X, Math.Max(0, screenRect.Y - 20));
                     }
                 }
             }
