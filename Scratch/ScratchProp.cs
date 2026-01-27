@@ -19,11 +19,7 @@ namespace FreshCheck_CV.Scratch
 
         private void btnEraseBg_Click(object sender, EventArgs e)
         {
-            SaigeAI saigeAI = Global.Inst.InspStage.AIModule; // SaigeAI 인스턴스
-
-            AIEngineType engineType = AIEngineType.Segmentation;
-            string modelPath = "D:\\SagieModel\\Cu_seg.saigeseg";
-            saigeAI.LoadEngine(modelPath, engineType); // 엔진 연결
+            SaigeAI saigeAI = Global.Inst.InspStage.AIModule;
 
             if (saigeAI == null)
             {
@@ -31,69 +27,49 @@ namespace FreshCheck_CV.Scratch
                 return;
             }
 
-            Bitmap bitmap = Global.Inst.InspStage.GetCurrentImage(); // 현재 이미지 가져오기
+            Bitmap bitmap = Global.Inst.InspStage.GetCurrentImage();
             if (bitmap is null)
             {
                 MessageBox.Show("현재 이미지가 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            saigeAI.InspAIModule(bitmap); // 검사
-
-            Bitmap resultImage = saigeAI.GetResultImage(); // 배경 삭제된 이미지
-
-            Global.Inst.InspStage.UpdatePreview(resultImage);
-
-
-            /* 테스트 용도 - S */
-            Bitmap curBitmap = Global.Inst.InspStage.GetCurrentImage();
-            Bitmap previewBitmap = Global.Inst.InspStage.GetPreviewImage();
-
-            Mat curMat = BitmapConverter.ToMat(curBitmap);
-            Mat previewMat = BitmapConverter.ToMat(previewBitmap);
-
-            Cv2.Resize(curMat, curMat, new OpenCvSharp.Size(0, 0), 0.2, 0.2);
-            Cv2.Resize(previewMat, previewMat, new OpenCvSharp.Size(0, 0), 0.2, 0.2);
-
-            //Cv2.ImShow("curMat", curMat);
-            //Cv2.ImShow("previewMat", previewMat);
-            /* 테스트 용도 - E */
-
-            
+            // 🔥 수정: 어떤 엔진을 사용할지 타입을 명시합니다. (상시 로딩 방식)
+            if (saigeAI.InspAIModule(bitmap, AIEngineType.Segmentation))
+            {
+                Bitmap resultImage = saigeAI.GetResultImage(); // 배경 삭제된 이미지 생성
+                Global.Inst.InspStage.UpdatePreview(resultImage);
+            }
         }
 
         // 스크래치 검출 버튼
         private void btnScratchDet_Click(object sender, EventArgs e)
         {
             SaigeAI saigeAI = Global.Inst.InspStage.AIModule;
-            if (saigeAI == null) { /* 오류 */ return; }
+            if (saigeAI == null) return;
 
-            // 🔥 1. 배경제거 이미지만 사용 (검사용)
+            // 1. 검사 대상: 배경제거된 이미지 (배경이 검정색이어야 스크래치 집중도가 높음)
             Bitmap noBgImage = Global.Inst.InspStage.GetPreviewImage();
-            // 2. 배경으로 쓸 원본 이미지 (배경 제거 안 됨)
+
+            // 2. 출력 대상: 원본 이미지 (사용자가 보기 편하도록)
             Bitmap originalImage = Global.Inst.InspStage.GetCurrentImage();
+
             if (noBgImage == null)
             {
                 MessageBox.Show("먼저 [배경제거] 버튼을 눌러주세요!", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            Console.WriteLine($"배경제거 이미지 크기: {noBgImage.Width}x{noBgImage.Height}");
-
-            // 2. 배경제거 이미지로 Scratch 검출+사각형
-            string scratchModelPath = "D:\\SagieModel\\Cucumber_Scratch_Det.saigeseg";
-            saigeAI.LoadEngine(scratchModelPath, AIEngineType.ScratchSegmentation);
-
-            if (!saigeAI.InspAIModule(noBgImage))  // 🔥 배경제거 이미지로 검출!
+            // 🔥 수정: 스크래치 전용 엔진으로 검사 수행
+            if (!saigeAI.InspAIModule(noBgImage, AIEngineType.ScratchSegmentation))
             {
                 MessageBox.Show("Scratch 검출 실패", "오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             SegmentationResult scratchResult = saigeAI.GetScratchResult();
-            Console.WriteLine($"검출된 Scratch 수: {scratchResult?.SegmentedObjects?.Length ?? 0}");
 
-            // 3. 배경제거 이미지에 사각형 그리기
+            // 3. 원본 이미지(originalImage) 위에 검출된 결과(scratchResult)의 사각형을 그림
             Global.Inst.InspStage.UpdatePreviewWithScratch(originalImage, scratchResult);
         }
     }
