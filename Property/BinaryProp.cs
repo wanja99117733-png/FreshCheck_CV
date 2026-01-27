@@ -1,13 +1,7 @@
 ﻿using FreshCheck_CV.Core;
 using FreshCheck_CV.Models;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static FreshCheck_CV.CameraForm;
 
@@ -22,9 +16,23 @@ namespace FreshCheck_CV.Property
         {
             InitializeComponent();
             InitUi();
+
             HookEvents();
             HookCameraPickEvent();
             ApplyLayoutFixes();
+            //스포이드 버튼 아이콘 + 중앙 정렬
+            btnPickColor.Image = Properties.Resources.icon;
+
+            // 아이콘 + 텍스트를 하나의 덩어리로 취급
+            btnPickColor.TextImageRelation = TextImageRelation.ImageBeforeText;
+
+            // 전체 묶음을 버튼 중앙으로
+            btnPickColor.TextAlign = ContentAlignment.MiddleCenter;
+            btnPickColor.ImageAlign = ContentAlignment.MiddleCenter;
+
+            // 좌우 여백으로 균형 잡기
+            btnPickColor.Padding = new Padding(10, 0, 10, 0);
+            btnPickColor.Image = new Bitmap(Properties.Resources.icon,new Size(24, 24));
         }
 
         private void ApplyLayoutFixes()
@@ -110,17 +118,26 @@ namespace FreshCheck_CV.Property
             rangeTrackbar.RangeChanged += (s, e) =>
             {
                 UpdateToleranceLabel();
-                if (chkAutoApply.Checked) ApplyFromUi();
+                if (chkAutoApply.Checked)
+                {
+                    ApplyFromUi();
+                }
             };
 
             cbMode.SelectedIndexChanged += (s, e) =>
             {
-                if (chkAutoApply.Checked) ApplyFromUi();
+                if (chkAutoApply.Checked)
+                {
+                    ApplyFromUi();
+                }
             };
 
             chkInvert.CheckedChanged += (s, e) =>
             {
-                if (chkAutoApply.Checked) ApplyFromUi();
+                if (chkAutoApply.Checked)
+                {
+                    ApplyFromUi();
+                }
             };
 
             chkAutoApply.CheckedChanged += (s, e) =>
@@ -166,15 +183,13 @@ namespace FreshCheck_CV.Property
             _options.TargetR = c.R;
 
             UpdateTargetUi(_options.TargetB, _options.TargetG, _options.TargetR);
-
-            // 픽킹 후 반영
             ApplyFromUi();
         }
 
         private void UpdateTargetUi(int b, int g, int r)
         {
             lblTargetColor.Text = $"Target: (B={b}, G={g}, R={r})";
-            pnlTargetSwatch.BackColor = Color.FromArgb(r, g, b); // 표시용 Color는 RGB
+            pnlTargetSwatch.BackColor = Color.FromArgb(r, g, b);
         }
 
         private void UpdateToleranceLabel()
@@ -191,7 +206,6 @@ namespace FreshCheck_CV.Property
 
             _options.TolLow = Math.Min(left, right);
             _options.TolHigh = Math.Max(left, right);
-
             _options.Invert = chkInvert.Checked;
 
             if (cbMode.SelectedItem is ShowBinaryMode showMode)
@@ -202,7 +216,6 @@ namespace FreshCheck_CV.Property
             Global.Inst.InspStage.ApplyBinary(_options);
         }
 
-
         private void btnRunMold_Click(object sender, EventArgs e)
         {
             Global.Inst.InspStage.RunMoldInspectionTemp();
@@ -212,6 +225,5 @@ namespace FreshCheck_CV.Property
                 dlg.ShowDialog(this);
             }
         }
-
     }
 }

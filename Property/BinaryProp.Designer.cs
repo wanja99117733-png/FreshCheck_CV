@@ -182,7 +182,7 @@ namespace FreshCheck_CV.Property
             this.btnPickColor.Name = "btnPickColor";
             this.btnPickColor.Size = new System.Drawing.Size(207, 24);
             this.btnPickColor.TabIndex = 2;
-            this.btnPickColor.Text = "스포이드";
+            this.btnPickColor.Text = "  스포이드";
             this.btnPickColor.UseVisualStyleBackColor = false;
             // 
             // grpTolerance
@@ -261,12 +261,12 @@ namespace FreshCheck_CV.Property
             this.rangeTrackbar.BubbleBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(38)))), ((int)(((byte)(44)))));
             this.rangeTrackbar.CornerRadius = 6;
             this.rangeTrackbar.Dock = System.Windows.Forms.DockStyle.Top;
-            this.rangeTrackbar.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.rangeTrackbar.Location = new System.Drawing.Point(0, 29);
+            this.rangeTrackbar.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.rangeTrackbar.Location = new System.Drawing.Point(0, 21);
             this.rangeTrackbar.Margin = new System.Windows.Forms.Padding(0);
             this.rangeTrackbar.Name = "rangeTrackbar";
             this.rangeTrackbar.RangeColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(140)))), ((int)(((byte)(220)))));
-            this.rangeTrackbar.Size = new System.Drawing.Size(362, 41);
+            this.rangeTrackbar.Size = new System.Drawing.Size(289, 34);
             this.rangeTrackbar.TabIndex = 1;
             this.rangeTrackbar.ThumbBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(120)))), ((int)(((byte)(120)))));
             this.rangeTrackbar.ThumbColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(235)))), ((int)(((byte)(235)))));
