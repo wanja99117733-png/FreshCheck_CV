@@ -64,6 +64,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(38)))));
             this.Controls.Add(this.btnScratchDet);
             this.Controls.Add(this.btnEraseBg);
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);

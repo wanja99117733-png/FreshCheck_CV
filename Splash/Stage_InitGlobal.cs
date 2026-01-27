@@ -23,7 +23,7 @@ namespace FreshCheck_CV
             {
                 new StartupProgressHelper.Checkpoint(  0, 10, "Global 인스턴스 준비 중..."),
                 new StartupProgressHelper.Checkpoint(250, 40, "공용 리소스 연결 중..."),
-                new StartupProgressHelper.Checkpoint(600, 80, "Global 점검 중..."),
+                new StartupProgressHelper.Checkpoint(600, 80, "모델 로딩 중..."),
             };
 
             await StartupProgressHelper.RunWithMinimumDurationAsync(
