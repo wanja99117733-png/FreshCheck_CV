@@ -35,7 +35,15 @@ namespace FreshCheck_CV
 
             InitializeComponent();
 
+            StartPosition = FormStartPosition.CenterScreen;
+            WindowState = FormWindowState.Maximized;
+
             Instance = this;
+
+            Shown += (s, e) =>
+            {
+                WindowState = FormWindowState.Maximized;
+            };
 
             //메인폼 사이즈 강제 고정
             this.MinimumSize = new Size(1250, 800);
@@ -110,7 +118,7 @@ namespace FreshCheck_CV
             _dockPanel.AllowEndUserDocking = false;
 
             _dockPanel.DockBottomPortion = 0.23;
-            _dockPanel.DockRightPortion = 0.15;
+            _dockPanel.DockRightPortion = 0.17;
 
             // 중앙 메인 이미지
             var cameraWindow = new CameraForm();

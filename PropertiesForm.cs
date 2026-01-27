@@ -19,7 +19,7 @@ namespace FreshCheck_CV
     {
         Mold,
         Scratch,
-        InspectionMonitor
+        Monitor
     }
 
     //#2_DOCKPANEL#4 PropertiesForm 클래스 는 도킹 가능하도록 상속을 변경
@@ -36,7 +36,7 @@ namespace FreshCheck_CV
 
             //TabControl (Filter / Binary) 다크화
             tabPropControl.DrawMode = TabDrawMode.OwnerDrawFixed;
-            tabPropControl.ItemSize = new Size(90, 30);
+            tabPropControl.ItemSize = new Size(78, 30);
             tabPropControl.DrawItem += TabPropControl_DrawItem;
 
             tabPropControl.Paint += TabPropControl_Paint;
@@ -56,7 +56,7 @@ namespace FreshCheck_CV
             //#3_CAMERAVIEW_PROPERTY#7 속성 탭을 초기화
             LoadOptionControl(PropertyType.Scratch);
             LoadOptionControl(PropertyType.Mold);
-            LoadOptionControl(PropertyType.InspectionMonitor);
+            LoadOptionControl(PropertyType.Monitor);
         }
 
         //#3_CAMERAVIEW_PROPERTY#6 속성탭이 있다면 그것을 반환하고, 없다면 생성
@@ -110,7 +110,7 @@ namespace FreshCheck_CV
                     ImageFilterProp filterProp = new ImageFilterProp();
                     curProp = filterProp;
                     break;
-                case PropertyType.InspectionMonitor:
+                case PropertyType.Monitor:
                     curProp = new Property.InspectionMonitorProp();
                     break;
                 default:
