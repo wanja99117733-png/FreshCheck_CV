@@ -44,7 +44,7 @@
             this.tabLogs.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tabMain
+            // tabLogs
             // 
             this.tabMain.Controls.Add(this.tabResults);
             this.tabMain.Controls.Add(this.tabLogs);
@@ -57,8 +57,19 @@
             this.tabMain.Size = new System.Drawing.Size(1116, 810);
             this.tabMain.TabIndex = 1;
             // 
+            // listBoxLogs
+            // 
+            this.listBoxLogs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listBoxLogs.FormattingEnabled = true;
+            this.listBoxLogs.ItemHeight = 12;
+            this.listBoxLogs.Location = new System.Drawing.Point(3, 2);
+            this.listBoxLogs.Name = "listBoxLogs";
+            this.listBoxLogs.Size = new System.Drawing.Size(700, 498);
+            this.listBoxLogs.TabIndex = 1;
+            // 
             // tabResults
             // 
+            this.tabResults.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(34)))), ((int)(((byte)(40)))));
             this.tabResults.Controls.Add(this.dgvResults);
             this.tabResults.Controls.Add(this.panelTop);
             this.tabResults.Location = new System.Drawing.Point(4, 28);
@@ -160,7 +171,7 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "ResultForm";
             this.Text = "LogForm";
-            this.tabMain.ResumeLayout(false);
+            this.tabLogs.ResumeLayout(false);
             this.tabResults.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvResults)).EndInit();
             this.panelTop.ResumeLayout(false);
@@ -170,14 +181,14 @@
         }
 
         #endregion
-        private System.Windows.Forms.TabControl tabMain;
-        private System.Windows.Forms.TabPage tabResults;
         private System.Windows.Forms.TabPage tabLogs;
+        private System.Windows.Forms.ListBox listBoxLogs;
+        private System.Windows.Forms.TabPage tabResults;
         private System.Windows.Forms.DataGridView dgvResults;
         private System.Windows.Forms.Panel panelTop;
         private System.Windows.Forms.Button btnExportcsv;
         private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.ComboBox cbResultFilter;
-        private System.Windows.Forms.ListBox listBoxLogs;
+        private UIControl.DarkTabControl tabMain;
     }
 }

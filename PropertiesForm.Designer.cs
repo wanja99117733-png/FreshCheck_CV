@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tabPropControl = new System.Windows.Forms.TabControl();
+            this.tabPropControl = new FreshCheck_CV.UIControl.DarkTabControl();
             this.SuspendLayout();
             // 
             // tabPropControl
@@ -45,7 +45,7 @@
             // 
             // PropertiesForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.ClientSize = new System.Drawing.Size(1278, 723);
@@ -59,6 +59,6 @@
 
         #endregion
 
-        private System.Windows.Forms.TabControl tabPropControl;
+        private UIControl.DarkTabControl tabPropControl;
     }
 }
