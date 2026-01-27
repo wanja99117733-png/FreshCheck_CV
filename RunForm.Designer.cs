@@ -67,6 +67,7 @@ namespace FreshCheck_CV
             this.btnStart.TabIndex = 0;
             this.btnStart.Text = "검사 시작";
             this.btnStart.UseVisualStyleBackColor = false;
+            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // btnPause
             // 
@@ -80,6 +81,7 @@ namespace FreshCheck_CV
             this.btnPause.TabIndex = 1;
             this.btnPause.Text = "일시 정지";
             this.btnPause.UseVisualStyleBackColor = false;
+            this.btnPause.Click += new System.EventHandler(this.btnPause_Click);
             // 
             // btnStop
             // 
@@ -93,6 +95,7 @@ namespace FreshCheck_CV
             this.btnStop.TabIndex = 2;
             this.btnStop.Text = "검사 종료";
             this.btnStop.UseVisualStyleBackColor = false;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
             // RunForm
             // 

@@ -26,6 +26,7 @@ namespace FreshCheck_CV
         private int _currentImageIndex;
         private Timer _imageCycleTimer;
         private bool _isImageCycling;
+        public static MainForm Instance { get; private set; }
 
         private const int IMAGE_CYCLE_INTERVAL_MS = 500;
 
@@ -34,44 +35,46 @@ namespace FreshCheck_CV
 
             InitializeComponent();
 
+            Instance = this;
+
             //메인폼 사이즈 강제 고정
             this.MinimumSize = new Size(1250, 800);
             this.Size = new Size(1450, 900);
             this.StartPosition = FormStartPosition.CenterScreen;
 
             menuStrip1.Renderer = new DarkMenuRenderer();
-            
+
             menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
             menuStrip1.ForeColor = Color.White;
 
             FormClosing += MainForm_FormClosing;
 
 
-                // MenuStrip 다크
-                menuStrip1.Renderer = new DarkMenuRenderer();
-                menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
-                menuStrip1.ForeColor = Color.White;
+            // MenuStrip 다크
+            menuStrip1.Renderer = new DarkMenuRenderer();
+            menuStrip1.BackColor = Color.FromArgb(45, 45, 48);
+            menuStrip1.ForeColor = Color.White;
 
-                foreach (ToolStripMenuItem item in menuStrip1.Items)
-                {
-                    item.DropDown.Renderer = new DarkMenuRenderer();
-                }
-
-
-                _dockPanel = new DockPanel
-                {
-                    Dock = DockStyle.Fill,
-                    BackColor = Color.FromArgb(28, 32, 38),
-                    Theme = new VS2015DarkTheme()
-                };
-
-                Controls.Add(_dockPanel);
-                _dockPanel.BringToFront();
-
-                LoadDockingWindows();
-
+            foreach (ToolStripMenuItem item in menuStrip1.Items)
+            {
+                item.DropDown.Renderer = new DarkMenuRenderer();
             }
-        
+
+
+            _dockPanel = new DockPanel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(28, 32, 38),
+                Theme = new VS2015DarkTheme()
+            };
+
+            Controls.Add(_dockPanel);
+            _dockPanel.BringToFront();
+
+            LoadDockingWindows();
+
+        }
+
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             // 이미 확인된 종료면 그냥 통과(무한 팝업 방지)
@@ -165,6 +168,26 @@ namespace FreshCheck_CV
                 MessageBox.Show("선택한 폴더에 이미지 파일이 없습니다.");
             }
         }
+
+        // 현재 표시 이미지가 바뀔 때 발생(사이클링/수동 오픈 모두)
+        public event EventHandler<ImageChangedEventArgs> ImageChanged;
+
+        // 현재 표시 중인 이미지 경로(옵션)
+        public string CurrentImagePath { get; private set; }
+
+        public sealed class ImageChangedEventArgs : EventArgs
+        {
+            public string ImagePath { get; }
+            public int Index { get; }
+            public int Count { get; }
+
+            public ImageChangedEventArgs(string imagePath, int index, int count)
+            {
+                ImagePath = imagePath;
+                Index = index;
+                Count = count;
+            }
+        }
         // 현재 인덱스에 해당하는 이미지를 CameraForm에 표시
         private void LoadNextImage()
         {
@@ -181,6 +204,8 @@ namespace FreshCheck_CV
             // 현재 인덱스의 이미지 파일 로드
             string imagePath = _imageFilePaths[_currentImageIndex];
             cameraForm.LoadImage(imagePath);
+            ImageChanged?.Invoke(this, new ImageChangedEventArgs(imagePath, _currentImageIndex, _imageFilePaths.Count));
+
 
             MoveToNextImageIndex();
         }
@@ -239,6 +264,19 @@ namespace FreshCheck_CV
             _isImageCycling = false;
         }
 
+        public bool TryStartImageCycle()
+        {
+            // 기존 StartImageCycle()는 private이고, 내부에서 폴더 미선택 시 MessageBox까지 처리함
+            StartImageCycle();
+            return _isImageCycling;
+        }
+
+        public void StopImageCyclePublic()
+        {
+            StopImageCycle();
+        }
+
+
         //#2_DOCKPANEL#6 쉽게 도킹패널에 접근하기 위한 정적 함수
         //제네릭 함수 사용를 이용해 입력된 타입의 폼 객체 얻기
         public static T GetDockForm<T>() where T : DockContent
@@ -264,6 +302,9 @@ namespace FreshCheck_CV
                     string filePath = openFileDialog.FileName;
 
                     Global.Inst.InspStage.LoadImage(filePath);
+
+                    CurrentImagePath = filePath;
+                    ImageChanged?.Invoke(this, new ImageChangedEventArgs(filePath, -1, 0));
 
                     // 원본 저장 + 화면 표시를 InspStage에서 한 번에 책임지게 구조화
                 }
