@@ -40,16 +40,16 @@ namespace FreshCheck_CV
 
             ApplyDarkButton(btnClear);
 
-            ApplyDarkButton(btnExportCsv);
+            ApplyDarkButton(btnExportcsv);
 
             ApplyDarkComboBox(cbResultFilter);
 
 
             BackColor = DrawingColor.FromArgb(30, 34, 40);
 
-            if (btnExportCsv != null)
+            if (btnExportcsv != null)
             {
-                btnExportCsv.Click += (s, e) => ExportXlsx();
+                btnExportcsv.Click += (s, e) => ExportXlsx();
             }
 
             if (listBoxLogs != null)

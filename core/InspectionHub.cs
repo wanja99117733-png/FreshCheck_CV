@@ -85,6 +85,10 @@ namespace FreshCheck_CV.Core
             double moldRate = recentCount > 0 ? (double)recentMold / recentCount : 0.0;
             double scratchRate = recentCount > 0 ? (double)recentScratch / recentCount : 0.0;
 
+            double overallOkRate = _total > 0 ? (double)_ok / _total : 0.0;
+            double overallMoldRate = _total > 0 ? (double)_mold / _total : 0.0;
+            double overallScratchRate = _total > 0 ? (double)_scratch / _total : 0.0;
+
             // Items/min
             double itemsPerMin = 0.0;
             if (_speed.Count >= 2)
@@ -123,6 +127,10 @@ namespace FreshCheck_CV.Core
                 RecentOkRate = okRate,
                 RecentMoldRate = moldRate,
                 RecentScratchRate = scratchRate,
+
+                OverallOkRate = overallOkRate,
+                OverallMoldRate = overallMoldRate,
+                OverallScratchRate = overallScratchRate,
 
                 TrendPoints = points,
                 AlertText = alert

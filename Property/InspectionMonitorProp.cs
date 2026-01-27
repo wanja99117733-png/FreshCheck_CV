@@ -1,5 +1,6 @@
 ﻿using FreshCheck_CV.Core;
 using FreshCheck_CV.Models;
+using FreshCheck_CV.UIControl;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -8,6 +9,9 @@ namespace FreshCheck_CV.Property
 {
     public sealed class InspectionMonitorProp : UserControl
     {
+
+        private OverallRateBarControl _overallBars;
+
         private readonly Timer _timer;
 
         private Label _lblRun;
@@ -134,20 +138,37 @@ namespace FreshCheck_CV.Property
             recentPanel.Controls.Add(_lblRecentMold);
             recentPanel.Controls.Add(_lblRecentOk);
 
-            // 3) 차트
-            var chartWrapper = new Panel
+            var chartWrapper = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 BackColor = BackColor,
+                ColumnCount = 1,
+                RowCount = 2,
                 Padding = new Padding(0, 6, 0, 6)
             };
+
+            // 위쪽 최근
+            // 아래 전체
+            chartWrapper.RowStyles.Clear();
+            chartWrapper.RowStyles.Add(new RowStyle(SizeType.Percent, 55));
+            chartWrapper.RowStyles.Add(new RowStyle(SizeType.Percent, 45));
 
             _trendChart = new TrendChartControl
             {
                 Dock = DockStyle.Fill,
                 BackColor = BackColor,
-                MinimumSize = new Size(0, 180)
+                MinimumSize = new Size(0, 110)
             };
+
+            _overallBars = new OverallRateBarControl
+            {
+                Dock = DockStyle.Fill,
+                BackColor = BackColor,
+                MinimumSize = new Size(0, 80)
+            };
+
+            chartWrapper.Controls.Add(_trendChart, 0, 0);
+            chartWrapper.Controls.Add(_overallBars, 0, 1);
 
             chartWrapper.Controls.Add(_trendChart);
 
@@ -206,11 +227,12 @@ namespace FreshCheck_CV.Property
             _lblScratch.Text = $"Scratch: {s.Scratch}";
 
             // ★ 최근 50개 대비 퍼센트
-             _lblRecentOk.Text = $"■ 최근 50개 OK: {(int)Math.Round(s.RecentOkRate * 100)}%";
+            _lblRecentOk.Text = $"■ 최근 50개 OK: {(int)Math.Round(s.RecentOkRate * 100)}%";
             _lblRecentMold.Text = $"■ 최근 50개 Mold: {(int)Math.Round(s.RecentMoldRate * 100)}%";
             _lblRecentScratch.Text = $"■ 최근 50개 Scratch: {(int)Math.Round(s.RecentScratchRate * 100)}%";
 
             _trendChart.SetPoints(s.TrendPoints);
+            _overallBars?.SetRates(s.OverallOkRate, s.OverallMoldRate, s.OverallScratchRate);
 
             bool hasAlert = !string.IsNullOrWhiteSpace(s.AlertText);
             _pnlAlert.Visible = hasAlert;

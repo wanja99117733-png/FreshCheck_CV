@@ -35,6 +35,9 @@ namespace FreshCheck_CV.Models
 
     public sealed class InspectionSnapshot
     {
+        public double OverallOkRate { get; set; }        // 0~1
+        public double OverallMoldRate { get; set; }      // 0~1
+        public double OverallScratchRate { get; set; }   // 0~1
         public bool IsRunning { get; set; }
         public double ItemsPerMin { get; set; }
 

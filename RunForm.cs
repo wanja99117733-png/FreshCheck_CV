@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FreshCheck_CV.Core;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace FreshCheck_CV

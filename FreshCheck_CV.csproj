@@ -147,6 +147,9 @@
     <Compile Include="Property\InspectionMonitorProp.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="UIControl\OverallRateBarControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UIControl\TrendChartControl.cs">
       <SubType>Component</SubType>
     </Compile>
