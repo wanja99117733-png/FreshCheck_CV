@@ -117,7 +117,8 @@ namespace FreshCheck_CV.Inspect
             option.CalcMask = true;  // 마스크 계산 활성화
             option.CalcObjectAreaAndApplyThreshold = true;
             option.CalcObjectScoreAndApplyThreshold = true;
-            option.ObjectScoreThresholdPerClass[1] = 0.5;  // 스크래치 클래스 threshold
+            //option.ObjectScoreThresholdPerClass[1] = 0.8f;    //모델내부에 설정을 따르기위해 주석처리함 필요시 수치조정가능
+            //option.ObjectAreaThresholdPerClass[1] = 500;      // 이하 동문
             _scratchSegEngine.SetInferenceOption(option);
         }
 

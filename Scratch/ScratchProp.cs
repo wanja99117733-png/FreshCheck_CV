@@ -68,8 +68,10 @@ namespace FreshCheck_CV.Scratch
             SaigeAI saigeAI = Global.Inst.InspStage.AIModule;
             if (saigeAI == null) { /* 오류 */ return; }
 
-            // 🔥 1. 배경제거 이미지만 사용 (검사+그리기)
+            // 🔥 1. 배경제거 이미지만 사용 (검사용)
             Bitmap noBgImage = Global.Inst.InspStage.GetPreviewImage();
+            // 2. 배경으로 쓸 원본 이미지 (배경 제거 안 됨)
+            Bitmap originalImage = Global.Inst.InspStage.GetCurrentImage();
             if (noBgImage == null)
             {
                 MessageBox.Show("먼저 [배경제거] 버튼을 눌러주세요!", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -92,8 +94,7 @@ namespace FreshCheck_CV.Scratch
             Console.WriteLine($"검출된 Scratch 수: {scratchResult?.SegmentedObjects?.Length ?? 0}");
 
             // 3. 배경제거 이미지에 사각형 그리기
-            Global.Inst.InspStage.UpdatePreviewWithScratch(noBgImage, scratchResult);
+            Global.Inst.InspStage.UpdatePreviewWithScratch(originalImage, scratchResult);
         }
-
     }
 }
