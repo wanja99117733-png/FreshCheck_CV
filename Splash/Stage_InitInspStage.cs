@@ -45,12 +45,12 @@ namespace FreshCheck_CV
                     {
                         // 배경제거 모델 로드
                         ct.ThrowIfCancellationRequested();
-                        string bgPath = @"D:\SagieModel\Cu_seg.saigeseg";
+                        string bgPath = @"D:\SaigeModel\Cu_seg.saigeseg";
                         saigeAI.LoadEngine(bgPath, AIEngineType.Segmentation);
 
                         // 스크래치 모델 로드 (수정된 SaigeAI는 이전 모델을 지우지 않습니다)
                         ct.ThrowIfCancellationRequested();
-                        string scratchPath = @"D:\SagieModel\Cucumber_Scratch_Det.saigeseg";
+                        string scratchPath = @"D:\SaigeModel\Cucumber_Scratch_Det.saigeseg";
                         saigeAI.LoadEngine(scratchPath, AIEngineType.ScratchSegmentation);
                     }
 

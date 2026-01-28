@@ -29,6 +29,11 @@ namespace FreshCheck_CV
         //#3_CAMERAVIEW_PROPERTY#4 속성탭을 관리하기 위한 딕셔너리
         Dictionary<string, TabPage> _allTabs = new Dictionary<string, TabPage>();
 
+
+        private bool _isAuthorized = false; // 인증 여부 저장
+        private readonly string _adminPassword = "1234"; // 설정할 비밀번호
+
+
         public PropertiesForm()
         {
             InitializeComponent();
@@ -55,6 +60,8 @@ namespace FreshCheck_CV
             //#3_CAMERAVIEW_PROPERTY#7 속성 탭을 초기화
             LoadOptionControl(PropertyType.InspOption);
             LoadOptionControl(PropertyType.Monitor);
+
+            tabPropControl.Selecting += TabPropControl_Selecting;
         }
 
         //#3_CAMERAVIEW_PROPERTY#6 속성탭이 있다면 그것을 반환하고, 없다면 생성
@@ -154,6 +161,41 @@ namespace FreshCheck_CV
             {
                 e.Graphics.FillRectangle(brush, headerRect);
             }
+        }
+
+        private void TabPropControl_Selecting(object sender, TabControlCancelEventArgs e)
+        {
+            // 사용자가 "InspOption" 탭(여기서는 'Scratch' 또는 'Mold' 등)을 클릭했을 때
+            // 스크린샷 기준으로 "InspOption" 텍스트를 체크합니다.
+            if (e.TabPage != null && e.TabPage.Text == "InspOption")
+            {
+                // 이미 인증되었다면 통과
+                if (_isAuthorized) return;
+
+                // 비밀번호 확인 창 띄우기
+                if (ShowPasswordDialog() == _adminPassword)
+                {
+                    _isAuthorized = true; // 인증 성공
+                }
+                else
+                {
+                    MessageBox.Show("등록되지 않은 관리자입니다.", "인증 실패", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    e.Cancel = true; // 탭 이동 취소
+                }
+            }
+        }
+
+        // 간단한 비밀번호 입력용 다이얼로그
+        private string ShowPasswordDialog()
+        {
+            using (var pwdForm = new Dialogs.PasswordCheckForm())
+            {
+                if (pwdForm.ShowDialog() == DialogResult.OK)
+                {
+                    return pwdForm.Password;
+                }
+            }
+            return string.Empty;
         }
 
     }
