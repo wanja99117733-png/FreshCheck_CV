@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -30,9 +31,10 @@ namespace FreshCheck_CV
         private const int LoopIntervalMs = 1000;
 
         private HikRobotCam _hikCam;
-        private System.Windows.Forms.Timer _captureTimer; 
+        private System.Windows.Forms.Timer _captureTimer;
         private GrabUserBuffer[] _imageBuffers;
         private bool _isCameraConnected = false;
+        private int _width, _height, _stride;
         private int _currentBufferIdx = 0;
 
         public RunForm()
@@ -88,8 +90,10 @@ namespace FreshCheck_CV
             if (_imageBuffers != null)
             {
                 foreach (var buf in _imageBuffers)
-                    buf.ImageHandle?.Free();
+                    if (buf.ImageHandle.IsAllocated)
+                        buf.ImageHandle.Free();
             }
+            _hikCam?.Close();
             _hikCam?.Dispose();
             StopInspectionLoop();
         }
@@ -115,29 +119,52 @@ namespace FreshCheck_CV
             }
             else
             {
-                // 사이클링 모드 (기존 동작)
-            }
-
-            // 공통: 이벤트 + 사이클링 (카메라 있어도 ImageChanged는 유지)
-            if (MainForm.Instance != null)
-            {
-                MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
-                MainForm.Instance.ImageChanged += MainForm_ImageChanged;
-                MainForm.Instance.TryStartImageCycle();
+                // 공통: 이벤트 + 사이클링 (카메라 있어도 ImageChanged는 유지)
+                if (MainForm.Instance != null)
+                {
+                    MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
+                    MainForm.Instance.ImageChanged += MainForm_ImageChanged;
+                    MainForm.Instance.TryStartImageCycle();
+                }
             }
 
             StartInspectionLoop();  // 기존 루프 시작
+        }
+        private Bitmap ByteArrayToBitmap(byte[] buffer, int width, int height)
+        {
+            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.WriteOnly, bmp.PixelFormat);
+            System.Runtime.InteropServices.Marshal.Copy(buffer, 0, bmpData.Scan0, buffer.Length);
+            bmp.UnlockBits(bmpData);
+            return bmp;
+        }
+
+        private void UpdateImageViewCtrl()
+        {
+            try
+            {
+                var cameraForm = MainForm.GetDockForm<CameraForm>();
+                if (cameraForm != null)
+                {
+                    byte[] buffer = _imageBuffers[_hikCam.BufferIndex].ImageBuffer;
+                    Bitmap bmp = ByteArrayToBitmap(buffer, _width, _height);
+                    cameraForm.UpdateDisplay(bmp);  // 🔑 완성! CameraForm.UpdateDisplay()
+                }
+            }
+            catch { /* 무시 */ }
         }
 
         // ===== 3. 1000ms마다 캡처 =====
         private void CaptureTimer_Tick(object sender, EventArgs e)
         {
-            if (_hikCam != null)
-            {
-                int idx = _currentBufferIdx;
-                _hikCam.Grab(idx, true);  // 소프트 트리거 발사
-                _currentBufferIdx = 1 - idx;  // 0↔1 순환
-            }
+            if (_hikCam == null) return;
+
+            int idx = _currentBufferIdx;
+            _hikCam.Grab(idx, true);
+            _currentBufferIdx = 1 - idx;
+
+            UpdateImageViewCtrl();  // CameraForm.UpdateDisplay() 호출
         }
 
         private void btnPause_Click(object sender, EventArgs e)
@@ -156,13 +183,12 @@ namespace FreshCheck_CV
             _isInspectEnabled = false;
             Global.Inst?.InspStage?.Hub?.SetRunning(false);
 
-            _captureTimer?.Stop();
+            _captureTimer?.Stop();  // 🔑 추가
             if (MainForm.Instance != null)
             {
                 MainForm.Instance.StopImageCyclePublic();
                 MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
             }
-
             StopInspectionLoop();
         }
 
@@ -304,17 +330,8 @@ namespace FreshCheck_CV
             {
                 _isInspectBusy = true;
 
-                if (_isCameraConnected)
-                {
-                    // 카메라 이미지 우선 검사
-                    byte[] camImage = _imageBuffers[_hikCam.BufferIndex].ImageBuffer;
-                    Global.Inst?.InspStage?.RunMoldInspectionWithImage(camImage);  // 이미지 버퍼 전달
-                }
-                else
-                {
-                    // 사이클링 이미지 검사 (기존)
-                    Global.Inst?.InspStage?.RunMoldInspectionTemp();
-                }
+                // 사이클링 이미지 검사 (기존)
+                Global.Inst?.InspStage?.RunMoldInspectionTemp();
             }
             finally
             {
