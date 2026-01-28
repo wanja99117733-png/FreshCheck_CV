@@ -106,9 +106,7 @@ namespace FreshCheck_CV.Grab
 
         internal bool InitGrab()
         {
-            if (!Create())
-                return false;
-
+            
             if (!Open())
             {
                 if (!Reconnect())

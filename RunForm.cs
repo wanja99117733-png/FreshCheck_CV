@@ -41,10 +41,40 @@ namespace FreshCheck_CV
         {
             InitializeComponent();
             ApplyDarkTheme();
+            CheckCameraConnection();  // 🔑 초기 카메라 연결 확인
+
+            // 🔑 키보드 단축키 설정
+            this.KeyPreview = true;
+            this.KeyDown += RunForm_KeyDown;
 
             this.FormClosed += RunForm_FormClosed;
 
-            CheckCameraConnection();  // 🔑 초기 카메라 연결 확인
+            
+        }
+
+        // 🔑 키보드 단축키 처리 (생성자에서 등록)
+        private void RunForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.F5:      // 검사 시작
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    btnStart_Click(sender, e);
+                    break;
+
+                case Keys.F8:      // 일시 중지
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    btnPause_Click(sender, e);
+                    break;
+
+                case Keys.F12:     // 검사 중지
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    btnStop_Click(sender, e);
+                    break;
+            }
         }
 
         // ===== 1. 카메라 연결 확인 (생성자 후 바로 실행) =====
@@ -54,7 +84,7 @@ namespace FreshCheck_CV
             {
                 _hikCam = new HikRobotCam();
                 // IP는 실제 카메라 IP로 변경! (Global 설정에서 가져올 수 있음)
-                if (!_hikCam.Create("192.168.1.100") || !_hikCam.InitGrab())
+                if (!_hikCam.Create("169.254.90.253") || !_hikCam.InitGrab())
                 {
                     _isCameraConnected = false;
                     return;
