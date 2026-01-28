@@ -125,6 +125,9 @@ namespace FreshCheck_CV.Core
 
         public void RunMoldInspectionTemp()
         {
+
+            var swTotal = System.Diagnostics.Stopwatch.StartNew();
+
             if (_sourceBitmap == null)
                 return;
 
@@ -145,12 +148,13 @@ namespace FreshCheck_CV.Core
 
             bool isMold = result != null && result.IsDefect && result.Type == DefectType.Mold;
 
-            string resultText = isMold ? "NG" : "OK";
-            string label = isMold ? "NG - Mold" : "OK";
-            DefectType saveType = isMold ? DefectType.Mold : DefectType.None;
-
+            string resultText = isMold ? "Mold" : "OK";
+            string label = isMold ? "Mold" : "OK";
+            DefectType saveType = isMold ? DefectType.Mold : DefectType.OK;
             // 2) 저장도 원본으로 저장하는 게 맞음 (원하면 여기서도 _sourceBitmap 쓰기)
             string savedPath = DefectImageSaver.Save(new Bitmap(_sourceBitmap), saveType, now, label);
+
+            swTotal.Stop();
 
             // Inspection Monitor용 집계 이벤트 푸시
             var dto = new InspectionResultDto
@@ -163,10 +167,11 @@ namespace FreshCheck_CV.Core
                 Message = result?.Message
             };
 
+
             Hub.Push(dto);
 
             // 유진형(스크래치 검사 시간)
-            Util.SLogger.Write($"Mold Inspection: {label} | {result?.Message} | MoldDetectTime={(result != null ? result.ElapsedMs : 0)}ms| saved={savedPath}");
+            Util.SLogger.Write($"Result : {label} | " + $"Mold ratio={(result?.AreaRatio ?? 0.0):0.0000} | " + $"MoldDetect={(result?.ElapsedMs ?? 0)}ms | Total={swTotal.ElapsedMilliseconds}ms");
 
 
             // ResultForm: 항상 1건 기록

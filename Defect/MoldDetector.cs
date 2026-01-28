@@ -80,7 +80,7 @@ namespace FreshCheck_CV.Defect
 
                 return new DefectResult
                 {
-                    Type = isDefect ? DefectType.Mold : DefectType.None,
+                    Type = isDefect ? DefectType.Mold : DefectType.OK,
                     IsDefect = isDefect,
                     AreaRatio = ratio,
                     Message = $"Mold ratio={ratio:0.0000}, threshold={AreaRatioThreshold:0.0000}",

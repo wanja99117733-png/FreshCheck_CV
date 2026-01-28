@@ -9,7 +9,7 @@ namespace FreshCheck_CV.Defect
 {
     public sealed class DefectResult
     {
-        public DefectType Type { get; set; } = DefectType.None;
+        public DefectType Type { get; set; } = DefectType.OK;
 
         public bool IsDefect { get; set; } = false;
 
@@ -20,6 +20,7 @@ namespace FreshCheck_CV.Defect
         public double AreaRatio { get; set; } = 0.0;
 
         public long ElapsedMs { get; set; }
+
 
         // 유진형(스크래치 검사 시간)
         // public long ~~

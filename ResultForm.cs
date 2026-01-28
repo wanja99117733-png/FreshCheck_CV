@@ -66,6 +66,9 @@ namespace FreshCheck_CV
                 dgvResults.AutoGenerateColumns = true;
                 dgvResults.DataSource = _viewRecords;
 
+                _viewRecords.ListChanged -= ViewRecords_ListChanged;
+                _viewRecords.ListChanged += ViewRecords_ListChanged;
+
                 dgvResults.DataBindingComplete += (s, e) => ApplyGridColumnsLayout(dgvResults);
 
                 dgvResults.CellDoubleClick += DgvResults_CellDoubleClick;
@@ -202,6 +205,8 @@ namespace FreshCheck_CV
         {
             SLogger.LogUpdated -= OnLogUpdated;
             FormClosed -= ResultForm_FormClosed;
+
+            _viewRecords.ListChanged -= ViewRecords_ListChanged;
         }
 
         private void ApplyDarkThemeToGrid(DataGridView grid)
@@ -460,6 +465,45 @@ namespace FreshCheck_CV
                     dlg.ShowDialog(this.FindForm());
                 }
             }
+        }
+
+        private void ViewRecords_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            // 새 아이템이 추가되거나 Reset(필터 변경 등)일 때만 아래로
+            if (e.ListChangedType != ListChangedType.ItemAdded &&
+                e.ListChangedType != ListChangedType.Reset)
+                return;
+
+            ScrollResultsToBottom();
+        }
+
+
+        private void ScrollResultsToBottom()
+        {
+            if (dgvResults == null)
+                return;
+
+            if (dgvResults.IsDisposed || !dgvResults.IsHandleCreated)
+                return;
+
+            // UI 스레드에서, 바인딩 반영 끝난 다음 실행
+            BeginInvoke(new Action(() =>
+            {
+                if (dgvResults.RowCount <= 0)
+                    return;
+
+                int lastRowIndex = dgvResults.RowCount - 1;
+
+                // 컬럼이 없으면 CurrentCell 설정 시 예외
+                if (dgvResults.ColumnCount > 0)
+                {
+                    dgvResults.ClearSelection();
+                    dgvResults.CurrentCell = dgvResults.Rows[lastRowIndex].Cells[0];
+                    dgvResults.Rows[lastRowIndex].Selected = true;
+                }
+
+                dgvResults.FirstDisplayedScrollingRowIndex = lastRowIndex;
+            }));
         }
 
 
