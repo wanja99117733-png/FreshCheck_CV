@@ -28,7 +28,7 @@ namespace FreshCheck_CV
         private bool _isImageCycling;
         public static MainForm Instance { get; private set; }
 
-        private const int IMAGE_CYCLE_INTERVAL_MS = 500;
+        private const int IMAGE_CYCLE_INTERVAL_MS = 100;
 
         public MainForm()
         {

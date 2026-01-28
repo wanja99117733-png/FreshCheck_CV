@@ -165,8 +165,9 @@ namespace FreshCheck_CV.Core
 
             Hub.Push(dto);
 
-            // 로그(기록용)
-            Util.SLogger.Write($"Mold Inspection: {label} | {result?.Message} | saved={savedPath}");
+            // 유진형(스크래치 검사 시간)
+            Util.SLogger.Write($"Mold Inspection: {label} | {result?.Message} | MoldDetectTime={(result != null ? result.ElapsedMs : 0)}ms| saved={savedPath}");
+
 
             // ResultForm: 항상 1건 기록
             var resultForm = MainForm.GetDockForm<ResultForm>();

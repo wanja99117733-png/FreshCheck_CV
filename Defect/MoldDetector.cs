@@ -1,8 +1,10 @@
 ﻿using FreshCheck_CV.Models;
+using FreshCheck_CV.Util;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -12,6 +14,8 @@ namespace FreshCheck_CV.Defect
 {
     public sealed class MoldDetector : IDefectDetector
     {
+        public long ElapsedMs { get; set; }
+
         private readonly Func<BinaryOptions> _getBinaryOptions;
 
         // 흰 픽셀 비율 임계값 (기본 1%)
@@ -28,6 +32,9 @@ namespace FreshCheck_CV.Defect
         {
             if (sourceBitmap == null)
                 throw new ArgumentNullException(nameof(sourceBitmap));
+
+            // 스탑워치
+            var sw = System.Diagnostics.Stopwatch.StartNew();
 
             BinaryOptions options = _getBinaryOptions.Invoke() ?? new BinaryOptions();
             options.Validate();
@@ -67,14 +74,21 @@ namespace FreshCheck_CV.Defect
                     }
                 }
 
+                sw.Stop();
+
+
+
                 return new DefectResult
                 {
                     Type = isDefect ? DefectType.Mold : DefectType.None,
                     IsDefect = isDefect,
                     AreaRatio = ratio,
                     Message = $"Mold ratio={ratio:0.0000}, threshold={AreaRatioThreshold:0.0000}",
-                    OverlayBitmap = overlayBmp
+                    OverlayBitmap = overlayBmp,
+                    ElapsedMs = sw.ElapsedMilliseconds
                 };
+
+
             }
         }
 

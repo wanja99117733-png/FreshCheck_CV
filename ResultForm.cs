@@ -465,9 +465,11 @@ namespace FreshCheck_CV
 
         private void CreateXlsxWithFilter(string filePath)
         {
-            string[] headers = { "No", "Time", "Result", "DefectType", "Ratio", "SavedPath", "Message" };
+            string[] headers = { "No", "Time", "Result", "DefectType", "Ratio(%)", "SavedPath", "Message" };
 
             uint rowCount = (uint)_viewRecords.Count + 1; // header 포함
+            uint colCount = (uint)headers.Length;
+
             using (SpreadsheetDocument doc = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook))
             {
                 WorkbookPart wbPart = doc.AddWorkbookPart();
@@ -475,60 +477,78 @@ namespace FreshCheck_CV
 
                 WorksheetPart wsPart = wbPart.AddNewPart<WorksheetPart>();
 
-                // ===== SheetData 생성 =====
+                // ===== Styles 추가 (가독성/숫자/날짜 포맷용) =====
+                WorkbookStylesPart stylesPart = wbPart.AddNewPart<WorkbookStylesPart>();
+                StyleIndex style = BuildStylesheet(stylesPart);
+
+                // ===== SheetData =====
                 var sheetData = new SheetData();
 
-                // Header row
+                // ===== Header row =====
                 var headerRow = new Row { RowIndex = 1 };
                 for (int i = 0; i < headers.Length; i++)
-                    headerRow.Append(CreateTextCell(i + 1, 1, headers[i]));
+                {
+                    headerRow.Append(CreateTextCell(i + 1, 1, headers[i], style.Header));
+                }
                 sheetData.Append(headerRow);
 
-                // Data rows
+                // ===== Data rows =====
                 for (int r = 0; r < _viewRecords.Count; r++)
                 {
                     ResultRecord rec = _viewRecords[r];
                     uint rowIndex = (uint)(r + 2);
 
                     var row = new Row { RowIndex = rowIndex };
-                    row.Append(CreateTextCell(1, rowIndex, rec.No.ToString()));
-                    row.Append(CreateTextCell(2, rowIndex, rec.Time.ToString("yyyy-MM-dd HH:mm:ss")));
-                    row.Append(CreateTextCell(3, rowIndex, rec.Result ?? ""));
-                    row.Append(CreateTextCell(4, rowIndex, rec.DefectType?.ToString() ?? ""));
-                    row.Append(CreateTextCell(5, rowIndex, rec.Ratio.ToString("0.0000")));
-                    row.Append(CreateTextCell(6, rowIndex, rec.SavedPath ?? ""));
-                    row.Append(CreateTextCell(7, rowIndex, rec.Message ?? ""));
+
+                    // No : 정수(숫자)
+                    row.Append(CreateNumberCell(1, rowIndex, rec.No, style.IntCenter));
+
+                    // Time : 날짜/시간(숫자) + 표시 포맷 yyyy-mm-dd hh:mm:ss
+                    row.Append(CreateDateTimeCell(2, rowIndex, rec.Time, style.DateTimeCenter));
+
+                    // Result : 텍스트 + 가운데
+                    row.Append(CreateTextCell(3, rowIndex, rec.Result ?? "", style.TextCenter));
+
+                    // DefectType : 텍스트 + 가운데
+                    row.Append(CreateTextCell(4, rowIndex, rec.DefectType?.ToString() ?? "", style.TextCenter));
+
+                    // Ratio : 퍼센트 숫자 (0~1 가정) + 0.00% 포맷
+                    // 만약 rec.Ratio가 0~100(퍼센트 값)이라면 -> (rec.Ratio / 100.0)로 바꿔서 넣어야 함
+                    double ratio01 = rec.Ratio;
+                    row.Append(CreateNumberCell(5, rowIndex, ratio01, style.PercentRight));
+
+                    // SavedPath : 하이퍼링크(클릭) + 보기용 텍스트
+                    row.Append(CreateHyperlinkFormulaCell(6, rowIndex, rec.SavedPath, style.LinkLeft));
+
+                    // Message : 줄바꿈 + 왼쪽
+                    row.Append(CreateTextCell(7, rowIndex, rec.Message ?? "", style.WrapLeft));
+
                     sheetData.Append(row);
                 }
 
-                // ===== AutoFilter (Result, DefectType, Message만 버튼 표시) =====
-                string lastCol = GetExcelColumnName(headers.Length); // 7 -> G
+                // ===== AutoFilter (원래 로직 유지) =====
+                string lastCol = GetExcelColumnName(headers.Length); // G
                 string filterRange = $"A1:{lastCol}{rowCount}";
 
                 var autoFilter = new AutoFilter { Reference = filterRange };
 
-                int[] enableCols = { 2, 3, 6 }; // 0-based: C(Result), D(DefectType), G(Message)
-                for (int colId = 0; colId < headers.Length; colId++)
-                {
-                    if (!enableCols.Contains(colId))
-                    {
-                        autoFilter.Append(new FilterColumn
-                        {
-                            ColumnId = (uint)colId,
-                            HiddenButton = true
-                        });
-                    }
-                }
 
-                // ===== Worksheet 구성 (순서 중요: SheetData -> AutoFilter) =====
                 var worksheet = new Worksheet();
+
+                worksheet.Append(new SheetDimension
+                {
+                    Reference = $"A1:{GetExcelColumnName(headers.Length)}{rowCount}"
+                });
+
+                worksheet.Append(BuildFreezeTopRow());
+                worksheet.Append(BuildColumns());
                 worksheet.Append(sheetData);
                 worksheet.Append(autoFilter);
 
                 wsPart.Worksheet = worksheet;
                 wsPart.Worksheet.Save();
 
-                // ===== (중요) Workbook에 Sheet 등록 =====
+                // ===== Workbook에 Sheet 등록 =====
                 Sheets sheets = wbPart.Workbook.AppendChild(new Sheets());
 
                 Sheet sheet = new Sheet
@@ -542,16 +562,355 @@ namespace FreshCheck_CV
                 wbPart.Workbook.Save();
             }
         }
-        private static Cell CreateTextCell(int columnIndex, uint rowIndex, string text)
+        private static Cell CreateTextCell(int columnIndex, uint rowIndex, string text, uint styleIndex = 0)
         {
             var cell = new Cell
             {
                 CellReference = GetExcelColumnName(columnIndex) + rowIndex,
-                DataType = CellValues.InlineString
+                DataType = CellValues.InlineString,
+                StyleIndex = styleIndex
             };
 
             cell.InlineString = new InlineString(new OxText(text ?? ""));
             return cell;
+        }
+
+        private static Cell CreateNumberCell(int columnIndex, uint rowIndex, int value, uint styleIndex = 0)
+        {
+            return CreateNumberCell(columnIndex, rowIndex, (double)value, styleIndex);
+        }
+
+        private static Cell CreateNumberCell(int columnIndex, uint rowIndex, double value, uint styleIndex = 0)
+        {
+            // Number 셀은 DataType 생략(또는 Number)해도 되지만 명확히 유지
+            var cell = new Cell
+            {
+                CellReference = GetExcelColumnName(columnIndex) + rowIndex,
+                DataType = CellValues.Number,
+                StyleIndex = styleIndex,
+                CellValue = new CellValue(value.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            };
+            return cell;
+        }
+
+        private static Cell CreateDateTimeCell(int columnIndex, uint rowIndex, DateTime dt, uint styleIndex)
+        {
+            // Excel 날짜/시간 = OADate(double)
+            double oa = dt.ToOADate();
+            return CreateNumberCell(columnIndex, rowIndex, oa, styleIndex);
+        }
+
+        private static Cell CreateHyperlinkFormulaCell(int columnIndex, uint rowIndex, string path, uint styleIndex)
+        {
+            string display;
+            try
+            {
+                display = string.IsNullOrWhiteSpace(path) ? "" : System.IO.Path.GetFileName(path);
+            }
+            catch
+            {
+                display = "Open";
+            }
+
+            var cell = new Cell
+            {
+                CellReference = GetExcelColumnName(columnIndex) + rowIndex,
+                StyleIndex = styleIndex
+            };
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                cell.DataType = CellValues.InlineString;
+                cell.InlineString = new InlineString(new OxText(""));
+                return cell;
+            }
+
+            string safePath = path.Replace("\"", "\"\"");
+            string safeDisplay = (display ?? "").Replace("\"", "\"\"");
+
+            // ✅ 수식
+            cell.CellFormula = new CellFormula($"HYPERLINK(\"{safePath}\",\"{safeDisplay}\")");
+
+            // ✅ 캐시 값 + 타입 (Excel 복구 트리거 감소)
+            cell.DataType = CellValues.String;
+            cell.CellValue = new CellValue(display);
+
+            return cell;
+        }
+        private sealed class StyleIndex
+        {
+            public uint Header;
+            public uint IntCenter;
+            public uint DateTimeCenter;
+            public uint TextCenter;
+            public uint PercentRight;
+            public uint LinkLeft;
+            public uint WrapLeft;
+        }
+
+        private static StyleIndex BuildStylesheet(WorkbookStylesPart stylesPart)
+        {
+            // ===== NumberingFormats =====
+            var nfs = new NumberingFormats();
+
+            uint fmtDateTimeId = 164;
+            nfs.Append(new NumberingFormat
+            {
+                NumberFormatId = fmtDateTimeId,
+                FormatCode = StringValue.FromString("yyyy-mm-dd hh:mm:ss")
+            });
+
+            uint fmtPercentId = 165;
+            nfs.Append(new NumberingFormat
+            {
+                NumberFormatId = fmtPercentId,
+                FormatCode = StringValue.FromString("0.00%")
+            });
+
+            nfs.Count = (uint)nfs.ChildElements.Count;
+
+            // ===== Fonts =====
+            var fonts = new Fonts(
+                new DocumentFormat.OpenXml.Spreadsheet.Font(new FontSize { Val = 11 }),                 // 0
+                new DocumentFormat.OpenXml.Spreadsheet.Font(new Bold(), new FontSize { Val = 11 }),     // 1 header
+                new DocumentFormat.OpenXml.Spreadsheet.Font(                                            // 2 link
+                    new Underline(),
+                    new DocumentFormat.OpenXml.Spreadsheet.Color { Rgb = HexBinaryValue.FromString("0563C1") },
+                    new FontSize { Val = 11 }
+                )
+            );
+            fonts.Count = (uint)fonts.ChildElements.Count;
+
+            // ===== Fills =====
+            var fills = new Fills(
+                new Fill(new PatternFill { PatternType = PatternValues.None }),
+                new Fill(new PatternFill { PatternType = PatternValues.Gray125 }),
+                new Fill(new PatternFill(new ForegroundColor { Rgb = HexBinaryValue.FromString("2D2D30") })
+                { PatternType = PatternValues.Solid })
+            );
+            fills.Count = (uint)fills.ChildElements.Count;
+
+            // ===== Borders =====
+            var borders = new Borders(
+                new Border(
+                    new LeftBorder { Style = BorderStyleValues.Thin },
+                    new RightBorder { Style = BorderStyleValues.Thin },
+                    new TopBorder { Style = BorderStyleValues.Thin },
+                    new BottomBorder { Style = BorderStyleValues.Thin },
+                    new DiagonalBorder()
+                )
+            );
+            borders.Count = (uint)borders.ChildElements.Count;
+
+            // ✅ 필수: CellStyleFormats (기본 1개)
+            var csfs = new CellStyleFormats(
+                new CellFormat
+                {
+                    NumberFormatId = 0,
+                    FontId = 0,
+                    FillId = 0,
+                    BorderId = 0
+                }
+            );
+            csfs.Count = 1;
+
+            // ===== CellFormats =====
+            var cfs = new CellFormats();
+
+            // 0: 기본
+            cfs.Append(new CellFormat
+            {
+                FontId = 0,
+                FillId = 0,
+                BorderId = 0,
+                ApplyFont = true,
+                ApplyBorder = true
+            });
+
+            // 1: 헤더
+            cfs.Append(new CellFormat
+            {
+                FontId = 1,
+                FillId = 2,
+                BorderId = 0,
+                ApplyFont = true,
+                ApplyFill = true,
+                ApplyBorder = true,
+                Alignment = new Alignment
+                {
+                    Horizontal = HorizontalAlignmentValues.Center,
+                    Vertical = VerticalAlignmentValues.Center
+                },
+                ApplyAlignment = true
+            });
+
+            // 2: 정수 가운데
+            cfs.Append(new CellFormat
+            {
+                FontId = 0,
+                FillId = 0,
+                BorderId = 0,
+                ApplyBorder = true,
+                Alignment = new Alignment { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center },
+                ApplyAlignment = true
+            });
+
+            // 3: 날짜/시간
+            cfs.Append(new CellFormat
+            {
+                FontId = 0,
+                FillId = 0,
+                BorderId = 0,
+                NumberFormatId = fmtDateTimeId,
+                ApplyNumberFormat = true,
+                ApplyBorder = true,
+                Alignment = new Alignment { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center },
+                ApplyAlignment = true
+            });
+
+            // 4: 텍스트 가운데
+            cfs.Append(new CellFormat
+            {
+                FontId = 0,
+                FillId = 0,
+                BorderId = 0,
+                ApplyBorder = true,
+                Alignment = new Alignment { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center },
+                ApplyAlignment = true
+            });
+
+            // 5: 퍼센트 오른쪽
+            cfs.Append(new CellFormat
+            {
+                FontId = 0,
+                FillId = 0,
+                BorderId = 0,
+                NumberFormatId = fmtPercentId,
+                ApplyNumberFormat = true,
+                ApplyBorder = true,
+                Alignment = new Alignment { Horizontal = HorizontalAlignmentValues.Right, Vertical = VerticalAlignmentValues.Center },
+                ApplyAlignment = true
+            });
+
+            // 6: 링크 왼쪽
+            cfs.Append(new CellFormat
+            {
+                FontId = 2,
+                FillId = 0,
+                BorderId = 0,
+                ApplyFont = true,
+                ApplyBorder = true,
+                Alignment = new Alignment { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center },
+                ApplyAlignment = true
+            });
+
+            // 7: 메시지 줄바꿈
+            cfs.Append(new CellFormat
+            {
+                FontId = 0,
+                FillId = 0,
+                BorderId = 0,
+                ApplyBorder = true,
+                Alignment = new Alignment
+                {
+                    Horizontal = HorizontalAlignmentValues.Left,
+                    Vertical = VerticalAlignmentValues.Top,
+                    WrapText = true
+                },
+                ApplyAlignment = true
+            });
+
+            cfs.Count = (uint)cfs.ChildElements.Count;
+
+            // ✅ 필수: CellStyles (Normal)
+            var cellStyles = new CellStyles(
+                new CellStyle
+                {
+                    Name = "Normal",
+                    FormatId = 0,
+                    BuiltinId = 0
+                }
+            );
+            cellStyles.Count = 1;
+
+            // ✅ 필수: DifferentialFormats / TableStyles
+            var dxfs = new DifferentialFormats { Count = 0 };
+            var tableStyles = new TableStyles
+            {
+                Count = 0,
+                DefaultTableStyle = "TableStyleMedium9",
+                DefaultPivotStyle = "PivotStyleLight16"
+            };
+
+            var ss = new Stylesheet();
+
+            // NumberingFormats는 존재할 때만 추가하는 게 더 안전(지금은 2개 있으니 OK)
+            ss.Append(nfs);
+            ss.Append(fonts);
+            ss.Append(fills);
+            ss.Append(borders);
+            ss.Append(csfs);
+            ss.Append(cfs);
+            ss.Append(cellStyles);
+            ss.Append(dxfs);
+            ss.Append(tableStyles);
+
+            stylesPart.Stylesheet = ss;
+            stylesPart.Stylesheet.Save();
+
+            return new StyleIndex
+            {
+                Header = 1,
+                IntCenter = 2,
+                DateTimeCenter = 3,
+                TextCenter = 4,
+                PercentRight = 5,
+                LinkLeft = 6,
+                WrapLeft = 7
+            };
+        }
+        private static Columns BuildColumns()
+        {
+            // 엑셀 열 너비는 대략 “표시 글자 폭” 단위
+            var cols = new Columns();
+
+            cols.Append(new Column { Min = 1, Max = 1, Width = 6, CustomWidth = true });   // No
+            cols.Append(new Column { Min = 2, Max = 2, Width = 20, CustomWidth = true });  // Time
+            cols.Append(new Column { Min = 3, Max = 3, Width = 10, CustomWidth = true });  // Result
+            cols.Append(new Column { Min = 4, Max = 4, Width = 12, CustomWidth = true });  // DefectType
+            cols.Append(new Column { Min = 5, Max = 5, Width = 10, CustomWidth = true });  // Ratio(%)
+            cols.Append(new Column { Min = 6, Max = 6, Width = 35, CustomWidth = true });  // SavedPath(link text)
+            cols.Append(new Column { Min = 7, Max = 7, Width = 50, CustomWidth = true });  // Message
+
+            return cols;
+        }
+
+        private static SheetViews BuildFreezeTopRow()
+        {
+            // 1행 고정
+            var sheetViews = new SheetViews();
+            var sheetView = new SheetView { WorkbookViewId = 0U };
+
+            var pane = new Pane
+            {
+                HorizontalSplit = 1D,
+                TopLeftCell = "A2",
+                ActivePane = PaneValues.BottomLeft,
+                State = PaneStateValues.Frozen
+            };
+
+            var selection = new Selection
+            {
+                Pane = PaneValues.BottomLeft,
+                ActiveCell = "A2",
+                SequenceOfReferences = new ListValue<StringValue> { InnerText = "A2" }
+            };
+
+            sheetView.Append(pane);
+            sheetView.Append(selection);
+
+            sheetViews.Append(sheetView);
+            return sheetViews;
         }
 
         // 1->A, 2->B ... 27->AA
