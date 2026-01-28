@@ -9,17 +9,6 @@ using System.Threading.Tasks;
 
 namespace FreshCheck_CV.Grab
 {
-    /*
-   #6_CAMERA_ABSTRACT# - <<<카메라 인터페이스 추상화>>> 
-   HikRobotCam 클래스에서 카메라의 일반적인 기능(함수)를 GrabModel 클래스를 만들어 추상화하고,
-    WebCam을 추가로 구현하여, 외부에서는 같은 함수를 호출하지만, 옵션에 따라 카메라를 동작하도록 구현
-   1) Grab 폴더 밑에 GrabModel 클래스 추가
-   2) HikRobotCam 함수 중에, 공용으로 사용할 수 있는 함수를 GrabModel로 이동
-   3) HikRobotCam 클래스는 GrabModel로 부터 상속 받도록 변경하고, 상속받은 함수를 오버라이드 하여 구현
-   4) WebCam 클래스를 추가하고  , GrabModel 클래스를 상속받아 구현
-   5) #5_CAMERA_INTERFACE#1~5 코드 구현
-   */
-
     public enum CameraType
     {
         [Description("사용안함")]

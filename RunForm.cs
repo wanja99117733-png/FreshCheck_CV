@@ -1,4 +1,5 @@
 ﻿using FreshCheck_CV.Core;
+using FreshCheck_CV.Grab;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,14 +11,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
+using System.Timers;
 
 namespace FreshCheck_CV
 {
 
 
     public partial class RunForm : DockContent
-
-
     {
         private volatile bool _isInspectEnabled;
 

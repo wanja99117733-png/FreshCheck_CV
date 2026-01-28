@@ -1,5 +1,4 @@
-﻿
-using FreshCheck_CV.Defect;
+﻿using FreshCheck_CV.Defect;
 using FreshCheck_CV.Grab;
 using FreshCheck_CV.Inspect;
 using FreshCheck_CV.Models;
