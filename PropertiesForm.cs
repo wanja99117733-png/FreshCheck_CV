@@ -149,7 +149,8 @@ namespace FreshCheck_CV
             TabControl tab = sender as TabControl;
 
             // 탭 전체 헤더 영역 크기 계산
-            Rectangle headerRect = new Rectangle(
+            Rectangle headerRect = new Rectangle
+            (
                 0,
                 0,
                 tab.Width,

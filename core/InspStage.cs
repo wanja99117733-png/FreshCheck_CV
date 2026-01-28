@@ -125,18 +125,23 @@ namespace FreshCheck_CV.Core
 
         public void RunMoldInspectionTemp()
         {
-            Bitmap source = GetCurrentImage();
-            if (source == null)
+            if (_sourceBitmap == null)
                 return;
 
             DateTime now = DateTime.Now;
+
+            // 1) 검사용 입력은 무조건 "원본" 복사본
+            Bitmap detectSource = new Bitmap(_sourceBitmap);
 
             var detector = new MoldDetector(() => _lastBinaryOptions)
             {
                 AreaRatioThreshold = 0.01
             };
 
-            DefectResult result = detector.Detect(source);
+            DefectResult result = detector.Detect(detectSource);
+
+            // detectSource는 더 이상 필요 없으니 해제(메모리 누수 방지)
+            detectSource.Dispose();
 
             bool isMold = result != null && result.IsDefect && result.Type == DefectType.Mold;
 
@@ -144,7 +149,8 @@ namespace FreshCheck_CV.Core
             string label = isMold ? "NG - Mold" : "OK";
             DefectType saveType = isMold ? DefectType.Mold : DefectType.None;
 
-            string savedPath = DefectImageSaver.Save(source, saveType, now, label);
+            // 2) 저장도 원본으로 저장하는 게 맞음 (원하면 여기서도 _sourceBitmap 쓰기)
+            string savedPath = DefectImageSaver.Save(new Bitmap(_sourceBitmap), saveType, now, label);
 
             // Inspection Monitor용 집계 이벤트 푸시
             var dto = new InspectionResultDto

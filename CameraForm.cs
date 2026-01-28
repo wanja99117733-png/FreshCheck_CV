@@ -15,6 +15,27 @@ namespace FreshCheck_CV
     public partial class CameraForm : DockContent
     {
         private bool _isPickMode = false;
+        private Bitmap _rawFrame;   // 오버레이/프리뷰 없는 원본
+        private readonly object _rawLock = new object();
+
+        public void SetRawFrame(Bitmap frame)
+        {
+            if (frame == null) return;
+
+            lock (_rawLock)
+            {
+                _rawFrame?.Dispose();
+                _rawFrame = new Bitmap(frame);
+            }
+        }
+
+        public Bitmap GetRawFrameCopy()
+        {
+            lock (_rawLock)
+            {
+                return _rawFrame != null ? new Bitmap(_rawFrame) : null;
+            }
+        }
 
         public event EventHandler<ColorPickedEventArgs> ColorPicked;
         public CameraForm()
