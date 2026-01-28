@@ -1,4 +1,5 @@
-﻿using FreshCheck_CV.Property;
+﻿using FreshCheck_CV.Dialogs;
+using FreshCheck_CV.Property;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -179,7 +180,8 @@ namespace FreshCheck_CV
                 }
                 else
                 {
-                    MessageBox.Show("등록되지 않은 관리자입니다.", "인증 실패", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //MessageBox.Show("등록되지 않은 관리자입니다.", "인증 실패", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    CustomMessageBoxForm.Show("등록되지 않은 관리자입니다.", "인증 실패"); // 다크모드 메시지 폼
                     e.Cancel = true; // 탭 이동 취소
                 }
             }
@@ -196,6 +198,13 @@ namespace FreshCheck_CV
                 }
             }
             return string.Empty;
+        }
+
+        public void SelectMonitorTab()
+        {
+            TabPage monitorTab;
+            _allTabs.TryGetValue("Monitor", out monitorTab);
+            tabPropControl.SelectedTab = monitorTab;
         }
 
     }

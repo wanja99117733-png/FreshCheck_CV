@@ -169,6 +169,12 @@
     <Compile Include="Property\InspectionMonitorProp.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Dialogs\CustomMessageBoxForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\CustomMessageBoxForm.Designer.cs">
+      <DependentUpon>CustomMessageBoxForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="UIControl\OverallRateBarControl.cs">
       <SubType>Component</SubType>
     </Compile>

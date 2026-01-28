@@ -67,6 +67,9 @@ namespace FreshCheck_CV
                 // 이미지 사이클링 시작(이미 구현된 private StartImageCycle를 public wrapper로 노출한 상태라고 가정)
                 MainForm.Instance.TryStartImageCycle();
             }
+
+            var propForm = MainForm.GetDockForm<PropertiesForm>();
+            propForm.SelectMonitorTab();
         }
 
         private void btnPause_Click(object sender, EventArgs e)
