@@ -8,5 +8,6 @@ namespace FreshCheck_CV.Defect
 {
     internal class SampleImageSaver
     {
+
     }
 }
