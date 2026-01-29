@@ -74,7 +74,7 @@ namespace FreshCheck_CV.Property
             if (tlpTol.RowStyles.Count >= 3)
             {
                 tlpTol.RowStyles.Clear();
-                tlpTol.RowStyles.Add(new RowStyle(SizeType.Absolute, 44f)); 
+                tlpTol.RowStyles.Add(new RowStyle(SizeType.Absolute, 44f));
                 tlpTol.RowStyles.Add(new RowStyle(SizeType.Absolute, 80f));
                 tlpTol.RowStyles.Add(new RowStyle(SizeType.Absolute, 29f));
             }
@@ -82,7 +82,7 @@ namespace FreshCheck_CV.Property
             lblTolerance.AutoSize = false;
             lblTolerance.Dock = DockStyle.Fill;
             lblTolerance.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            lblTolerance.AutoEllipsis = false; 
+            lblTolerance.AutoEllipsis = false;
             lblTolerance.Margin = new Padding(0, 0, 0, 4);
 
             rangeTrackbar.Dock = DockStyle.Fill;
@@ -105,7 +105,7 @@ namespace FreshCheck_CV.Property
             rangeTrackbar.Minimum = 0;
             rangeTrackbar.Maximum = 255;
 
-            rangeTrackbar.ValueLeft = 80;  
+            rangeTrackbar.ValueLeft = 80;
             rangeTrackbar.ValueRight = 120;
 
 
@@ -119,7 +119,7 @@ namespace FreshCheck_CV.Property
             {
                 BeginPickColor();
             };
-                        
+
             rangeTrackbar.RangeChanged += (s, e) =>
             {
                 UpdateToleranceLabel();
@@ -181,7 +181,7 @@ namespace FreshCheck_CV.Property
 
             _options.TolLow = Math.Min(left, right);
             _options.TolHigh = Math.Max(left, right);
-            
+
 
             if (cbMode.SelectedItem is ShowBinaryMode showMode)
             {
@@ -208,7 +208,7 @@ namespace FreshCheck_CV.Property
 
             // 🔥 가짜 커서 방식 시작
             cameraForm.StartFakeCursorPick();
-            
+
         }
         private void CameraForm_ColorPicked(object sender, ColorPickedEventArgs e)
         {
@@ -223,8 +223,6 @@ namespace FreshCheck_CV.Property
 
             UpdateTargetUi(_options.TargetB, _options.TargetG, _options.TargetR);
             ApplyFromUi();
-        }
-
         }
 
         private void btnEraseBg_Click(object sender, EventArgs e)

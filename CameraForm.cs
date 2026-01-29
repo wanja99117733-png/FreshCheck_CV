@@ -197,7 +197,7 @@ namespace FreshCheck_CV
             }
 
             _fakeCursor.SizeMode = PictureBoxSizeMode.Zoom;
-            _fakeCursor.Size = new Size(48, 48);
+            _fakeCursor.Size = new System.Drawing.Size(48, 48);
             _fakeCursor.BackColor = Color.Transparent;
             _fakeCursor.Visible = false;
             _fakeCursor.Enabled = false;
