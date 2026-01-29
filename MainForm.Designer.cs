@@ -41,13 +41,13 @@
             // 
             // menuStrip1
             // 
-            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1261, 33);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(1009, 28);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -62,7 +62,7 @@
             this.fileToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.fileToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 29);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // imageOpenToolStripMenuItem
@@ -70,7 +70,7 @@
             this.imageOpenToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.imageOpenToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.imageOpenToolStripMenuItem.Name = "imageOpenToolStripMenuItem";
-            this.imageOpenToolStripMenuItem.Size = new System.Drawing.Size(268, 34);
+            this.imageOpenToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
             this.imageOpenToolStripMenuItem.Text = "Image Open";
             this.imageOpenToolStripMenuItem.Click += new System.EventHandler(this.imageOpenToolStripMenuItem_Click);
             // 
@@ -79,7 +79,7 @@
             this.imageSaveToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.imageSaveToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.imageSaveToolStripMenuItem.Name = "imageSaveToolStripMenuItem";
-            this.imageSaveToolStripMenuItem.Size = new System.Drawing.Size(268, 34);
+            this.imageSaveToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
             this.imageSaveToolStripMenuItem.Text = "Image Save";
             // 
             // ImageFolderOpenToolStripMenuItem
@@ -87,7 +87,7 @@
             this.ImageFolderOpenToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ImageFolderOpenToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.ImageFolderOpenToolStripMenuItem.Name = "ImageFolderOpenToolStripMenuItem";
-            this.ImageFolderOpenToolStripMenuItem.Size = new System.Drawing.Size(268, 34);
+            this.ImageFolderOpenToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
             this.ImageFolderOpenToolStripMenuItem.Text = "Image Folder Open";
             this.ImageFolderOpenToolStripMenuItem.Click += new System.EventHandler(this.ImageFolderOpenToolStripMenuItem_Click);
             // 
@@ -96,7 +96,7 @@
             this.StartCycleToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.StartCycleToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.StartCycleToolStripMenuItem.Name = "StartCycleToolStripMenuItem";
-            this.StartCycleToolStripMenuItem.Size = new System.Drawing.Size(268, 34);
+            this.StartCycleToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
             this.StartCycleToolStripMenuItem.Text = "Start Cycle";
             this.StartCycleToolStripMenuItem.Click += new System.EventHandler(this.StartCycleToolStripMenuItem_Click);
             // 
@@ -105,21 +105,22 @@
             this.StopCycleToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.StopCycleToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.StopCycleToolStripMenuItem.Name = "StopCycleToolStripMenuItem";
-            this.StopCycleToolStripMenuItem.Size = new System.Drawing.Size(268, 34);
+            this.StopCycleToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
             this.StopCycleToolStripMenuItem.Text = "Stop Cycle";
             this.StopCycleToolStripMenuItem.Click += new System.EventHandler(this.StopCycleToolStripMenuItem_Click);
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(38)))));
-            this.ClientSize = new System.Drawing.Size(1261, 757);
+            this.ClientSize = new System.Drawing.Size(1009, 631);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "MainForm";
-            this.Text = "Form1";
+            this.Text = "FreshCheck_CV";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);

@@ -105,6 +105,7 @@ namespace FreshCheck_CV
             this.Controls.Add(this.panelButtons);
             this.Name = "RunForm";
             this.Text = "Run";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.RunForm_KeyDown);
             this.panelButtons.ResumeLayout(false);
             this.ResumeLayout(false);
 

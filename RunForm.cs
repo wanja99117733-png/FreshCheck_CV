@@ -48,34 +48,10 @@ namespace FreshCheck_CV
             this.KeyDown += RunForm_KeyDown;
 
             this.FormClosed += RunForm_FormClosed;
-
-            
         }
 
         // 🔑 키보드 단축키 처리 (생성자에서 등록)
-        private void RunForm_KeyDown(object sender, KeyEventArgs e)
-        {
-            switch (e.KeyCode)
-            {
-                case Keys.F5:      // 검사 시작
-                    e.Handled = true;
-                    e.SuppressKeyPress = true;
-                    btnStart_Click(sender, e);
-                    break;
-
-                case Keys.F8:      // 일시 중지
-                    e.Handled = true;
-                    e.SuppressKeyPress = true;
-                    btnPause_Click(sender, e);
-                    break;
-
-                case Keys.F12:     // 검사 중지
-                    e.Handled = true;
-                    e.SuppressKeyPress = true;
-                    btnStop_Click(sender, e);
-                    break;
-            }
-        }
+        
 
         // ===== 1. 카메라 연결 확인 (생성자 후 바로 실행) =====
         private void CheckCameraConnection()
@@ -154,7 +130,6 @@ namespace FreshCheck_CV
                 {
                     MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
                     MainForm.Instance.ImageChanged += MainForm_ImageChanged;
-                    MainForm.Instance.TryStartImageCycle();
                 }
             }
 
@@ -239,8 +214,7 @@ namespace FreshCheck_CV
             _isLoopRunning = true;
             SetRunningFlag(true);
 
-            // 시작 시 이미지 사이클링
-            MainForm.Instance?.TryStartImageCycle();
+            
 
             _loopTask = Task.Run(() => InspectionLoopWorker(_cts.Token));
         }
@@ -302,18 +276,23 @@ namespace FreshCheck_CV
         {
             while (!token.IsCancellationRequested)
             {
-                // 일시정지면 여기서 대기
-                _pauseGate.Wait(token);
-
-                // 1) UI 스레드에서 검사 1회 실행 (Cross-thread 방지)
-                InvokeOnUiThread(() =>
+                try
                 {
-                    // (Scratch 붙으면 여기서 1 Cycle로 묶어 호출)
-                    Global.Inst?.InspStage?.RunMoldInspectionTemp();
-                });
+                    _pauseGate.Wait(token);
 
-                // 2) 목표 주기 대기
-                Task.Delay(LoopIntervalMs, token).Wait(token);
+                    InvokeOnUiThread(() => Global.Inst?.InspStage?.RunMoldInspectionTemp());
+
+                    var delayTask = Task.Delay(LoopIntervalMs, token);
+                    delayTask.Wait(token);  // 이미 token 있음
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+                catch (ObjectDisposedException)
+                {
+                    return;
+                }
             }
         }
 
@@ -338,6 +317,30 @@ namespace FreshCheck_CV
             catch
             {
                 // 폼 종료 중 등 예외는 무시(안전 종료 목적)
+            }
+        }
+
+        private void RunForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.F5:      // 검사 시작
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    btnStart_Click(sender, e);
+                    break;
+
+                case Keys.F8:      // 일시 중지
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    btnPause_Click(sender, e);
+                    break;
+
+                case Keys.F12:     // 검사 중지
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    btnStop_Click(sender, e);
+                    break;
             }
         }
 
