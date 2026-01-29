@@ -287,6 +287,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Property\BinaryProp.resx">
       <DependentUpon>BinaryProp.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Property\DarkMessageForm.resx">
       <DependentUpon>DarkMessageForm.cs</DependentUpon>
