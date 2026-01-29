@@ -1,5 +1,6 @@
 ﻿using FreshCheck_CV.Core;
 using FreshCheck_CV.Grab;
+using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,12 +16,13 @@ using System.Timers;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 
+
 namespace FreshCheck_CV
 {
     public partial class RunForm : DockContent
     {
         private volatile bool _isInspectEnabled;
-
+        private bool _liveMode = false;  // Live 모드 플래그
         private volatile bool _isInspectBusy;
 
         private CancellationTokenSource _cts;
@@ -35,7 +37,7 @@ namespace FreshCheck_CV
         private GrabUserBuffer[] _imageBuffers;
         private bool _isCameraConnected = false;
         private int _width, _height, _stride;
-        private int _currentBufferIdx = 0;
+        private PictureBox pictureBox;  // UI PictureBox
 
         public RunForm()
         {
@@ -72,6 +74,8 @@ namespace FreshCheck_CV
                 int w, h, s, bpp;
                 _hikCam.GetResolution(out w, out h, out s);
                 _hikCam.GetPixelBpp(out bpp);
+                _width = w; _height = h; _stride = s;
+                Console.WriteLine($"카메라 스펙 - W:{w} H:{h} Stride:{s} Bpp:{bpp}");  // MVS BayerGR8 확인용
 
                 // 버퍼 할당
                 for (int i = 0; i < 2; i++)
@@ -81,18 +85,51 @@ namespace FreshCheck_CV
                     _hikCam.SetBuffer(buf, hndl.AddrOfPinnedObject(), hndl, i);
                 }
 
-                _hikCam.SetTriggerMode(false);  // 소프트 트리거
+                // 🔑 TransferCompleted 콜백 등록 (GrabCompleted 대신!)
+                _hikCam.TransferCompleted += MultiGrab_TransferCompleted;
+
+                _hikCam.SetTriggerMode(false);
+
+                _hikCam.Open();
                 _isCameraConnected = true;
+                _hikCam.SetWhiteBalance(true);
             }
             catch
             {
                 _isCameraConnected = false;
             }
         }
+        private readonly object _bufferLock = new object();
+
+        private async void MultiGrab_TransferCompleted(object sender, object e)
+        {
+            if (!_isInspectEnabled) return;
+
+            // 1. 인덱스 유효성 검사
+            int bufferIndex = _hikCam.BufferIndex;
+            if (bufferIndex < 0 || _imageBuffers == null || _imageBuffers[bufferIndex].ImageBuffer == null) return;
+
+            try
+            {
+                // 2. 이미지 처리 (UI 업데이트 포함)
+                // 비동기 상황에서 버퍼가 바뀌지 않도록 복사본 전달을 권장합니다.
+                UpdateImageViewCtrl(bufferIndex);
+
+                if (_liveMode)
+                {
+                    await Task.Delay(800); // 800ms는 너무 길 수 있으니 적절히 조절
+                    if (_liveMode) _hikCam.Grab(bufferIndex, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Grab Error: {ex.Message}");
+            }
+        }
 
         private void RunForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            _captureTimer?.Stop();
+            // _captureTimer?.Stop();  ← 삭제!
             if (_imageBuffers != null)
             {
                 foreach (var buf in _imageBuffers)
@@ -113,82 +150,108 @@ namespace FreshCheck_CV
         private void btnStart_Click(object sender, EventArgs e)
         {
             _isInspectEnabled = true;
+            _liveMode = true;  // 🔑 Live 모드 시작!
             Global.Inst?.InspStage?.Hub?.SetRunning(true);
 
             if (_isCameraConnected)
             {
-                // 실시간 캡처 모드
-                _captureTimer = new System.Windows.Forms.Timer();
-                _captureTimer.Interval = 1000;  // 1초 간격
-                _captureTimer.Tick += CaptureTimer_Tick;
-                _captureTimer.Start();
+                // 첫 Grab으로 연쇄 시작!
+                _hikCam.Grab(0, false);  // 비동기 → TransferCompleted 콜백
             }
             else
             {
-                // 공통: 이벤트 + 사이클링 (카메라 있어도 ImageChanged는 유지)
                 if (MainForm.Instance != null)
                 {
                     MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
                     MainForm.Instance.ImageChanged += MainForm_ImageChanged;
+                    StartInspectionLoop();
                 }
             }
-
-            StartInspectionLoop();  // 기존 루프 시작
         }
-        private Bitmap ByteArrayToBitmap(byte[] buffer, int width, int height)
+        private Bitmap ByteArrayToBitmap(byte[] buffer, int width, int height, int srcStride)
         {
-            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
-            var bmpData = bmp.LockBits(new Rectangle(0, 0, width, height),
-                ImageLockMode.WriteOnly, bmp.PixelFormat);
-            System.Runtime.InteropServices.Marshal.Copy(buffer, 0, bmpData.Scan0, buffer.Length);
-            bmp.UnlockBits(bmpData);
-            return bmp;
+            if (buffer == null || buffer.Length == 0) return null;
+
+            try
+            {
+                // 1. RGB24 stride 패딩 제거 (7776=2592*3 완벽, padding 거의 없음)
+                int expectedLineBytes = width * 3;
+                byte[] cleanBuffer = new byte[expectedLineBytes * height];
+                for (int y = 0; y < height; y++)
+                {
+                    Buffer.BlockCopy(buffer, y * srcStride, cleanBuffer, y * expectedLineBytes, expectedLineBytes);
+                }
+
+                Console.WriteLine($"RGB24 변환 - Stride:{srcStride} → Line:{expectedLineBytes} Total:{cleanBuffer.Length}");
+
+                // 2. OpenCV Mat으로 RGB24 → BGR24 변환 (Bitmap 호환)
+                using (Mat rgbMat = new Mat(height, width, MatType.CV_8UC3, cleanBuffer))
+                using (Mat bgrMat = new Mat())
+                {
+                    Cv2.CvtColor(rgbMat, bgrMat, ColorConversionCodes.RGB2BGR);  // RGB→BGR [web:46]
+
+                    // 화질 보정 (원본 가까이)
+                    Cv2.ConvertScaleAbs(bgrMat, bgrMat, 1.05, 2);
+
+                    Bitmap bmp = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(bgrMat);
+                    Console.WriteLine("RGB24 → 컬러 비트맵 성공!");
+                    return bmp;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RGB24 오류: {ex.Message}\nBuffer[0-10]: {BitConverter.ToString(buffer?.Take(10).ToArray() ?? new byte[0])}");
+                return null;
+            }
         }
 
-        private void UpdateImageViewCtrl()
+
+
+        private void UpdateImageViewCtrl(int bufferIndex)
         {
             try
             {
                 var cameraForm = MainForm.GetDockForm<CameraForm>();
-                if (cameraForm != null)
+                if (cameraForm == null) return;
+
+                byte[] rawCopy;
+                lock (_bufferLock)
                 {
-                    byte[] buffer = _imageBuffers[_hikCam.BufferIndex].ImageBuffer;
-                    Bitmap bmp = ByteArrayToBitmap(buffer, _width, _height);
-                    cameraForm.UpdateDisplay(bmp);  // 🔑 완성! CameraForm.UpdateDisplay()
+                    rawCopy = (byte[])_imageBuffers[bufferIndex].ImageBuffer.Clone();
+                }
+
+                // stride 명시적 전달로 밀림 완전 방지
+                Bitmap bmp = ByteArrayToBitmap(rawCopy, _width, _height, _stride);
+
+                if (bmp != null)
+                {
+                    cameraForm.Invoke(new Action(() => cameraForm.UpdateDisplay(bmp)));
+                }
+                else
+                {
+                    Console.WriteLine("비트맵 생성 실패 - stride 또는 Bayer 확인");
                 }
             }
-            catch { /* 무시 */ }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Update UI Error: {ex.Message}");
+            }
         }
-
-        // ===== 3. 1000ms마다 캡처 =====
-        private void CaptureTimer_Tick(object sender, EventArgs e)
-        {
-            if (_hikCam == null) return;
-
-            int idx = _currentBufferIdx;
-            _hikCam.Grab(idx, true);
-            _currentBufferIdx = 1 - idx;
-
-            UpdateImageViewCtrl();  // CameraForm.UpdateDisplay() 호출
-        }
-
         private void btnPause_Click(object sender, EventArgs e)
         {
-            _isInspectEnabled = false;
-            Global.Inst?.InspStage?.Hub?.SetRunning(false);
+            _isInspectEnabled = false;  // 🔑 콜백 제어!
+            _liveMode = false;  // 🔑 Live 중지!
 
-            _captureTimer?.Stop();  // 카메라 타이머 정지
-            MainForm.Instance?.StopImageCyclePublic();  // 사이클링도 정지
-
+            MainForm.Instance?.StopImageCyclePublic();
             PauseInspectionLoop();
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
             _isInspectEnabled = false;
-            Global.Inst?.InspStage?.Hub?.SetRunning(false);
+            _liveMode = false;  // 🔑 Live 중지!
 
-            _captureTimer?.Stop();  // 🔑 추가
+
             if (MainForm.Instance != null)
             {
                 MainForm.Instance.StopImageCyclePublic();
@@ -213,8 +276,6 @@ namespace FreshCheck_CV
             _pauseGate.Set();
             _isLoopRunning = true;
             SetRunningFlag(true);
-
-            
 
             _loopTask = Task.Run(() => InspectionLoopWorker(_cts.Token));
         }
@@ -343,6 +404,7 @@ namespace FreshCheck_CV
                     break;
             }
         }
+
 
         private void SetRunningFlag(bool isRunning)
         {

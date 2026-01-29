@@ -105,7 +105,7 @@ namespace FreshCheck_CV.Grab
         internal virtual bool SetWhiteBalance(bool auto, float redGain = 1.0f, float blueGain = 1.0f) { return true; }
 
         internal bool InitGrab()
-        {
+       {
             
             if (!Open())
             {

@@ -24,6 +24,7 @@ namespace FreshCheck_CV.Core
         private Bitmap _sourceBitmap = null;
         private GrabModel _grabManager = null;
         SaigeAI _saigeAI; // SaigeAI 인스턴스
+        private CameraType _camType = CameraType.HikRobotCam;
 
         public InspStage() { }
 
@@ -42,7 +43,6 @@ namespace FreshCheck_CV.Core
 
         public bool Initialize()
         {
-
             return true;
         }
 

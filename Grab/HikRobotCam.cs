@@ -293,7 +293,7 @@ namespace FreshCheck_CV.Grab
 
         internal override bool GetPixelBpp(out int pixelBpp)
         {
-            pixelBpp = 8;
+            pixelBpp = 24;
             if (_device == null)
                 return false;
 
@@ -445,6 +445,20 @@ namespace FreshCheck_CV.Grab
 
             return true;
         }
+        internal bool SetFrameRate(float fps)
+        {
+            if (_device == null) return false;
+
+            IFloatValue floatValue;
+            int result = _device.Parameters.GetFloatValue("AcquisitionFrameRate", out floatValue);
+            if (result == MvError.MV_OK)
+            {
+                result = _device.Parameters.SetFloatValue("AcquisitionFrameRate", fps);
+                return result == MvError.MV_OK;
+            }
+            return false;
+        }
+
 
         #endregion
 
