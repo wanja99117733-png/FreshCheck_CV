@@ -4,6 +4,8 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using static FreshCheck_CV.CameraForm;
+using FreshCheck_CV.Properties;
+
 
 namespace FreshCheck_CV.Property
 {
@@ -11,6 +13,8 @@ namespace FreshCheck_CV.Property
     {
         private readonly BinaryOptions _options = new BinaryOptions();
         private bool _isCameraSubscribed = false;
+
+        private Cursor _prevCursor;
 
         public BinaryProp()
         {
@@ -20,19 +24,19 @@ namespace FreshCheck_CV.Property
             HookEvents();
             HookCameraPickEvent();
             ApplyLayoutFixes();
-            //스포이드 버튼 아이콘 + 중앙 정렬
-            btnPickColor.Image = Properties.Resources.icon;
+            ////스포이드 버튼 아이콘 + 중앙 정렬
+            //btnPickColor.Image = Properties.Resources.icon;
 
-            // 아이콘 + 텍스트를 하나의 덩어리로 취급
-            btnPickColor.TextImageRelation = TextImageRelation.ImageBeforeText;
+            //// 아이콘 + 텍스트를 하나의 덩어리로 취급
+            //btnPickColor.TextImageRelation = TextImageRelation.ImageBeforeText;
 
-            // 전체 묶음을 버튼 중앙으로
-            btnPickColor.TextAlign = ContentAlignment.MiddleCenter;
-            btnPickColor.ImageAlign = ContentAlignment.MiddleCenter;
+            //// 전체 묶음을 버튼 중앙으로
+            //btnPickColor.TextAlign = ContentAlignment.MiddleCenter;
+            //btnPickColor.ImageAlign = ContentAlignment.MiddleCenter;
 
-            // 좌우 여백으로 균형 잡기
-            btnPickColor.Padding = new Padding(10, 0, 10, 0);
-            btnPickColor.Image = new Bitmap(Properties.Resources.icon,new Size(24, 24));
+            //// 좌우 여백으로 균형 잡기
+            //btnPickColor.Padding = new Padding(10, 0, 10, 0);
+            //btnPickColor.Image = new Bitmap(Properties.Resources.icon,new Size(24, 24));
         }
 
         private void ApplyLayoutFixes()
@@ -163,28 +167,6 @@ namespace FreshCheck_CV.Property
             _isCameraSubscribed = true;
         }
 
-        private void BeginPickColor()
-        {
-            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
-            if (cameraForm == null)
-            {
-                return;
-            }
-
-            cameraForm.BeginPickColor();
-        }
-
-        private void CameraForm_ColorPicked(object sender, ColorPickedEventArgs e)
-        {
-            Color c = e.Color;
-
-            _options.TargetB = c.B;
-            _options.TargetG = c.G;
-            _options.TargetR = c.R;
-
-            UpdateTargetUi(_options.TargetB, _options.TargetG, _options.TargetR);
-            ApplyFromUi();
-        }
 
         private void UpdateTargetUi(int b, int g, int r)
         {
@@ -231,7 +213,7 @@ namespace FreshCheck_CV.Property
             if (cameraForm == null)
                 return;
 
-            // 가짜 커서 방식 시작
+            // 🔥 가짜 커서 방식 시작
             cameraForm.StartFakeCursorPick();
             
         }
