@@ -1,4 +1,10 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Drawing.Charts;
+using FreshCheck_CV.Core;
+using FreshCheck_CV.Inspect;
+using OpenCvSharp;
+using OpenCvSharp.Extensions;
+using SaigeVision.Net.V2.Segmentation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,12 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FreshCheck_CV.Core;
 using WeifenLuo.WinFormsUI.Docking;
-using OpenCvSharp;
-using OpenCvSharp.Extensions;
-using FreshCheck_CV.Inspect;
-using SaigeVision.Net.V2.Segmentation;
 
 namespace FreshCheck_CV
 {
@@ -129,6 +130,7 @@ namespace FreshCheck_CV
 
             imageViewCtrl.LoadBitmap(bitmap);
         }
+        
 
         public Bitmap GetDisplayImage()
         {

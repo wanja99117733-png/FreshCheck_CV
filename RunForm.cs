@@ -5,18 +5,18 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
-using System.Timers;
 
 namespace FreshCheck_CV
 {
-
-
     public partial class RunForm : DockContent
     {
         private volatile bool _isInspectEnabled;
@@ -30,16 +30,101 @@ namespace FreshCheck_CV
 
         private const int LoopIntervalMs = 1000;
 
+        private HikRobotCam _hikCam;
+        private System.Windows.Forms.Timer _captureTimer;
+        private GrabUserBuffer[] _imageBuffers;
+        private bool _isCameraConnected = false;
+        private int _width, _height, _stride;
+        private int _currentBufferIdx = 0;
+
         public RunForm()
         {
             InitializeComponent();
             ApplyDarkTheme();
+            CheckCameraConnection();  // 🔑 초기 카메라 연결 확인
+
+            // 🔑 키보드 단축키 설정
+            this.KeyPreview = true;
+            this.KeyDown += RunForm_KeyDown;
 
             this.FormClosed += RunForm_FormClosed;
+
+            
+        }
+
+        // 🔑 키보드 단축키 처리 (생성자에서 등록)
+        private void RunForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.F5:      // 검사 시작
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    btnStart_Click(sender, e);
+                    break;
+
+                case Keys.F8:      // 일시 중지
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    btnPause_Click(sender, e);
+                    break;
+
+                case Keys.F12:     // 검사 중지
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    btnStop_Click(sender, e);
+                    break;
+            }
+        }
+
+        // ===== 1. 카메라 연결 확인 (생성자 후 바로 실행) =====
+        private void CheckCameraConnection()
+        {
+            try
+            {
+                _hikCam = new HikRobotCam();
+                // IP는 실제 카메라 IP로 변경! (Global 설정에서 가져올 수 있음)
+                if (!_hikCam.Create("169.254.90.253") || !_hikCam.InitGrab())
+                {
+                    _isCameraConnected = false;
+                    return;
+                }
+
+                _hikCam.InitBuffer(2);
+                _imageBuffers = _hikCam._userImageBuffer;
+
+                int w, h, s, bpp;
+                _hikCam.GetResolution(out w, out h, out s);
+                _hikCam.GetPixelBpp(out bpp);
+
+                // 버퍼 할당
+                for (int i = 0; i < 2; i++)
+                {
+                    byte[] buf = new byte[s * h];
+                    GCHandle hndl = GCHandle.Alloc(buf, GCHandleType.Pinned);
+                    _hikCam.SetBuffer(buf, hndl.AddrOfPinnedObject(), hndl, i);
+                }
+
+                _hikCam.SetTriggerMode(false);  // 소프트 트리거
+                _isCameraConnected = true;
+            }
+            catch
+            {
+                _isCameraConnected = false;
+            }
         }
 
         private void RunForm_FormClosed(object sender, FormClosedEventArgs e)
         {
+            _captureTimer?.Stop();
+            if (_imageBuffers != null)
+            {
+                foreach (var buf in _imageBuffers)
+                    if (buf.ImageHandle.IsAllocated)
+                        buf.ImageHandle.Free();
+            }
+            _hikCam?.Close();
+            _hikCam?.Dispose();
             StopInspectionLoop();
         }
 
@@ -51,49 +136,95 @@ namespace FreshCheck_CV
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            
             _isInspectEnabled = true;
-
-            // RUN 표시
             Global.Inst?.InspStage?.Hub?.SetRunning(true);
 
-            
-            // 이벤트 중복 구독 방지
-            if (MainForm.Instance != null)
+            if (_isCameraConnected)
             {
-                MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
-                MainForm.Instance.ImageChanged += MainForm_ImageChanged;
-
-                // 이미지 사이클링 시작(이미 구현된 private StartImageCycle를 public wrapper로 노출한 상태라고 가정)
-                MainForm.Instance.TryStartImageCycle();
+                // 실시간 캡처 모드
+                _captureTimer = new System.Windows.Forms.Timer();
+                _captureTimer.Interval = 1000;  // 1초 간격
+                _captureTimer.Tick += CaptureTimer_Tick;
+                _captureTimer.Start();
             }
+            else
+            {
+                // 공통: 이벤트 + 사이클링 (카메라 있어도 ImageChanged는 유지)
+                if (MainForm.Instance != null)
+                {
+                    MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
+                    MainForm.Instance.ImageChanged += MainForm_ImageChanged;
+                    MainForm.Instance.TryStartImageCycle();
+                }
+            }
+
+            StartInspectionLoop();  // 기존 루프 시작
 
             var propForm = MainForm.GetDockForm<PropertiesForm>();
             propForm.SelectMonitorTab();
+        }
+        private Bitmap ByteArrayToBitmap(byte[] buffer, int width, int height)
+        {
+            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.WriteOnly, bmp.PixelFormat);
+            System.Runtime.InteropServices.Marshal.Copy(buffer, 0, bmpData.Scan0, buffer.Length);
+            bmp.UnlockBits(bmpData);
+            return bmp;
+        }
+
+        private void UpdateImageViewCtrl()
+        {
+            try
+            {
+                var cameraForm = MainForm.GetDockForm<CameraForm>();
+                if (cameraForm != null)
+                {
+                    byte[] buffer = _imageBuffers[_hikCam.BufferIndex].ImageBuffer;
+                    Bitmap bmp = ByteArrayToBitmap(buffer, _width, _height);
+                    cameraForm.UpdateDisplay(bmp);  // 🔑 완성! CameraForm.UpdateDisplay()
+                }
+            }
+            catch { /* 무시 */ }
+        }
+
+        // ===== 3. 1000ms마다 캡처 =====
+        private void CaptureTimer_Tick(object sender, EventArgs e)
+        {
+            if (_hikCam == null) return;
+
+            int idx = _currentBufferIdx;
+            _hikCam.Grab(idx, true);
+            _currentBufferIdx = 1 - idx;
+
+            UpdateImageViewCtrl();  // CameraForm.UpdateDisplay() 호출
         }
 
         private void btnPause_Click(object sender, EventArgs e)
         {
             _isInspectEnabled = false;
-
             Global.Inst?.InspStage?.Hub?.SetRunning(false);
 
-            MainForm.Instance?.StopImageCyclePublic();
+            _captureTimer?.Stop();  // 카메라 타이머 정지
+            MainForm.Instance?.StopImageCyclePublic();  // 사이클링도 정지
+
+            PauseInspectionLoop();
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
             _isInspectEnabled = false;
-
             Global.Inst?.InspStage?.Hub?.SetRunning(false);
 
+            _captureTimer?.Stop();  // 🔑 추가
             if (MainForm.Instance != null)
             {
                 MainForm.Instance.StopImageCyclePublic();
                 MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
             }
+            StopInspectionLoop();
         }
-        
+
         private void StartInspectionLoop()
         {
             if (_isLoopRunning)
@@ -226,18 +357,13 @@ namespace FreshCheck_CV
         }
         private void MainForm_ImageChanged(object sender, MainForm.ImageChangedEventArgs e)
         {
-            if (!_isInspectEnabled)
-                return;
-
-            // 같은 UI 스레드에서 연속 호출되거나, 검사가 오래 걸릴 경우 재진입 방지
-            if (_isInspectBusy)
-                return;
+            if (!_isInspectEnabled || _isInspectBusy) return;
 
             try
             {
                 _isInspectBusy = true;
 
-                // 지금 FC는 Mold 임시 검사
+                // 사이클링 이미지 검사 (기존)
                 Global.Inst?.InspStage?.RunMoldInspectionTemp();
             }
             finally

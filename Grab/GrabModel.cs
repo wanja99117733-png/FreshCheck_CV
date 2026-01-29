@@ -68,7 +68,7 @@ namespace FreshCheck_CV.Grab
         public event GrabEventHandler<object> GrabCompleted;
         public event GrabEventHandler<object> TransferCompleted;
 
-        protected GrabUserBuffer[] _userImageBuffer = null;
+        public GrabUserBuffer[] _userImageBuffer = null;
         public int BufferIndex { get; set; } = 0;
 
         protected string _strIpAddr = "";
@@ -106,9 +106,7 @@ namespace FreshCheck_CV.Grab
 
         internal bool InitGrab()
         {
-            if (!Create())
-                return false;
-
+            
             if (!Open())
             {
                 if (!Reconnect())
