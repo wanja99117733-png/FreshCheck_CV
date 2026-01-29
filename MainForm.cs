@@ -29,14 +29,22 @@ namespace FreshCheck_CV
         private bool _isImageCycling;
         public static MainForm Instance { get; private set; }
 
-        private const int IMAGE_CYCLE_INTERVAL_MS = 500;
+        private const int IMAGE_CYCLE_INTERVAL_MS = 100;
 
         public MainForm()
         {
 
             InitializeComponent();
 
+            StartPosition = FormStartPosition.CenterScreen;
+            WindowState = FormWindowState.Maximized;
+
             Instance = this;
+
+            Shown += (s, e) =>
+            {
+                WindowState = FormWindowState.Maximized;
+            };
 
             //메인폼 사이즈 강제 고정
             this.MinimumSize = new Size(1250, 800);
@@ -111,7 +119,7 @@ namespace FreshCheck_CV
             _dockPanel.AllowEndUserDocking = false;
 
             _dockPanel.DockBottomPortion = 0.23;
-            _dockPanel.DockRightPortion = 0.15;
+            _dockPanel.DockRightPortion = 0.17;
 
             // 중앙 메인 이미지
             var cameraWindow = new CameraForm();
@@ -196,17 +204,34 @@ namespace FreshCheck_CV
             {
                 return;
             }
-            // 현재 도킹된 CameraForm을 가져옴
+
             CameraForm cameraForm = GetDockForm<CameraForm>();
             if (cameraForm == null)
             {
                 return;
             }
-            // 현재 인덱스의 이미지 파일 로드
-            string imagePath = _imageFilePaths[_currentImageIndex];
-            cameraForm.LoadImage(imagePath);
-            ImageChanged?.Invoke(this, new ImageChangedEventArgs(imagePath, _currentImageIndex, _imageFilePaths.Count));
 
+            string imagePath = _imageFilePaths[_currentImageIndex];
+
+            // 1) 화면 표시(기존 동작 유지)
+            cameraForm.LoadImage(imagePath);
+
+            // 2) ★검사용 원본(_sourceBitmap) 갱신 (핵심)
+            try
+            {
+                using (var tmp = (Bitmap)Image.FromFile(imagePath))
+                {
+                    // 파일 락 방지 + stage 내부에서 다시 복사하므로 new Bitmap으로 넘김
+                    Global.Inst.InspStage.SetSourceImage(new Bitmap(tmp));
+                }
+            }
+            catch (Exception ex)
+            {
+                Util.SLogger.Write($"LoadNextImage: failed to set source image. path={imagePath}, ex={ex.Message}");
+            }
+
+            ImageChanged?.Invoke(this,
+                new ImageChangedEventArgs(imagePath, _currentImageIndex, _imageFilePaths.Count));
 
             MoveToNextImageIndex();
         }

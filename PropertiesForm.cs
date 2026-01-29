@@ -41,7 +41,7 @@ namespace FreshCheck_CV
 
             //TabControl (Filter / Binary) 다크화
             tabPropControl.DrawMode = TabDrawMode.OwnerDrawFixed;
-            tabPropControl.ItemSize = new Size(90, 30);
+            tabPropControl.ItemSize = new Size(78, 30);
             tabPropControl.DrawItem += TabPropControl_DrawItem;
 
             tabPropControl.Paint += TabPropControl_Paint;
@@ -151,7 +151,8 @@ namespace FreshCheck_CV
             TabControl tab = sender as TabControl;
 
             // 탭 전체 헤더 영역 크기 계산
-            Rectangle headerRect = new Rectangle(
+            Rectangle headerRect = new Rectangle
+            (
                 0,
                 0,
                 tab.Width,

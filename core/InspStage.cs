@@ -172,26 +172,36 @@ namespace FreshCheck_CV.Core
         }
         public void RunMoldInspectionTemp()
         {
-            Bitmap source = GetCurrentImage();
-            if (source == null)
+
+            var swTotal = System.Diagnostics.Stopwatch.StartNew();
+
+            if (_sourceBitmap == null)
                 return;
 
             DateTime now = DateTime.Now;
+
+            // 1) 검사용 입력은 무조건 "원본" 복사본
+            Bitmap detectSource = new Bitmap(_sourceBitmap);
 
             var detector = new MoldDetector(() => _lastBinaryOptions)
             {
                 AreaRatioThreshold = 0.01
             };
 
-            DefectResult result = detector.Detect(source);
+            DefectResult result = detector.Detect(detectSource);
+
+            // detectSource는 더 이상 필요 없으니 해제(메모리 누수 방지)
+            detectSource.Dispose();
 
             bool isMold = result != null && result.IsDefect && result.Type == DefectType.Mold;
 
-            string resultText = isMold ? "NG" : "OK";
-            string label = isMold ? "NG - Mold" : "OK";
-            DefectType saveType = isMold ? DefectType.Mold : DefectType.None;
+            string resultText = isMold ? "Mold" : "OK";
+            string label = isMold ? "Mold" : "OK";
+            DefectType saveType = isMold ? DefectType.Mold : DefectType.OK;
+            // 2) 저장도 원본으로 저장하는 게 맞음 (원하면 여기서도 _sourceBitmap 쓰기)
+            string savedPath = DefectImageSaver.Save(new Bitmap(_sourceBitmap), saveType, now, label);
 
-            string savedPath = DefectImageSaver.Save(source, saveType, now, label);
+            swTotal.Stop();
 
             // Inspection Monitor용 집계 이벤트 푸시
             var dto = new InspectionResultDto
@@ -204,10 +214,12 @@ namespace FreshCheck_CV.Core
                 Message = result?.Message
             };
 
+
             Hub.Push(dto);
 
-            // 로그(기록용)
-            Util.SLogger.Write($"Mold Inspection: {label} | {result?.Message} | saved={savedPath}");
+            // 유진형(스크래치 검사 시간)
+            Util.SLogger.Write($"Result : {label} | " + $"Mold ratio={(result?.AreaRatio ?? 0.0):0.0000} | " + $"MoldDetect={(result?.ElapsedMs ?? 0)}ms | Total={swTotal.ElapsedMilliseconds}ms");
+
 
             // ResultForm: 항상 1건 기록
             var resultForm = MainForm.GetDockForm<ResultForm>();
