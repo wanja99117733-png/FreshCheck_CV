@@ -68,9 +68,8 @@
     <Reference Include="log4net">
       <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Log4Net\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="MvCameraControl.Net, Version=4.5.0.2, Culture=neutral, PublicKeyToken=a3c7c5e3a730cd12, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\HikRobot\MvCameraControl.Net.dll</HintPath>
+    <Reference Include="MvCameraControl.Net">
+      <HintPath>..\ExternalLib\ExternalLib\Dll\HikRobot\MvCameraControl.Net.dll</HintPath>
     </Reference>
     <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -81,10 +80,10 @@
       <HintPath>..\..\팀프로젝트 자료\Dll\OpenCvSharp\OpenCvSharp.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="SaigeVision.Net.Core.V2">
-      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Saige\SaigeVision.Net.Core.V2.dll</HintPath>
+      <HintPath>..\ExternalLib\ExternalLib\Dll\Saige\SaigeVision.Net.Core.V2.dll</HintPath>
     </Reference>
     <Reference Include="SaigeVision.Net.V2">
-      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Saige\SaigeVision.Net.V2.dll</HintPath>
+      <HintPath>..\ExternalLib\ExternalLib\Dll\Saige\SaigeVision.Net.V2.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.dll</HintPath>

@@ -312,7 +312,8 @@ namespace FreshCheck_CV
                 InvokeOnUiThread(() =>
                 {
                     // (Scratch 붙으면 여기서 1 Cycle로 묶어 호출)
-                    Global.Inst?.InspStage?.RunMoldInspectionTemp();
+                    Global.Inst?.InspStage?.RunFullInspectionCycle();
+                    //Global.Inst?.InspStage?.RunMoldInspectionTemp();
                 });
 
                 // 2) 목표 주기 대기
@@ -357,7 +358,12 @@ namespace FreshCheck_CV
         }
         private void MainForm_ImageChanged(object sender, MainForm.ImageChangedEventArgs e)
         {
-            if (!_isInspectEnabled || _isInspectBusy) return;
+            if (!_isInspectEnabled)
+                return;
+
+            // 같은 UI 스레드에서 연속 호출되거나, 검사가 오래 걸릴 경우 재진입 방지
+            if (_isInspectBusy)
+                return;
 
             try
             {

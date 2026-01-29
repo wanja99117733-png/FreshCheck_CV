@@ -39,6 +39,7 @@ namespace FreshCheck_CV
             this.btnStart = new System.Windows.Forms.Button();
             this.btnPause = new System.Windows.Forms.Button();
             this.btnStop = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.panelButtons.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -48,6 +49,7 @@ namespace FreshCheck_CV
             this.panelButtons.Controls.Add(this.btnStart);
             this.panelButtons.Controls.Add(this.btnPause);
             this.panelButtons.Controls.Add(this.btnStop);
+            this.panelButtons.Controls.Add(this.button1);
             this.panelButtons.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelButtons.Location = new System.Drawing.Point(0, 0);
             this.panelButtons.Name = "panelButtons";
@@ -97,6 +99,16 @@ namespace FreshCheck_CV
             this.btnStop.UseVisualStyleBackColor = false;
             this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(23, 59);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // RunForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -111,5 +123,7 @@ namespace FreshCheck_CV
         }
 
         #endregion
+
+        private Button button1;
     }
 }

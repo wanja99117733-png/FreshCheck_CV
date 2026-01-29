@@ -92,6 +92,71 @@ namespace FreshCheck_CV.Defect
             }
         }
 
+
+
+
+        public DefectResult Detect(Bitmap sourceBitmap, Bitmap originalBitmap)
+        {
+            if (sourceBitmap == null)
+                throw new ArgumentNullException(nameof(sourceBitmap));
+
+            // 스탑워치
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
+            BinaryOptions options = _getBinaryOptions.Invoke() ?? new BinaryOptions();
+            options.Validate();
+
+            options.GetLowerUpper(out Scalar lower, out Scalar upper);
+
+            using (Mat src = BitmapConverter.ToMat(sourceBitmap))
+            using (Mat bgr = EnsureBgr(src))
+            using (Mat mask = new Mat())
+            {
+                Cv2.InRange(bgr, lower, upper, mask);
+
+                if (options.Invert)
+                {
+                    Cv2.BitwiseNot(mask, mask);
+                }
+
+                int whitePixels = Cv2.CountNonZero(mask);
+                int totalPixels = mask.Rows * mask.Cols;
+                double ratio = totalPixels <= 0 ? 0.0 : (double)whitePixels / totalPixels;
+
+                bool isDefect = ratio >= AreaRatioThreshold;
+
+                Bitmap overlayBmp = null;
+
+                if (isDefect)
+                {
+                    using (Mat originalSrc = BitmapConverter.ToMat(originalBitmap))
+                    using (Mat originalBgr = EnsureBgr(originalSrc))
+                    using (Mat baseImg = originalBgr.Clone())
+                    using (Mat overlay = originalBgr.Clone())
+                    using (Mat result = new Mat())
+                    {
+                        Scalar color = new Scalar(0, 0, 255); // 빨강
+                        overlay.SetTo(color, mask);
+
+                        Cv2.AddWeighted(baseImg, 0.7, overlay, 0.3, 0, result);
+                        overlayBmp = BitmapConverter.ToBitmap(result);
+                    }
+                }
+
+                sw.Stop();
+
+                return new DefectResult
+                {
+                    Type = isDefect ? DefectType.Mold : DefectType.OK,
+                    IsDefect = isDefect,
+                    AreaRatio = ratio,
+                    Message = $"Mold ratio={ratio:0.0000}, threshold={AreaRatioThreshold:0.0000}",
+                    OverlayBitmap = overlayBmp,
+                    ElapsedMs = sw.ElapsedMilliseconds
+                };
+            }
+        }
+
         private static Mat EnsureBgr(Mat src)
         {
             int channels = src.Channels();
