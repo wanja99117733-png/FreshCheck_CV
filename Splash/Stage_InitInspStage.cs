@@ -40,19 +40,19 @@ namespace FreshCheck_CV
                         throw new InvalidOperationException("InspStage 초기화 실패");
 
                     // 2. AI 모델 자동 로딩 (상시 로딩을 위해 두 번 호출)
-                    var saigeAI = Global.Inst.InspStage?.AIModule;
-                    if (saigeAI != null)
-                    {
-                        // 배경제거 모델 로드
-                        ct.ThrowIfCancellationRequested();
-                        string bgPath = @"D:\SaigeModel\Cu_seg.saigeseg";
-                        saigeAI.LoadEngine(bgPath, AIEngineType.Segmentation);
+                    //var saigeAI = Global.Inst.InspStage?.AIModule;
+                    //if (saigeAI != null)
+                    //{
+                    //    // 배경제거 모델 로드
+                    //    ct.ThrowIfCancellationRequested();
+                    //    string bgPath = @"D:\SaigeModel\Cu_seg.saigeseg";
+                    //    saigeAI.LoadEngine(bgPath, AIEngineType.Segmentation);
 
-                        // 스크래치 모델 로드 (수정된 SaigeAI는 이전 모델을 지우지 않습니다)
-                        ct.ThrowIfCancellationRequested();
-                        string scratchPath = @"D:\SaigeModel\Cucumber_Scratch_Det.saigeseg";
-                        saigeAI.LoadEngine(scratchPath, AIEngineType.ScratchSegmentation);
-                    }
+                    //    // 스크래치 모델 로드 (수정된 SaigeAI는 이전 모델을 지우지 않습니다)
+                    //    ct.ThrowIfCancellationRequested();
+                    //    string scratchPath = @"D:\SaigeModel\Cucumber_Scratch_Det.saigeseg";
+                    //    saigeAI.LoadEngine(scratchPath, AIEngineType.ScratchSegmentation);
+                    //}
 
                     // 🔥 오류 해결: async 람다이므로 return Task.CompletedTask가 필요 없습니다.
                 },

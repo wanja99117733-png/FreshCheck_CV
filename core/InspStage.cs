@@ -276,8 +276,9 @@ namespace FreshCheck_CV.Core
             DateTime now = DateTime.Now;
 
             // --- [STEP 1: 배경 제거] ---
-            if (!saigeAI.InspAIModule(original, AIEngineType.Segmentation)) return;
-            Bitmap noBgImage = saigeAI.GetResultImage(); // 배경이 제거된 검정 바탕 이미지
+            Bitmap noBgImage = original;
+            //if (!saigeAI.InspAIModule(original, AIEngineType.Segmentation)) return;
+            //Bitmap noBgImage = saigeAI.GetResultImage(); // 배경이 제거된 검정 바탕 이미지
 
             // --- [STEP 2: Mold 검사] ---
             // 유저 요청에 따라 배경이 제거된 이미지(noBgImage)로 Mold 검사 수행
@@ -288,13 +289,14 @@ namespace FreshCheck_CV.Core
             bool isMold = moldResult != null && moldResult.IsDefect && moldResult.Type == DefectType.Mold;
 
             // --- [STEP 3: Scratch 검사] ---
-            if (!saigeAI.InspAIModule(noBgImage, AIEngineType.ScratchSegmentation))
-            {
-                MessageBox.Show("Scratch 검출 실패", "오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            SegmentationResult scratchResult = saigeAI.GetScratchResult();
-            bool isScratch = scratchResult != null && scratchResult.SegmentedObjects.Length > 0;
+            //if (!saigeAI.InspAIModule(noBgImage, AIEngineType.ScratchSegmentation))
+            //{
+            //    MessageBox.Show("Scratch 검출 실패", "오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //    return;
+            //}
+            //SegmentationResult scratchResult = saigeAI.GetScratchResult();
+            //bool isScratch = scratchResult != null && scratchResult.SegmentedObjects.Length > 0;
+            bool isScratch = false;
 
 
             // --- [STEP 4: 다중 결함 판정 로직] ---
@@ -319,7 +321,7 @@ namespace FreshCheck_CV.Core
                 // 결함이 없거나 Overlay가 없을 때 원본 복제
                 displayBase = (Bitmap)original.Clone();
 
-            UpdatePreviewWithScratch(displayBase, scratchResult);
+            //UpdatePreviewWithScratch(displayBase, scratchResult);
 
             // --- [STEP 6: 데이터 기록 및 저장] ---
 
@@ -342,7 +344,8 @@ namespace FreshCheck_CV.Core
                 SavedPath = savedPath,
                 Message = $"[Result: {finalResult}] " +
                   (isMold ? $"Ratio: {moldResult.AreaRatio:F4} " : "") +
-                  (isScratch ? $"Scratch: {scratchResult.SegmentedObjects.Length}ea" : "")
+                  ""
+                  //(isScratch ? $"Scratch: {scratchResult.SegmentedObjects.Length}ea" : "")
             };
             Hub.Push(dto);
 

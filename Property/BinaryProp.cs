@@ -221,6 +221,9 @@ namespace FreshCheck_CV.Property
 
         private void btnEraseBg_Click(object sender, EventArgs e)
         {
+            MessageBox.Show("현재 브랜치에는 AI 모듈이 없습니다.", "대체중", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+
             SaigeAI saigeAI = Global.Inst.InspStage.AIModule;
 
             if (saigeAI == null)
@@ -246,6 +249,9 @@ namespace FreshCheck_CV.Property
 
         private void btnScratchDet_Click(object sender, EventArgs e)
         {
+            MessageBox.Show("현재 브랜치에는 AI 모듈이 없습니다.", "대체중", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+
             SaigeAI saigeAI = Global.Inst.InspStage.AIModule;
             if (saigeAI == null) return;
 
