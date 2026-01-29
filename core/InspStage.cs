@@ -2,6 +2,9 @@
 using FreshCheck_CV.Grab;
 using FreshCheck_CV.Inspect;
 using FreshCheck_CV.Models;
+using FreshCheck_CV.Sequence;
+using FreshCheck_CV.Setting;
+using FreshCheck_CV.Util;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using SaigeVision.Net.V2.Segmentation;
@@ -10,6 +13,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +34,22 @@ namespace FreshCheck_CV.Core
         SaigeAI _saigeAI; // SaigeAI 인스턴스
         private CameraType _camType = CameraType.HikRobotCam;
 
+
+
+        private Model _model = null;
+        public Model CurModel
+        {
+            get => _model;
+        }
+        private string _capturePath = "";
+        private bool _isInspectMode = false;
+        public bool UseCamera { get; set; } = false;
+
+        public bool SaveCamImage { get; set; } = false;
+        public int SaveImageIndex { get; set; } = 0;
+        public bool LiveMode { get; set; } = false;
+
+
         public InspStage() { }
 
         public SaigeAI AIModule
@@ -47,6 +67,10 @@ namespace FreshCheck_CV.Core
 
         public bool Initialize()
         {
+            //#19_VISION_SEQUENCE#3 VisionSequence 초기화
+            VisionSequence.Inst.InitSequence();
+            VisionSequence.Inst.SeqCommand += SeqCommand;
+
             return true;
         }
 
@@ -167,13 +191,17 @@ namespace FreshCheck_CV.Core
             UpdateDisplay(result);
         }
 
-        public void Grab(int bufferIndex)
+        public bool Grab(int bufferIndex)
         {
             if (_grabManager == null)
-                return;
+                return false;
 
-            _grabManager.Grab(bufferIndex, true);
+            if (!_grabManager.Grab(bufferIndex, true))
+                return false;
+
+            return true;
         }
+
         public void RunMoldInspectionTemp()
         {
 
@@ -389,7 +417,105 @@ namespace FreshCheck_CV.Core
 
 
 
+        public void StopCycle()
+        {
+            //#19_VISION_SEQUENCE#4 시퀀스 정지
+            VisionSequence.Inst.StopAutoRun();
+            _isInspectMode = false;
 
+            SetWorkingState(WorkingState.NONE);
+        }
+
+
+
+        public bool StartAutoRun()
+        {
+            SLogger.Write("Action : StartAutoRun");
+
+            if (SaveCamImage && _model != null)
+            {
+                SaveImageIndex = 0;
+
+                _capturePath = Path.Combine(Path.GetDirectoryName(_model.ModelPath), "Capture");
+                if (!Directory.Exists(_capturePath))
+                {
+                    Directory.CreateDirectory(_capturePath);
+                }
+                else
+                {
+                    string[] files = Directory.GetFiles(_capturePath);
+                    foreach (string file in files)
+                    {
+                        try
+                        {
+                            File.Delete(file);
+                        }
+                        catch (Exception ex)
+                        {
+                            SLogger.Write($"Failed to delete file: {file}. Exception: {ex.Message}", SLogger.LogType.Error);
+                        }
+                    }
+                }
+            }
+
+            string modelPath = CurModel.ModelPath;
+            if (modelPath == "")
+            {
+                SLogger.Write("열려진 모델이 없습니다!", SLogger.LogType.Error);
+                MessageBox.Show("열려진 모델이 없습니다!");
+                return false;
+            }
+
+            LiveMode = false;
+            UseCamera = SettingXml.Inst.CamType != CameraType.None ? true : false;
+
+            SetWorkingState(WorkingState.INSPECT);
+
+            //#19_VISION_SEQUENCE#5 자동검사 시작
+            string modelName = Path.GetFileNameWithoutExtension(modelPath);
+            VisionSequence.Inst.StartAutoRun(modelName);
+            _isInspectMode = true;
+            return true;
+        }
+
+
+        private void SeqCommand(object sender, SeqCmd seqCmd, object Param)
+        {
+            switch (seqCmd)
+            {
+                case SeqCmd.InspStart:
+                    {
+                        //#WCF_FSM#5 카메라 촬상 후, 검사 진행
+                        SLogger.Write("MMI : InspStart", SLogger.LogType.Info);
+
+                        //검사 시작
+                        string errMsg;
+
+                        if (UseCamera)
+                        {
+                            if (!Grab(0))
+                            {
+                                errMsg = string.Format("Failed to grab");
+                                SLogger.Write(errMsg, SLogger.LogType.Error);
+                            }
+                        }
+                    }
+                    break;
+                case SeqCmd.InspEnd:
+                    {
+                        SLogger.Write("MMI : InspEnd", SLogger.LogType.Info);
+
+                        //모든 검사 종료
+                        string errMsg = "";
+
+                        //검사 완료에 대한 처리
+                        SLogger.Write("검사 종료");
+
+                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspEnd, errMsg);
+                    }
+                    break;
+            }
+        }
 
         //#17_WORKING_STATE#2 작업 상태 설정
         public void SetWorkingState(WorkingState workingState)
@@ -398,6 +524,14 @@ namespace FreshCheck_CV.Core
             if (cameraForm != null)
             {
                 cameraForm.SetWorkingState(workingState);
+            }
+        }
+
+        public void SetExposure(long exposureTime)
+        {
+            if (_grabManager != null)
+            {
+                _grabManager.SetExposureTime(exposureTime);
             }
         }
 

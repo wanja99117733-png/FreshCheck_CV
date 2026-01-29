@@ -1,4 +1,7 @@
 ﻿using FreshCheck_CV.Core;
+using FreshCheck_CV.Dialogs;
+using FreshCheck_CV.Util;
+using FreshCheck_CV.Setting;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,7 +12,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FreshCheck_CV.Dialogs;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace FreshCheck_CV
@@ -289,6 +291,8 @@ namespace FreshCheck_CV
         {
             _imageCycleTimer?.Stop();
             _isImageCycling = false;
+
+            Global.Inst.InspStage.StopCycle();
         }
 
         public bool TryStartImageCycle()
@@ -405,6 +409,11 @@ namespace FreshCheck_CV
             }
         }
 
-
+        private void setupToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            SLogger.Write($"환경설정창 열기");
+            SetupForm setupForm = new SetupForm();
+            setupForm.ShowDialog();
+        }
     }
 }
