@@ -1,13 +1,18 @@
 ﻿using FreshCheck_CV.Core;
 using FreshCheck_CV.Inspect;
 using FreshCheck_CV.Models;
+using FreshCheck_CV.Properties;
+using OpenCvSharp;
+using OpenCvSharp.Extensions;
+using SaigeVision.Net.V2;
 using SaigeVision.Net.V2.Segmentation;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using static FreshCheck_CV.CameraForm;
-using FreshCheck_CV.Properties;
-
+using System.Linq;
 
 namespace FreshCheck_CV.Property
 {
@@ -112,7 +117,111 @@ namespace FreshCheck_CV.Property
             UpdateToleranceLabel();
             UpdateTargetUi(0, 0, 0);
         }
+        private SegmentationResult FilterStemScratches(Bitmap noBgImage, SegmentationResult scratchResult)
+        {
+            // 1. SDK 명칭 및 리스트 초기화 확인
+            if (scratchResult == null || scratchResult.SegmentedObjects == null) return scratchResult;
 
+            using (Mat src = OpenCvSharp.Extensions.BitmapConverter.ToMat(noBgImage))
+            using (Mat gray = src.CvtColor(ColorConversionCodes.BGR2GRAY))
+            using (Mat binary = gray.Threshold(1, 255, ThresholdTypes.Binary))
+            {
+                OpenCvSharp.Point[][] contours;
+                HierarchyIndex[] hierarchy;
+
+                // 2. 외곽선 검출
+                Cv2.FindContours(binary, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
+
+                if (contours.Length == 0) return scratchResult;
+
+                var mainContour = contours.OrderByDescending(c => Cv2.ContourArea(c)).First();
+                RotatedRect rect = Cv2.MinAreaRect(mainContour);
+
+                var filteredList = new List<SegmentedObject>();
+
+                foreach (var obj in scratchResult.SegmentedObjects)
+                {
+                    // [오류 해결] BoundingBox.Center를 사용하여 위치 파악
+                    if (obj.BoundingBox != null)
+                    {
+                        var center = obj.BoundingBox.Center;
+                        OpenCvSharp.Point2f scratchCenter = new OpenCvSharp.Point2f((float)center.X, (float)center.Y);
+
+                        // 필터 조건 1: 전체 사각형 기준 양 끝단 영역인가?
+                        bool isStemByRect = IsPointInStemArea(scratchCenter, rect, 0.05f);
+
+                        // 필터 조건 2: 곡률 분석 (각도를 140도로 높여 뭉툭한 꼬다리까지 감지)
+                        bool isStemByCurvature = IsPointNearSharpCurvature(scratchCenter, mainContour, 60f, 140.0);
+
+                        // 필터 조건 3: 하단 경계 저격 (마지막 하나 남은 꼬다리 대응)
+                        // 뭉치 하단 10~15% 영역에 있는 스크래치를 지웁니다.
+                        bool isBottomEdge = scratchCenter.Y > (rect.Center.Y + (rect.Size.Height * 0.35f));
+
+                        // 세 조건 중 하나라도 해당하면 꼬다리 오검출로 간주
+                        if (!isStemByRect && !isStemByCurvature && !isBottomEdge)
+                        {
+                            filteredList.Add(obj);
+                        }
+                    }
+                    else
+                    {
+                        filteredList.Add(obj);
+                    }
+                }
+
+                // 3. 결과 반환 (InferenceTimeInfo 에러는 null로 해결)
+                return new SegmentationResult(
+                    filteredList.ToArray(),
+                    scratchResult.Masks,
+                    scratchResult.Scoremaps,
+                    null
+                );
+            }
+        }
+
+        // --- 보조 메서드 1: 곡률 분석 (각도 조절 기능 포함) ---
+        private bool IsPointNearSharpCurvature(OpenCvSharp.Point2f scratchPt, OpenCvSharp.Point[] contour, float distanceThreshold, double maxAngle)
+        {
+            if (contour.Length < 21) return false;
+
+            for (int i = 10; i < contour.Length - 10; i += 2)
+            {
+                OpenCvSharp.Point p1 = contour[i - 10];
+                OpenCvSharp.Point p2 = contour[i];
+                OpenCvSharp.Point p3 = contour[i + 10];
+
+                double ux = p1.X - p2.X; double uy = p1.Y - p2.Y;
+                double vx = p3.X - p2.X; double vy = p3.Y - p2.Y;
+                double dot = ux * vx + uy * vy;
+                double magU = Math.Sqrt(ux * ux + uy * uy);
+                double magV = Math.Sqrt(vx * vx + vy * vy);
+
+                if (magU < 1 || magV < 1) continue;
+                double angle = Math.Acos(dot / (magU * magV)) * (180.0 / Math.PI);
+
+                // 지정된 maxAngle(예: 140도)보다 뾰족하면 끝단으로 인식
+                if (angle < maxAngle)
+                {
+                    double dist = Math.Sqrt(Math.Pow(p2.X - scratchPt.X, 2) + Math.Pow(p2.Y - scratchPt.Y, 2));
+                    if (dist < distanceThreshold) return true;
+                }
+            }
+            return false;
+        }
+
+        // --- 보조 메서드 2: 사각형 끝단 판별 ---
+        private bool IsPointInStemArea(OpenCvSharp.Point2f pt, RotatedRect rect, float ratio)
+        {
+            OpenCvSharp.Point2f[] vertices = rect.Points();
+            float d1 = (float)Math.Sqrt(Math.Pow(vertices[0].X - vertices[1].X, 2) + Math.Pow(vertices[0].Y - vertices[1].Y, 2));
+            float d2 = (float)Math.Sqrt(Math.Pow(vertices[1].X - vertices[2].X, 2) + Math.Pow(vertices[1].Y - vertices[2].Y, 2));
+
+            float longSide = Math.Max(d1, d2);
+            float threshold = longSide * ratio;
+
+            double distToCenter = Math.Sqrt(Math.Pow(pt.X - rect.Center.X, 2) + Math.Pow(pt.Y - rect.Center.Y, 2));
+            return distToCenter > (longSide / 2 - threshold);
+        }
         private void HookEvents()
         {
             btnPickColor.Click += (s, e) =>
@@ -156,7 +265,7 @@ namespace FreshCheck_CV.Property
                 return;
             }
 
-            cameraForm.ColorPicked += CameraForm_ColorPicked;
+            //cameraForm.ColorPicked += CameraForm_ColorPicked;
             _isCameraSubscribed = true;
         }
 
@@ -253,12 +362,13 @@ namespace FreshCheck_CV.Property
         private void btnScratchDet_Click(object sender, EventArgs e)
         {
             SaigeAI saigeAI = Global.Inst.InspStage.AIModule;
-            if (saigeAI == null) return;
+            if (saigeAI == null)
+            {
+                MessageBox.Show("AI 모듈 없음", "오류");
+                return;
+            }
 
-            // 1. 검사 대상: 배경제거된 이미지 (배경이 검정색이어야 스크래치 집중도가 높음)
             Bitmap noBgImage = Global.Inst.InspStage.GetPreviewImage();
-
-            // 2. 출력 대상: 원본 이미지 (사용자가 보기 편하도록)
             Bitmap originalImage = Global.Inst.InspStage.GetCurrentImage();
 
             if (noBgImage == null)
@@ -267,18 +377,17 @@ namespace FreshCheck_CV.Property
                 return;
             }
 
-            // 🔥 수정: 스크래치 전용 엔진으로 검사 수행
             if (!saigeAI.InspAIModule(noBgImage, AIEngineType.ScratchSegmentation))
             {
-                MessageBox.Show("Scratch 검출 실패", "오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Scratch 검출 실패", "오류");
                 return;
             }
 
             SegmentationResult scratchResult = saigeAI.GetScratchResult();
+            SegmentationResult filteredResult = FilterStemScratches(noBgImage, scratchResult);
 
-            // 3. 원본 이미지(originalImage) 위에 검출된 결과(scratchResult)의 사각형을 그림
-            Global.Inst.InspStage.UpdatePreviewWithScratch(originalImage, scratchResult);
+            Global.Inst.InspStage.UpdatePreviewWithScratch(originalImage, filteredResult);
+
         }
-
     }
 }
