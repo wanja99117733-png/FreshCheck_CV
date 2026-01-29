@@ -68,9 +68,8 @@
     <Reference Include="log4net">
       <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Log4Net\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="MvCameraControl.Net, Version=4.5.0.2, Culture=neutral, PublicKeyToken=a3c7c5e3a730cd12, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\HikRobot\MvCameraControl.Net.dll</HintPath>
+    <Reference Include="MvCameraControl.Net">
+      <HintPath>..\ExternalLib\ExternalLib\Dll\HikRobot\MvCameraControl.Net.dll</HintPath>
     </Reference>
     <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -81,10 +80,10 @@
       <HintPath>..\..\팀프로젝트 자료\Dll\OpenCvSharp\OpenCvSharp.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="SaigeVision.Net.Core.V2">
-      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Saige\SaigeVision.Net.Core.V2.dll</HintPath>
+      <HintPath>..\ExternalLib\ExternalLib\Dll\Saige\SaigeVision.Net.Core.V2.dll</HintPath>
     </Reference>
     <Reference Include="SaigeVision.Net.V2">
-      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Saige\SaigeVision.Net.V2.dll</HintPath>
+      <HintPath>..\ExternalLib\ExternalLib\Dll\Saige\SaigeVision.Net.V2.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.dll</HintPath>
@@ -149,7 +148,18 @@
     <Compile Include="Dialogs\ExitConfirmForm.Designer.cs">
       <DependentUpon>ExitConfirmForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\PasswordCheckForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\PasswordCheckForm.Designer.cs">
+      <DependentUpon>PasswordCheckForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\InspectionResultDto.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Property\DarkMessageForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -158,6 +168,12 @@
     </Compile>
     <Compile Include="Property\InspectionMonitorProp.cs">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Dialogs\CustomMessageBoxForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\CustomMessageBoxForm.Designer.cs">
+      <DependentUpon>CustomMessageBoxForm.cs</DependentUpon>
     </Compile>
     <Compile Include="UIControl\OverallRateBarControl.cs">
       <SubType>Component</SubType>
@@ -255,6 +271,9 @@
     <EmbeddedResource Include="Dialogs\ExitConfirmForm.resx">
       <DependentUpon>ExitConfirmForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\PasswordCheckForm.resx">
+      <DependentUpon>PasswordCheckForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -263,14 +282,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <EmbeddedResource Include="Property\BinaryProp.resx">
       <DependentUpon>BinaryProp.cs</DependentUpon>
     </EmbeddedResource>
@@ -314,6 +328,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icon.ico" />
+    <Content Include="Resources\Lock_close.png" />
+    <Content Include="Resources\Lock_open.png" />
     <None Include="Resources\icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

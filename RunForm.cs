@@ -160,6 +160,7 @@ namespace FreshCheck_CV
             }
             else
             {
+                // 공통: 이벤트 + 사이클링 (카메라 있어도 ImageChanged는 유지)
                 if (MainForm.Instance != null)
                 {
                     MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
@@ -167,6 +168,10 @@ namespace FreshCheck_CV
                     StartInspectionLoop();
                 }
             }
+
+            // 검사 시작시 모니터 탭으로 변경
+            var propForm = MainForm.GetDockForm<PropertiesForm>();
+            propForm.SelectMonitorTab();
         }
         private Bitmap ByteArrayToBitmap(byte[] buffer, int width, int height, int srcStride)
         {
@@ -341,7 +346,13 @@ namespace FreshCheck_CV
                 {
                     _pauseGate.Wait(token);
 
-                    InvokeOnUiThread(() => Global.Inst?.InspStage?.RunMoldInspectionTemp());
+                    // 1) UI 스레드에서 검사 1회 실행 (Cross-thread 방지)
+                    InvokeOnUiThread(() =>
+                    {
+                        // (Scratch 붙으면 여기서 1 Cycle로 묶어 호출)
+                        Global.Inst?.InspStage?.RunFullInspectionCycle();
+                    });
+
 
                     var delayTask = Task.Delay(LoopIntervalMs, token);
                     delayTask.Wait(token);  // 이미 token 있음
@@ -419,7 +430,12 @@ namespace FreshCheck_CV
         }
         private void MainForm_ImageChanged(object sender, MainForm.ImageChangedEventArgs e)
         {
-            if (!_isInspectEnabled || _isInspectBusy) return;
+            if (!_isInspectEnabled)
+                return;
+
+            // 같은 UI 스레드에서 연속 호출되거나, 검사가 오래 걸릴 경우 재진입 방지
+            if (_isInspectBusy)
+                return;
 
             try
             {

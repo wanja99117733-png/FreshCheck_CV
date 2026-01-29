@@ -45,6 +45,24 @@ namespace FreshCheck_CV.UIControl
             }
         }
 
+        private Bitmap _resultImage = null;
+
+        public Bitmap ResultImage
+        {
+            get { return _resultImage; }
+            set
+            {
+                if (_resultImage != null)
+                {
+                    _resultImage.Dispose();
+                    _resultImage = null;
+                }
+
+                _resultImage = value;
+                Invalidate();
+            }
+        }
+
 
         // 더블 버퍼링을 위한 캔버스
         // 더블버퍼링 : 화면 깜빡임을 방지하고 부드러운 펜더링위해 사용
@@ -114,6 +132,17 @@ namespace FreshCheck_CV.UIControl
                 _previewImage = null;  //객체를 해제하여 가비지 컬렉션(GC)이 수집할 수 있도록 설정
             }
 
+            if (_resultImage != null)
+            {
+                _resultImage.Dispose(); // Bitmap 객체가 사용하던 메모리 리소스를 해제
+                _resultImage = null;  //객체를 해제하여 가비지 컬렉션(GC)이 수집할 수 있도록 설정
+            }
+
+            if (_scratchResult != null)
+            {
+                _scratchResult = null;
+            }
+
             // 기존에 로드된 이미지가 있다면 해제 후 초기화, 메모리누수 방지
             if (_bitmapImage != null)
             {
@@ -163,13 +192,13 @@ namespace FreshCheck_CV.UIControl
         // 스크래치 결과와 함께 Preview 설정
         public void SetPreviewWithScratch(Bitmap previewImage, SegmentationResult scratchResult)
         {
-            PreviewImage = previewImage?.Clone() as Bitmap;  // 강제 PreviewImage 설정!
+            _resultImage = previewImage?.Clone() as Bitmap;  // 강제 PreviewImage 설정!
             _scratchResult = scratchResult;
                 
             // 🔥 Preview 전용 줌 리셋
-            if (PreviewImage != null)
+            if (_resultImage != null)
             {
-                _bitmapImage = PreviewImage.Clone() as Bitmap;  // _bitmapImage도 Preview로!
+                _bitmapImage = _resultImage.Clone() as Bitmap;  // _bitmapImage도 Preview로!
                 FitImageToScreen();  // 크기 맞춤
             }
 
@@ -221,7 +250,7 @@ namespace FreshCheck_CV.UIControl
             base.OnPaint(e);
 
             // 🔥 수정: PreviewImage 무조건 우선!
-            Bitmap displayBitmap = _previewImage != null ? _previewImage : _bitmapImage;
+            Bitmap displayBitmap = _resultImage != null ? _resultImage : (_previewImage != null ? _previewImage : _bitmapImage);
 
             if (displayBitmap != null && Canvas != null)
             {

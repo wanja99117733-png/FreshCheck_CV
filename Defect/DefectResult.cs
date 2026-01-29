@@ -5,20 +5,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-    namespace FreshCheck_CV.Defect
+namespace FreshCheck_CV.Defect
+{
+    public sealed class DefectResult
     {
-        public sealed class DefectResult
-        {
-            public DefectType Type { get; set; } = DefectType.None;
+        public DefectType Type { get; set; } = DefectType.OK;
 
-            public bool IsDefect { get; set; } = false;
+        public bool IsDefect { get; set; } = false;
 
-            // 디버그/표시용 코멘트
-            public string Message { get; set; } = string.Empty;
+        // 디버그/표시용 코멘트
+        public string Message { get; set; } = string.Empty;
 
-            // 표시용 오버레이
-            public Bitmap OverlayBitmap { get; set; } = null;
+        // 표시용 오버레이
+        public Bitmap OverlayBitmap { get; set; } = null;
 
-            public double AreaRatio { get; set; } = 0.0;
-        }
+        public double AreaRatio { get; set; } = 0.0;
+
+        public long ElapsedMs { get; set; }
+
+
+        // 유진형(스크래치 검사 시간)
+        // public long ~~
     }
+}

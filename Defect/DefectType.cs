@@ -8,7 +8,7 @@ namespace FreshCheck_CV.Defect
 {
     public enum DefectType : int
     {
-        None = 0,
+        OK = 0,
         Mold,
         Scratch
     }
