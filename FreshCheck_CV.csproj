@@ -330,7 +330,6 @@
     <Content Include="Icon.ico" />
     <Content Include="Resources\Lock_close.png" />
     <Content Include="Resources\Lock_open.png" />
-    <None Include="Resources\비전아이.png" />
     <None Include="Resources\icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
