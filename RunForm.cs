@@ -155,11 +155,15 @@ namespace FreshCheck_CV
 
             if (_isCameraConnected)
             {
+                Global.Inst.InspStage.SetWorkingState(WorkingState.LIVE);
+
                 // 첫 Grab으로 연쇄 시작!
                 _hikCam.Grab(0, false);  // 비동기 → TransferCompleted 콜백
             }
             else
             {
+                Global.Inst.InspStage.SetWorkingState(WorkingState.CYCLE);
+
                 // 공통: 이벤트 + 사이클링 (카메라 있어도 ImageChanged는 유지)
                 if (MainForm.Instance != null)
                 {

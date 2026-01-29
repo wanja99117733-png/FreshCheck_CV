@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Drawing.Drawing2D;
+﻿using FreshCheck_CV.Inspect;
+using SaigeVision.Net.Core.V2;
 using SaigeVision.Net.V2;
 using SaigeVision.Net.V2.Segmentation;
-using SaigeVision.Net.Core.V2;
-using FreshCheck_CV.Inspect;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Caching;
+using System.Windows.Forms;
 
 
 
@@ -83,6 +85,12 @@ namespace FreshCheck_CV.UIControl
 
         // 스크래치 세그멘테이션 결과 저장용
         private SegmentationResult _scratchResult = null;
+        
+        
+        //#17_WORKING_STATE#3 작업 상태 변수
+        public string WorkingState { get; set; } = "";
+
+
         public ImageViewCtrl()
         {
             InitializeComponent();
@@ -274,8 +282,44 @@ namespace FreshCheck_CV.UIControl
 
                     DrawScratchBoundingBoxes(g);  // 사각형!
 
+
+                    //#17_WORKING_STATE#4 작업 상태 화면에 표시
+                    if (WorkingState != "" && (_resultImage != null || _previewImage != null))
+                    {
+                        float fontSize = 20.0f;
+                        Color stateColor = Color.FromArgb(255, 128, 0);
+                        PointF textPos = new PointF(10, 10);
+                        DrawText(g, WorkingState, textPos, fontSize, stateColor);
+                    }
+
                     e.Graphics.DrawImage(Canvas, 0, 0);
                 }
+            }
+        }
+
+
+
+        private void DrawText(Graphics g, string text, PointF position, float fontSize, Color color)
+        {
+            using (Font font = new Font("Arial", fontSize, FontStyle.Bold))
+            // 테두리용 검정색 브러시
+            using (Brush outlineBrush = new SolidBrush(Color.Black))
+            // 본문용 노란색 브러시
+            using (Brush textBrush = new SolidBrush(color))
+            {
+                // 테두리 효과를 위해 주변 8방향으로 그리기
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    for (int dy = -1; dy <= 1; dy++)
+                    {
+                        if (dx == 0 && dy == 0) continue; // 가운데는 제외
+                        PointF borderPos = new PointF(position.X + dx, position.Y + dy);
+                        g.DrawString(text, font, outlineBrush, borderPos);
+                    }
+                }
+
+                // 본문 텍스트
+                g.DrawString(text, font, textBrush, position);
             }
         }
 

@@ -20,7 +20,7 @@ namespace FreshCheck_CV
 {
     public partial class CameraForm : DockContent
     {
-        //private bool _isPickMode = false;
+        private bool _isPickMode = false;
         private Bitmap _rawFrame;   // 오버레이/프리뷰 없는 원본
         private readonly object _rawLock = new object();
         private PictureBox _fakeCursor;
@@ -57,24 +57,29 @@ namespace FreshCheck_CV
             InitFakeCursor();
         }
 
-        //public void BeginPickColor()
-        //{
-        //    _isPickMode = true;
-        //}
+        public void BeginPickColor()
+        {
+            _isPickMode = !_isPickMode; // 픽커를 뺄 수도 있게 변경함
+
+            if (_isPickMode)
+                StartFakeCursorPick(); // 🔥 가짜 커서 방식 시작
+            else
+                EndFakeCursorPick(); // 픽커를 빼면 디폴트 커서로 변경함
+        }
 
         private void ImageViewCtrl_MouseClick(object sender, MouseEventArgs e)
         {
-            //if (_isPickMode == false)
-            //{
-            //    return;
-            //}
+            if (_isPickMode == false)
+            {
+                return;
+            }
 
-            //_isPickMode = false;
+            _isPickMode = false;
 
-            //if (imageViewCtrl == null)
-            //{
-            //    return;
-            //}
+            if (imageViewCtrl == null)
+            {
+                return;
+            }
 
             if (imageViewCtrl.TryPickColor(e.Location, out Color pickedColor) == false)
             {
@@ -182,19 +187,29 @@ namespace FreshCheck_CV
             public Color Color { get; }
         }
 
+        private void SetCustomCursor()
+        {
+            Bitmap bitmap = (Bitmap)global::FreshCheck_CV.Properties.Resources.droppericon_70x70;
+            // 48x48 등 원하는 사이즈로 리사이징 후 사용 권장
+            IntPtr ptr = bitmap.GetHicon();
+            this.Cursor = new Cursor(ptr);
+        }
+
         private void InitFakeCursor()
         {
             _fakeCursor = new PictureBox();
 
-            string path = Path.Combine(
-                Application.StartupPath,
-                "droppericon_70x70.png"
-            );
+            //string path = Path.Combine(
+            //    Application.StartupPath,
+            //    "droppericon_70x70.png"
+            //);
 
-            using (var temp = Image.FromFile(path))
-            {
-                _fakeCursor.Image = new Bitmap(temp);
-            }
+            //using (var temp = Image.FromFile(path))
+            //{
+            //    _fakeCursor.Image = new Bitmap(temp);
+            //}
+
+            _fakeCursor.Image = global::FreshCheck_CV.Properties.Resources.droppericon_70x70;
 
             _fakeCursor.SizeMode = PictureBoxSizeMode.Zoom;
             _fakeCursor.Size = new System.Drawing.Size(48, 48);
@@ -212,16 +227,18 @@ namespace FreshCheck_CV
                 return;
 
             _isPickingColor = true;
+            
+            SetCustomCursor();
 
-            Cursor.Hide();
-            _fakeCursor.Visible = true;
+            //Cursor.Hide();
+            //_fakeCursor.Visible = true;
 
             // 🔥 핵심: imageViewCtrl에도 이벤트 연결
-            this.MouseMove += CameraForm_MouseMove;
-            imageViewCtrl.MouseMove += CameraForm_MouseMove;
+            //this.MouseMove += CameraForm_MouseMove;
+            //imageViewCtrl.MouseMove += CameraForm_MouseMove;
 
-            this.MouseDown += CameraForm_MouseDown;
-            imageViewCtrl.MouseDown += CameraForm_MouseDown;
+            //this.MouseDown += CameraForm_MouseDown;
+            //imageViewCtrl.MouseDown += CameraForm_MouseDown;
         }
         private void CameraForm_MouseMove(object sender, MouseEventArgs e)
         {
@@ -244,26 +261,28 @@ namespace FreshCheck_CV
                 return;
 
             // 🔥 기존 imageViewCtrl 픽킹 로직 재사용
-            if (imageViewCtrl.TryPickColor(e.Location, out Color pickedColor))
-            {
-                //ColorPicked?.Invoke(this, new ColorPickedEventArgs(pickedColor));
-            }
+            //if (imageViewCtrl.TryPickColor(e.Location, out Color pickedColor))
+            //{
+            //    ColorPicked?.Invoke(this, new ColorPickedEventArgs(pickedColor));
+            //}
 
-            EndFakeCursorPick();
+            //EndFakeCursorPick();
         }
 
-        private void EndFakeCursorPick()
+        public void EndFakeCursorPick()
         {
             _isPickingColor = false;
 
-            _fakeCursor.Visible = false;
-            Cursor.Show();
+            this.Cursor = Cursors.Default;
 
-            this.MouseMove -= CameraForm_MouseMove;
-            imageViewCtrl.MouseMove -= CameraForm_MouseMove;
+            //_fakeCursor.Visible = false;
+            //Cursor.Show();
 
-            this.MouseDown -= CameraForm_MouseDown;
-            imageViewCtrl.MouseDown -= CameraForm_MouseDown;
+            //this.MouseMove -= CameraForm_MouseMove;
+            //imageViewCtrl.MouseMove -= CameraForm_MouseMove;
+
+            //this.MouseDown -= CameraForm_MouseDown;
+            //imageViewCtrl.MouseDown -= CameraForm_MouseDown;
         }
 
 
@@ -288,5 +307,35 @@ namespace FreshCheck_CV
             if (imageViewCtrl != null)
                 imageViewCtrl.PreviewImage = null;
         }
+
+
+
+        //#17_WORKING_STATE#5 작업 상태 화면 표시 설정
+        public void SetWorkingState(WorkingState workingState)
+        {
+            string state = "";
+            switch (workingState)
+            {
+                case WorkingState.INSPECT:
+                    state = "INSPECT";
+                    break;
+
+                case WorkingState.LIVE:
+                    state = "LIVE";
+                    break;
+
+                case WorkingState.CYCLE:
+                    state = "CYCLE";
+                    break;
+
+                case WorkingState.ALARM:
+                    state = "ALARM";
+                    break;
+            }
+
+            imageViewCtrl.WorkingState = state;
+            imageViewCtrl.Invalidate();
+        }
+
     }
 }

@@ -11,8 +11,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using WeifenLuo.WinFormsUI.Docking;
 using static FreshCheck_CV.CameraForm;
-using System.Linq;
 
 namespace FreshCheck_CV.Property
 {
@@ -265,7 +265,7 @@ namespace FreshCheck_CV.Property
                 return;
             }
 
-            //cameraForm.ColorPicked += CameraForm_ColorPicked;
+            cameraForm.ColorPicked += CameraForm_ColorPicked;
             _isCameraSubscribed = true;
         }
 
@@ -314,13 +314,15 @@ namespace FreshCheck_CV.Property
             CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
             if (cameraForm == null)
                 return;
-
-            // 🔥 가짜 커서 방식 시작
-            cameraForm.StartFakeCursorPick();
+            cameraForm.BeginPickColor();
 
         }
         private void CameraForm_ColorPicked(object sender, ColorPickedEventArgs e)
         {
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm == null)
+                return;
+
             if (_prevCursor != null)
                 Cursor.Current = _prevCursor;
 
@@ -332,6 +334,8 @@ namespace FreshCheck_CV.Property
 
             UpdateTargetUi(_options.TargetB, _options.TargetG, _options.TargetR);
             ApplyFromUi();
+
+            cameraForm.EndFakeCursorPick();
         }
 
         private void btnEraseBg_Click(object sender, EventArgs e)

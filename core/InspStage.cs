@@ -387,6 +387,20 @@ namespace FreshCheck_CV.Core
             cameraForm.UpdatePreviewWithScratch(bitmap, scratchResult);
         }
 
+
+
+
+
+        //#17_WORKING_STATE#2 작업 상태 설정
+        public void SetWorkingState(WorkingState workingState)
+        {
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.SetWorkingState(workingState);
+            }
+        }
+
         #region Disposable
 
         private bool disposed = false; // to detect redundant calls
