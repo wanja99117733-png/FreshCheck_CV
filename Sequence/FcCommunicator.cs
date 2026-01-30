@@ -28,9 +28,9 @@ namespace FreshCheck_CV.Sequence
         private int _port;
 
         // 식별(서버 UI 상단과 매칭)
-        public string MachineName { get; set; } = "VISION01";
+        public string MachineName { get; set; } = "VISION2";
         public string ModelName { get; set; } = "TEST";
-        public string SerialId { get; set; } = "FC-LOCAL";
+        public string SerialId { get; set; } = "WAF-2026-0130-L01-EQP1-47542";
         public string AppVersion { get; set; } = "1.0.0";
 
         public CommunicationState State
@@ -47,8 +47,44 @@ namespace FreshCheck_CV.Sequence
             if (type == CommunicatorType.None)
                 return;
 
-            _ip = parameters[0] as string;
-            _port = (int)parameters[1];
+            // 기본 포트(서버 포트에 맞게 바꿔도 됨)
+            const int DefaultPort = 9000;
+
+            string ipOrIpPort = null;
+            if (parameters != null && parameters.Length > 0)
+                ipOrIpPort = parameters[0] as string;
+
+            if (string.IsNullOrWhiteSpace(ipOrIpPort))
+                throw new ArgumentException("ip is required. ex) 192.168.1.100 or 192.168.1.100:9000", nameof(parameters));
+
+            string ip = ipOrIpPort;
+            int port = DefaultPort;
+
+            // 1) "IP:PORT" 형태면 파싱
+            int colon = ipOrIpPort.LastIndexOf(':');
+            if (colon > 0)
+            {
+                string hostPart = ipOrIpPort.Substring(0, colon);
+                string portPart = ipOrIpPort.Substring(colon + 1);
+
+                if (!string.IsNullOrWhiteSpace(hostPart) && int.TryParse(portPart, out int parsedPort))
+                {
+                    ip = hostPart;
+                    port = parsedPort;
+                }
+            }
+
+            // 2) 두 번째 파라미터로 port를 별도 전달했다면 그 값을 우선
+            if (parameters != null && parameters.Length > 1)
+            {
+                if (parameters[1] is int p)
+                    port = p;
+                else if (parameters[1] is string ps && int.TryParse(ps, out int p2))
+                    port = p2;
+            }
+
+            _ip = ip;
+            _port = port;
 
             ConnectInternal();
         }

@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace FreshCheck_CV.Xml
+namespace FreshCheck_CV.Setting
 {
 
     internal static class XmlHelper

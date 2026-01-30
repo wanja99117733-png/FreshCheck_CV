@@ -64,8 +64,8 @@ namespace FreshCheck_CV
             {
                 _hikCam = new HikRobotCam();
                 // IP는 실제 카메라 IP로 변경! (Global 설정에서 가져올 수 있음)
-                if (!_hikCam.Create("192.254.90.253") || !_hikCam.InitGrab())
-
+                if (!_hikCam.Create("192.168.1.253") || !_hikCam.InitGrab())
+                        
                 {
                     _isCameraConnected = false;
                     return;

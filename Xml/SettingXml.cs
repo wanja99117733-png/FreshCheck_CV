@@ -2,8 +2,9 @@
 using System;
 using System.IO;
 
-namespace FreshCheck_CV.Xml
+namespace FreshCheck_CV.Setting
 {
+
     /// <summary>
     /// 통신/장비 설정을 XML로 저장/로드합니다. (Jidam 방식)
     /// </summary>
@@ -67,17 +68,17 @@ namespace FreshCheck_CV.Xml
             return new SettingXml
             {
                 // ⚠️ 서버 IP로 바꾸세요
-                CommIP = "192.168.1.100",
+                CommIP = "192.168.1.85",
 
                 // ⚠️ 교수님 서버에서 허용한 이름으로 맞춰야 함 (Jidam 주석에 VISION01~)
-                MachineName = "VISION01",
+                MachineName = "VISION2",
 
                 CommType = CommunicatorType.WCF
             };
         }
 
-        public string MachineName { get; set; } = "VISION01";
+        public string MachineName { get; set; } = "VISION2";
         public CommunicatorType CommType { get; set; } = CommunicatorType.WCF;
-        public string CommIP { get; set; } = "127.0.0.1";
+        public string CommIP { get; set; } = "192.168.1.85";
     }
 }
