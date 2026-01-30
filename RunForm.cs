@@ -54,7 +54,7 @@ namespace FreshCheck_CV
         }
 
         // 🔑 키보드 단축키 처리 (생성자에서 등록)
-        
+
 
         // ===== 1. 카메라 연결 확인 (생성자 후 바로 실행) =====
         private void CheckCameraConnection()
@@ -198,15 +198,20 @@ namespace FreshCheck_CV
                 // 2. OpenCV Mat으로 RGB24 → BGR24 변환 (Bitmap 호환)
                 using (Mat rgbMat = new Mat(height, width, MatType.CV_8UC3, cleanBuffer))
                 using (Mat bgrMat = new Mat())
+
                 {
                     Cv2.CvtColor(rgbMat, bgrMat, ColorConversionCodes.RGB2BGR);  // RGB→BGR [web:46]
 
-                    // 화질 보정 (원본 가까이)
-                    Cv2.ConvertScaleAbs(bgrMat, bgrMat, 1.05, 2);
+                    {
+                        Cv2.CvtColor(rgbMat, bgrMat, ColorConversionCodes.RGB2BGR);  // RGB→BGR [web:46]
 
-                    Bitmap bmp = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(bgrMat);
-                    Console.WriteLine("RGB24 → 컬러 비트맵 성공!");
-                    return bmp;
+                        // 화질 보정 (원본 가까이)
+                        Cv2.ConvertScaleAbs(bgrMat, bgrMat, 1.05, 2);
+
+                        Bitmap bmp = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(bgrMat);
+                        Console.WriteLine("RGB24 → 컬러 비트맵 성공!");
+                        return bmp;
+                    }
                 }
             }
             catch (Exception ex)

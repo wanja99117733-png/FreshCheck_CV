@@ -21,6 +21,10 @@ namespace FreshCheck_CV.Defect
         // 흰 픽셀 비율 임계값 (기본 1%)
         public double AreaRatioThreshold { get; set; } = 0.005;
 
+
+        public double TextureEdgeThresh { get; set; } = 18;
+        public int TextureBlurK { get; set; } = 3;
+        public int TextureDilateK { get; set; } = 3;
         public DefectType Type => DefectType.Mold;
 
         public MoldDetector(Func<BinaryOptions> getBinaryOptions)
@@ -119,6 +123,11 @@ namespace FreshCheck_CV.Defect
                     Cv2.BitwiseNot(mask, mask);
                 }
 
+                using (Mat textureMask = BuildTextureMask(bgr))
+                {
+                    Cv2.BitwiseAnd(mask, textureMask, mask);
+                }
+
                 int whitePixels = Cv2.CountNonZero(mask);
                 int totalPixels = mask.Rows * mask.Cols;
                 double ratio = totalPixels <= 0 ? 0.0 : (double)whitePixels / totalPixels;
@@ -179,6 +188,65 @@ namespace FreshCheck_CV.Defect
             }
 
             throw new NotSupportedException($"지원하지 않는 채널 수입니다. Channels={channels}, Type={src.Type()}");
+        }
+
+        private Mat BuildTextureMask(Mat bgr)
+        {
+            using (Mat gray = new Mat())
+            {
+                Cv2.CvtColor(bgr, gray, ColorConversionCodes.BGR2GRAY);
+
+                int k = Math.Max(1, TextureBlurK);
+                if (k % 2 == 0) k += 1;
+
+                // blurMat은 상황에 따라 생성/해제
+                Mat blurMat = null;
+
+                try
+                {
+                    if (k > 1)
+                    {
+                        blurMat = new Mat();
+                        Cv2.GaussianBlur(gray, blurMat, new OpenCvSharp.Size(k, k), 0);
+                    }
+                    else
+                    {
+                        // k==1이면 블러 없이 gray를 그대로 사용 (Clone 불필요)
+                        blurMat = gray;
+                    }
+
+                    using (Mat lap16 = new Mat())
+                    using (Mat lap8 = new Mat())
+                    using (Mat edgeMask = new Mat())
+                    {
+                        Cv2.Laplacian(blurMat, lap16, MatType.CV_16S, ksize: 3);
+                        Cv2.ConvertScaleAbs(lap16, lap8);
+
+                        Cv2.Threshold(lap8, edgeMask, TextureEdgeThresh, 255, ThresholdTypes.Binary);
+
+                        int dk = Math.Max(1, TextureDilateK);
+                        if (dk % 2 == 0) dk += 1;
+
+                        if (dk > 1)
+                        {
+                            using (Mat kDil = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(dk, dk)))
+                            {
+                                Cv2.Dilate(edgeMask, edgeMask, kDil);
+                            }
+                        }
+
+                        return edgeMask.Clone();
+                    }
+                }
+                finally
+                {
+                    // gray를 그대로 쓴 경우(gray 참조)면 Dispose하면 안 됨
+                    if (blurMat != null && object.ReferenceEquals(blurMat, gray) == false)
+                    {
+                        blurMat.Dispose();
+                    }
+                }
+            }
         }
     }
 }
