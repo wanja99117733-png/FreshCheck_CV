@@ -1,6 +1,7 @@
 ﻿using FreshCheck_CV.Core;
 using FreshCheck_CV.Grab;
 using OpenCvSharp;
+using OpenCvSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -189,18 +190,18 @@ namespace FreshCheck_CV
 
                 Console.WriteLine($"RGB24 변환 - Stride:{srcStride} → Line:{expectedLineBytes} Total:{cleanBuffer.Length}");
 
-                // 2. OpenCV Mat으로 RGB24 → BGR24 변환 (Bitmap 호환)
-                using (Mat rgbMat = new Mat(height, width, MatType.CV_8UC3, cleanBuffer))
-                using (Mat bgrMat = new Mat())
+                using (Mat rgbMat = new Mat(height, width, MatType.CV_8UC3))
                 {
-                    Cv2.CvtColor(rgbMat, bgrMat, ColorConversionCodes.RGB2BGR);  // RGB→BGR [web:46]
+                    Marshal.Copy(cleanBuffer, 0, rgbMat.Data, cleanBuffer.Length);
 
-                    // 화질 보정 (원본 가까이)
-                    Cv2.ConvertScaleAbs(bgrMat, bgrMat, 1.05, 2);
+                    using (Mat bgrMat = new Mat())
+                    {
+                        Cv2.CvtColor(rgbMat, bgrMat, ColorConversionCodes.RGB2BGR);
 
-                    Bitmap bmp = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(bgrMat);
-                    Console.WriteLine("RGB24 → 컬러 비트맵 성공!");
-                    return bmp;
+                        Cv2.ConvertScaleAbs(bgrMat, bgrMat, 1.05, 2);
+
+                        return BitmapConverter.ToBitmap(bgrMat);
+                    }
                 }
             }
             catch (Exception ex)
