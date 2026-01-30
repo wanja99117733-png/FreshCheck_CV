@@ -25,17 +25,30 @@ namespace FreshCheck_CV.Models
 
         public Model() { }
 
-        /// <summary>
-        /// 모델 파일(.xml) 및 관련 리소스를 저장합니다.
-        /// </summary>
+
+        //신규 모델 생성
+        public void CreateModel(string path, string modelName, string modelInfo)
+        {
+            ModelPath = path;
+            ModelName = modelName;
+            ModelInfo = modelInfo;
+        }
+
+
+        //모델 로딩함수
+        public Model Load(string path)
+        {
+            Model model = XmlHelper.LoadXml<Model>(path);
+            if (model == null)
+                return null;
+
+            ModelPath = path;
+
+            return model;
+        }
+
         public void Save()
         {
-            if (string.IsNullOrEmpty(ModelPath))
-            {
-                // 경로가 없으면 실행 안 함 (혹은 SaveFileDialog 호출 로직 필요)
-                return;
-            }
-
             try
             {
                 // A. 모델 폴더 생성 (ModelPath가 파일 경로인 경우 그 상위 폴더 생성)
@@ -49,9 +62,6 @@ namespace FreshCheck_CV.Models
                 // XmlHelper는 기존 프로젝트의 유틸리티를 그대로 사용한다고 가정합니다.
                 XmlHelper.SaveXml(ModelPath, this);
 
-                // C. 관련 이미지 저장 (필요 시)
-                SaveResources(directory);
-
                 System.Diagnostics.Debug.WriteLine($"모델 저장 완료: {ModelPath}");
             }
             catch (Exception ex)
@@ -60,28 +70,16 @@ namespace FreshCheck_CV.Models
             }
         }
 
-        /// <summary>
-        /// 모델에 부수되는 이미지 리소스 등을 저장합니다.
-        /// </summary>
-        private void SaveResources(string rootPath)
+        //모델 다른 이름으로 저장함수
+        public void SaveAs(string filePath)
         {
-            string imgDir = Path.Combine(rootPath, "Images");
-            if (!Directory.Exists(imgDir))
+            string fileName = Path.GetFileName(filePath);
+            if (Directory.Exists(filePath) == false)
             {
-                Directory.CreateDirectory(imgDir);
+                ModelPath = Path.Combine(filePath, fileName + ".xml");
+                ModelName = fileName;
+                Save();
             }
-
-            // 예: 현재 화면에 떠있는 원본 이미지를 마스터 이미지로 저장하고 싶을 때
-            // InspStage나 Global에서 현재 이미지를 가져오는 로직이 필요합니다.
-            // 여기서는 예시로 설명만 추가합니다.
-            /*
-            Bitmap currentImg = Global.Inst.InspStage.GetCurrentImage();
-            if (currentImg != null)
-            {
-                string targetPath = Path.Combine(imgDir, MasterImageName);
-                currentImg.Save(targetPath, System.Drawing.Imaging.ImageFormat.Png);
-            }
-            */
         }
     }
 }

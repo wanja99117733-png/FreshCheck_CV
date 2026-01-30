@@ -67,11 +67,39 @@ namespace FreshCheck_CV.Core
 
         public bool Initialize()
         {
+            _model = new Model();
+
             //#19_VISION_SEQUENCE#3 VisionSequence 초기화
             VisionSequence.Inst.InitSequence();
             VisionSequence.Inst.SeqCommand += SeqCommand;
 
             return true;
+        }
+        public bool LoadModel(string filePath)
+        {
+            SLogger.Write($"모델 로딩:{filePath}");
+
+            _model = _model.Load(filePath);
+
+            if (_model is null)
+            {
+                SLogger.Write($"모델 로딩 실패:{filePath}");
+                return false;
+            }
+
+            return true;
+        }
+
+
+        public void SaveModel(string filePath)
+        {
+            SLogger.Write($"모델 저장:{filePath}");
+
+            //입력 경로가 없으면 현재 모델 저장
+            if (string.IsNullOrEmpty(filePath))
+                Global.Inst.InspStage.CurModel.Save();
+            else
+                Global.Inst.InspStage.CurModel.SaveAs(filePath);
         }
 
 

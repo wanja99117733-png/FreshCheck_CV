@@ -19,5 +19,6 @@ namespace FreshCheck_CV.Core
 
     public static class Define
     {
+        public const string PROGRAM_NAME = "FreshCheck_CV";
     }
 }

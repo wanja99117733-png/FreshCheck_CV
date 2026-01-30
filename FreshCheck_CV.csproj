@@ -69,7 +69,7 @@
       <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Log4Net\log4net.dll</HintPath>
     </Reference>
     <Reference Include="MessagingLibrary">
-      <HintPath>..\ExternalLib\Dll\MessagingLibrary\MessagingLibrary.dll</HintPath>
+      <HintPath>..\ExternalLib\ExternalLib\Dll\MessagingLibrary\MessagingLibrary.dll</HintPath>
     </Reference>
     <Reference Include="MvCameraControl.Net">
       <HintPath>..\ExternalLib\ExternalLib\Dll\HikRobot\MvCameraControl.Net.dll</HintPath>
@@ -161,6 +161,12 @@
     </Compile>
     <Compile Include="Models\InspectionResultDto.cs" />
     <Compile Include="Models\Model.cs" />
+    <Compile Include="NewModel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewModel.Designer.cs">
+      <DependentUpon>NewModel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -310,6 +316,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewModel.resx">
+      <DependentUpon>NewModel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PropertiesForm.resx">
       <DependentUpon>PropertiesForm.cs</DependentUpon>

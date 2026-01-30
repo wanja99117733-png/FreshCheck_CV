@@ -11,7 +11,7 @@ namespace FreshCheck_CV.Models
         {
             public ShowBinaryMode ShowMode { get; set; } = ShowBinaryMode.HighlightRed;
 
-            public bool Invert { get; set; } = false;
+            public bool Invert { get; set; } = false; // 현재는 안 쓰는 것
 
             // 기준색(BGR): 스포이드로 이미지에서 찍어서 설정
             public byte TargetB { get; set; } = 0;

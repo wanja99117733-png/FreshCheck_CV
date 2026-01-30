@@ -1,5 +1,6 @@
 ﻿using FreshCheck_CV.Core;
 using FreshCheck_CV.Grab;
+using FreshCheck_CV.UIControl;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
@@ -169,7 +170,7 @@ namespace FreshCheck_CV
                 {
                     MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
                     MainForm.Instance.ImageChanged += MainForm_ImageChanged;
-                    StartInspectionLoop();
+                    //StartInspectionLoop();
                 }
             }
 
@@ -446,7 +447,8 @@ namespace FreshCheck_CV
                 _isInspectBusy = true;
 
                 // 사이클링 이미지 검사 (기존)
-                Global.Inst?.InspStage?.RunMoldInspectionTemp();
+                Global.Inst?.InspStage?.RunFullInspectionCycle();
+                //Global.Inst?.InspStage?.RunMoldInspectionTemp();
             }
             finally
             {

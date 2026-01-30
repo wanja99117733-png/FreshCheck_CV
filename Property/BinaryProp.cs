@@ -393,5 +393,45 @@ namespace FreshCheck_CV.Property
             Global.Inst.InspStage.UpdatePreviewWithScratch(originalImage, filteredResult);
 
         }
+
+        // BinaryProp.cs 내부
+
+        public void SetParameters(BinaryOptions options)
+        {
+            if (options == null) return;
+
+            // 1. 내부 옵션 객체 복사 (참조 연결)
+            // _options가 클래스 내부에서 필드로 선언되어 있다고 가정합니다.
+            _options.ShowMode = options.ShowMode;
+            _options.TargetR = options.TargetR;
+            _options.TargetG = options.TargetG;
+            _options.TargetB = options.TargetB;
+            _options.TolLow = options.TolLow;
+            _options.TolHigh = options.TolHigh;
+
+            // 2. UI 컨트롤에 값 적용 (컨트롤 이름은 실제 디자인에 맞게 수정하세요)
+            this.Invoke(new Action(() => {
+                // 오차 범위 트랙바 (RangeTrackbar 사용 시)
+                // rangeTrackbar의 Left/Right 값이 TolLow/TolHigh와 매핑된다고 가정
+                rangeTrackbar.ValueLeft = _options.TolLow;
+                rangeTrackbar.ValueRight = _options.TolHigh;
+
+                // 선택된 색상 표시용 패널이나 라벨이 있다면 갱신
+                pnlTargetSwatch.BackColor = Color.FromArgb(_options.TargetR, _options.TargetG, _options.TargetB);
+                lblTargetColor.Text = $"Target: (B={_options.TargetB}, G={_options.TargetG}, R={_options.TargetR})";
+
+                // 하이라이트 모드 라디오 버튼 등
+                if (_options.ShowMode != null)
+                {
+                    ShowBinaryMode binaryMode = (ShowBinaryMode) _options.ShowMode;
+                    cbMode.SelectedIndex = (int) binaryMode;
+                }
+
+                // UI 갱신 후 즉시 결과 반영을 위해 인스펙션 호출 (선택 사항)
+                // btnApply.PerformClick(); 
+            }));
+        }
+
+
     }
 }
