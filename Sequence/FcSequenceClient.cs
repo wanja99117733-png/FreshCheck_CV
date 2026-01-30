@@ -65,6 +65,12 @@ namespace FreshCheck_CV.Sequence
         /// </summary>
         public void SendInspDone(long inspectionNo, bool isNg, string ngDetail)
         {
+            if (!EnsureConnected())
+            {
+                SLogger.Write("[WCF] Not connected. Skip SendInspDone.", SLogger.LogType.Error);
+                return;
+            }
+
             if (!IsConnected)
             {
                 SLogger.Write("[WCF] Not connected. Skip SendInspDone.", SLogger.LogType.Error);
@@ -146,6 +152,19 @@ namespace FreshCheck_CV.Sequence
             {
                 // ignore
             }
+        }
+
+        private bool EnsureConnected()
+        {
+            if (_comm.State == CommunicationState.Opened)
+                return true;
+
+            SLogger.Write($"[WCF] EnsureConnected: state={_comm.State}. Try Connect()...", SLogger.LogType.Error);
+
+            bool ok = _comm.Connect();
+            SLogger.Write($"[WCF] Connect() result={ok}, state={_comm.State}", ok ? SLogger.LogType.Info : SLogger.LogType.Error);
+
+            return ok && _comm.State == CommunicationState.Opened;
         }
     }
 }

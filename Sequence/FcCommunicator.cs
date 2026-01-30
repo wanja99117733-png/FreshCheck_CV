@@ -47,40 +47,37 @@ namespace FreshCheck_CV.Sequence
             if (type == CommunicatorType.None)
                 return;
 
-            // 기본 포트(서버 포트에 맞게 바꿔도 됨)
-            const int DefaultPort = 9000;
+            const int DefaultPort = 9000; // ⚠️ 서버 포트에 맞게 바꾸거나, Setting.xml에 :포트로 입력
 
             string ipOrIpPort = null;
             if (parameters != null && parameters.Length > 0)
                 ipOrIpPort = parameters[0] as string;
 
             if (string.IsNullOrWhiteSpace(ipOrIpPort))
-                throw new ArgumentException("ip is required. ex) 192.168.1.100 or 192.168.1.100:9000", nameof(parameters));
+                throw new ArgumentException("CommIP is empty. ex) 192.168.0.10 or 192.168.0.10:9000");
 
             string ip = ipOrIpPort;
             int port = DefaultPort;
 
-            // 1) "IP:PORT" 형태면 파싱
+            // "IP:PORT" 지원
             int colon = ipOrIpPort.LastIndexOf(':');
             if (colon > 0)
             {
-                string hostPart = ipOrIpPort.Substring(0, colon);
-                string portPart = ipOrIpPort.Substring(colon + 1);
+                string host = ipOrIpPort.Substring(0, colon);
+                string portText = ipOrIpPort.Substring(colon + 1);
 
-                if (!string.IsNullOrWhiteSpace(hostPart) && int.TryParse(portPart, out int parsedPort))
+                if (!string.IsNullOrWhiteSpace(host) && int.TryParse(portText, out int p))
                 {
-                    ip = hostPart;
-                    port = parsedPort;
+                    ip = host;
+                    port = p;
                 }
             }
 
-            // 2) 두 번째 파라미터로 port를 별도 전달했다면 그 값을 우선
+            // 파라미터로 port를 따로 준 경우 우선
             if (parameters != null && parameters.Length > 1)
             {
-                if (parameters[1] is int p)
-                    port = p;
-                else if (parameters[1] is string ps && int.TryParse(ps, out int p2))
-                    port = p2;
+                if (parameters[1] is int p) port = p;
+                else if (parameters[1] is string ps && int.TryParse(ps, out int p2)) port = p2;
             }
 
             _ip = ip;
@@ -195,7 +192,7 @@ namespace FreshCheck_CV.Sequence
             }
             catch (Exception ex)
             {
-                SLogger.Write($"[WCF] Connect failed : {ex.Message}", SLogger.LogType.Error);
+                SLogger.Write($"[WCF] Connect failed : {ex}", SLogger.LogType.Error);
                 SafeClose_NoThrow();
                 return false;
             }
