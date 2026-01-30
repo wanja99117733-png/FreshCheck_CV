@@ -301,7 +301,7 @@ namespace FreshCheck_CV.UIControl
 
         private void DrawText(Graphics g, string text, PointF position, float fontSize, Color color)
         {
-            using (Font font = new Font("Arial", fontSize, FontStyle.Bold))
+            using (Font font = new Font("Segoe UI", fontSize, FontStyle.Bold))
             // 테두리용 검정색 브러시
             using (Brush outlineBrush = new SolidBrush(Color.Black))
             // 본문용 노란색 브러시
@@ -331,7 +331,7 @@ namespace FreshCheck_CV.UIControl
                 return;
 
             using (Pen pen = new Pen(Color.Red, 3))
-            using (Font font = new Font("Arial", 10, FontStyle.Bold))
+            using (Font font = new Font("Segoe UI", 10, FontStyle.Bold))
             {
                 foreach (var obj in _scratchResult.SegmentedObjects)
                 {

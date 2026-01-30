@@ -33,8 +33,8 @@
             this.btnExit = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.panelTitle = new System.Windows.Forms.Panel();
-            this.label2 = new System.Windows.Forms.Label();
             this.btnClose = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.panelTitle.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -45,9 +45,10 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.label1.Location = new System.Drawing.Point(105, 114);
+            this.label1.Location = new System.Drawing.Point(107, 84);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(223, 25);
+            this.label1.Size = new System.Drawing.Size(147, 15);
             this.label1.TabIndex = 0;
             this.label1.Text = "정말로 종료하시겠습니까?";
             // 
@@ -59,11 +60,12 @@
             this.btnExit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExit.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnExit.ForeColor = System.Drawing.Color.White;
-            this.btnExit.Location = new System.Drawing.Point(49, 195);
+            this.btnExit.Location = new System.Drawing.Point(30, 150);
+            this.btnExit.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnExit.Name = "btnExit";
-            this.btnExit.Size = new System.Drawing.Size(108, 43);
+            this.btnExit.Size = new System.Drawing.Size(120, 40);
             this.btnExit.TabIndex = 1;
-            this.btnExit.Text = "Yes";
+            this.btnExit.Text = "네";
             this.btnExit.UseVisualStyleBackColor = false;
             this.btnExit.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnExit_MouseDown);
             this.btnExit.MouseEnter += new System.EventHandler(this.btnExit_MouseEnter);
@@ -78,11 +80,12 @@
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCancel.ForeColor = System.Drawing.Color.White;
-            this.btnCancel.Location = new System.Drawing.Point(213, 195);
+            this.btnCancel.Location = new System.Drawing.Point(202, 150);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(108, 43);
+            this.btnCancel.Size = new System.Drawing.Size(120, 40);
             this.btnCancel.TabIndex = 2;
-            this.btnCancel.Text = "No";
+            this.btnCancel.Text = "아니오";
             this.btnCancel.UseVisualStyleBackColor = false;
             this.btnCancel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnCancel_MouseDown);
             this.btnCancel.MouseEnter += new System.EventHandler(this.btnCancel_MouseEnter);
@@ -96,21 +99,11 @@
             this.panelTitle.Controls.Add(this.label2);
             this.panelTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTitle.Location = new System.Drawing.Point(0, 0);
+            this.panelTitle.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.panelTitle.Name = "panelTitle";
-            this.panelTitle.Size = new System.Drawing.Size(385, 40);
+            this.panelTitle.Size = new System.Drawing.Size(350, 40);
             this.panelTitle.TabIndex = 3;
             this.panelTitle.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelTitle_MouseDown);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(10, 11);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(125, 25);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "프로그램 종료";
             // 
             // btnClose
             // 
@@ -118,31 +111,45 @@
             this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClose.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnClose.ForeColor = System.Drawing.Color.White;
-            this.btnClose.Location = new System.Drawing.Point(350, 3);
+            this.btnClose.Location = new System.Drawing.Point(315, 5);
+            this.btnClose.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(32, 29);
+            this.btnClose.Size = new System.Drawing.Size(30, 30);
             this.btnClose.TabIndex = 1;
             this.btnClose.Text = "X";
             this.btnClose.UseVisualStyleBackColor = true;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.White;
+            this.label2.Location = new System.Drawing.Point(12, 11);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(82, 15);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "프로그램 종료";
+            // 
             // pictureBox1
             // 
             this.pictureBox1.ErrorImage = ((System.Drawing.Image)(resources.GetObject("pictureBox1.ErrorImage")));
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(44, 101);
+            this.pictureBox1.Location = new System.Drawing.Point(64, 75);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(50, 50);
+            this.pictureBox1.Size = new System.Drawing.Size(35, 33);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 4;
             this.pictureBox1.TabStop = false;
             // 
             // ExitConfirmForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(38)))));
-            this.ClientSize = new System.Drawing.Size(385, 276);
+            this.ClientSize = new System.Drawing.Size(350, 210);
             this.ControlBox = false;
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.panelTitle);
@@ -151,6 +158,7 @@
             this.Controls.Add(this.label1);
             this.ForeColor = System.Drawing.SystemColors.ControlText;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "ExitConfirmForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "ExitConfirmForm";

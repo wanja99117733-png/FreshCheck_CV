@@ -22,6 +22,10 @@ namespace FreshCheck_CV.Dialogs
         public CustomMessageBoxForm(string message, string title)
         {
             InitializeComponent();
+
+            btnConfirm.MouseEnter += (s, e) => btnConfirm.BackColor = System.Drawing.Color.FromArgb(70, 120, 195);
+            btnConfirm.MouseLeave += (s, e) => btnConfirm.BackColor = System.Drawing.Color.FromArgb(60, 110, 180);
+
             lblMessage.Text = message;
             labelTitle.Text = title;
         }

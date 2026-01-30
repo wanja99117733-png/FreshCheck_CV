@@ -442,7 +442,7 @@ namespace FreshCheck_CV
         {
             if (_viewRecords == null || _viewRecords.Count == 0)
             {
-                using (var dlg = new DarkMessageForm("내보낼 데이터가 없습니다."))
+                using (var dlg = new FreshCheck_CV.Dialogs.CustomMessageBoxForm("내보낼 데이터가 없습니다.", "데이터 형식 오류"))
                 {
                     dlg.ShowDialog(this.FindForm());
                 }
@@ -460,7 +460,7 @@ namespace FreshCheck_CV
 
                 CreateXlsxWithFilter(sfd.FileName);
 
-                using (var dlg = new DarkMessageForm("Excel(.xlsx) 내보내기가 완료되었습니다."))
+                using (var dlg = new FreshCheck_CV.Dialogs.CustomMessageBoxForm("Excel(.xlsx) 내보내기가 완료되었습니다.", "파일 내보내기 성공"))
                 {
                     dlg.ShowDialog(this.FindForm());
                 }

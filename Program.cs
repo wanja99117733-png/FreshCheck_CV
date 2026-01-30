@@ -27,12 +27,15 @@ namespace FreshCheck_CV
 
             Application.ThreadException += (s, e) =>
             {
-                MessageBox.Show(e.Exception.ToString(), "FC ThreadException");
+                FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show($"프로그램 실행에 실패하였습니다.\r\n\r\n{e.Exception.ToString()}", "ThreadException");
+                //MessageBox.Show(e.Exception.ToString(), "FC ThreadException");
             };
 
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
             {
-                MessageBox.Show((e.ExceptionObject ?? "Unknown").ToString(), "FC UnhandledException");
+                FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show($"프로그램 실행에 실패하였습니다.\r\n\r\n{(e.ExceptionObject ?? "Unknown").ToString()}", "FC UnhandledException");
+                //FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show("프로그램 실행에 실패하였습니다.", "시스템 오류");
+                //MessageBox.Show((e.ExceptionObject ?? "Unknown").ToString(), "FC UnhandledException");
             };
 
             Application.Run(new SplashApplicationContext());

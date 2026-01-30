@@ -71,7 +71,8 @@ namespace FreshCheck_CV
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString(), "FC 초기화 오류");
+                FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show($"시스템 실행에 실패하였습니다.\r\n\n{ex.ToString()}", "FC 초기화 오류");
+                //MessageBox.Show(ex.ToString(), "FC 초기화 오류");
                 ExitThread();
             }
         }

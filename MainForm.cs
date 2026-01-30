@@ -174,7 +174,8 @@ namespace FreshCheck_CV
 
             if (_imageFilePaths.Count == 0)
             {
-                MessageBox.Show("선택한 폴더에 이미지 파일이 없습니다.");
+                FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show("선택한 폴더에 이미지 파일이 없습니다", "파일 오류");
+                //MessageBox.Show("선택한 폴더에 이미지 파일이 없습니다.");
             }
         }
 
@@ -271,8 +272,8 @@ namespace FreshCheck_CV
         {
             if (_imageFilePaths.Count == 0)
             {
-                using (var dlg = new FreshCheck_CV.Property.DarkMessageForm(
-                    "먼저 이미지 폴더를 선택하세요."))
+                using (var dlg = new FreshCheck_CV.Dialogs.CustomMessageBoxForm(
+                    "먼저 이미지 폴더를 선택하세요.", "알림"))
                 {
                     dlg.ShowDialog(this);
                 }

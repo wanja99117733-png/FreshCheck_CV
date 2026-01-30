@@ -35,6 +35,7 @@
             // 
             this.tabPropControl.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
             this.tabPropControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabPropControl.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.tabPropControl.ItemSize = new System.Drawing.Size(0, 1);
             this.tabPropControl.Location = new System.Drawing.Point(0, 0);
             this.tabPropControl.Name = "tabPropControl";

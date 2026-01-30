@@ -31,13 +31,15 @@ namespace FreshCheck_CV
         private void OnThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
             // Slogger.Write(e.Exception.ToString());
-            MessageBox.Show($"예외가 발생했습니다.\r\n\r\n{e.Exception.Message}", "FC", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show($"예외가 발생했습니다.\r\n\r\n{e.Exception.Message}", "FC 오류");
+            //MessageBox.Show($"예외가 발생했습니다.\r\n\r\n{e.Exception.Message}", "FC", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // Slogger.Write(e.ExceptionObject?.ToString() ?? "Unknown unhandled exception");
-            MessageBox.Show("처리되지 않은 예외가 발생했습니다.", "FC", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show("처리되지 않은 예외가 발생했습니다.", "FC 오류");
+            //MessageBox.Show("처리되지 않은 예외가 발생했습니다.", "FC", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

@@ -158,6 +158,7 @@ namespace FreshCheck_CV.Grab
             }
             catch (Exception ex)
             {
+                FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show("카메라 연결이 실패하였습니다.", "시스템 오류");
                 //MessageBox.Show(ex.Message);
                 ex.ToString();
                 return false;

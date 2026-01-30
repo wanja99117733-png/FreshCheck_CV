@@ -2,6 +2,7 @@
 using FreshCheck_CV.Inspect;
 using FreshCheck_CV.Models;
 using FreshCheck_CV.Properties;
+using FreshCheck_CV.Dialogs;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using SaigeVision.Net.V2;
@@ -304,7 +305,7 @@ namespace FreshCheck_CV.Property
         {
             Global.Inst.InspStage.RunMoldInspectionTemp();
 
-            using (var dlg = new DarkMessageForm("검사 완료"))
+            using (var dlg = new CustomMessageBoxForm("검사를 완료하였습니다.", "검사 완료"))
             {
                 dlg.ShowDialog(this);
             }
@@ -344,14 +345,16 @@ namespace FreshCheck_CV.Property
 
             if (saigeAI == null)
             {
-                MessageBox.Show("AI 모듈이 초기화되지 않았습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show("AI 모듈이 초기화되지 않았습니다.", "시스템 오류");
+                //MessageBox.Show("AI 모듈이 초기화되지 않았습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             Bitmap bitmap = Global.Inst.InspStage.GetCurrentImage();
             if (bitmap is null)
             {
-                MessageBox.Show("현재 이미지가 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show("현재 이미지가 없습니다.", "파일 오류");
+                //MessageBox.Show("현재 이미지가 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -368,7 +371,8 @@ namespace FreshCheck_CV.Property
             SaigeAI saigeAI = Global.Inst.InspStage.AIModule;
             if (saigeAI == null)
             {
-                MessageBox.Show("AI 모듈 없음", "오류");
+                FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show("AI 모듈이 없습니다.", "파일 오류");
+                //MessageBox.Show("AI 모듈 없음", "오류");
                 return;
             }
 
@@ -377,13 +381,15 @@ namespace FreshCheck_CV.Property
 
             if (noBgImage == null)
             {
-                MessageBox.Show("먼저 [배경제거] 버튼을 눌러주세요!", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show("먼저 [배경제거] 버튼을 눌러주세요.", "알림");
+                //MessageBox.Show("먼저 [배경제거] 버튼을 눌러주세요!", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             if (!saigeAI.InspAIModule(noBgImage, AIEngineType.ScratchSegmentation))
             {
-                MessageBox.Show("Scratch 검출 실패", "오류");
+                FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show("Scratch 검출이 실패하였습니다.", "시스템 오류");
+                //MessageBox.Show("Scratch 검출 실패", "오류");
                 return;
             }
 

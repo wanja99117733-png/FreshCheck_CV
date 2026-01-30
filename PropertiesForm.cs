@@ -117,7 +117,8 @@ namespace FreshCheck_CV
                     curProp = new Property.InspectionMonitorProp();
                     break;
                 default:
-                    MessageBox.Show("유효하지 않은 옵션입니다.");
+                    CustomMessageBoxForm.Show("UI 생성에 실패하였습니다.", "시스템 오류");
+                    //MessageBox.Show("유효하지 않은 옵션입니다.");
                     return null;
             }
             return curProp;

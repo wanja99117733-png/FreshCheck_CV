@@ -290,7 +290,8 @@ namespace FreshCheck_CV.Core
             // --- [STEP 3: Scratch 검사] ---
             if (!saigeAI.InspAIModule(noBgImage, AIEngineType.ScratchSegmentation))
             {
-                MessageBox.Show("Scratch 검출 실패", "오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show("Scratch 검출이 실패하였습니다.", "시스템 오류");
+                //MessageBox.Show("Scratch 검출 실패", "오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             SegmentationResult scratchResult = saigeAI.GetScratchResult();

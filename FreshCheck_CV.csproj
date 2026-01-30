@@ -269,6 +269,9 @@
     <EmbeddedResource Include="DefectForm.resx">
       <DependentUpon>DefectForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\CustomMessageBoxForm.resx">
+      <DependentUpon>CustomMessageBoxForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ExitConfirmForm.resx">
       <DependentUpon>ExitConfirmForm.cs</DependentUpon>
     </EmbeddedResource>

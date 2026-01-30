@@ -38,6 +38,7 @@
             // 
             this.btnClose.FlatAppearance.BorderSize = 0;
             this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClose.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnClose.ForeColor = System.Drawing.Color.White;
             this.btnClose.Location = new System.Drawing.Point(315, 3);
             this.btnClose.Name = "btnClose";
@@ -48,15 +49,18 @@
             // 
             // labelTitle
             // 
+            this.labelTitle.AutoSize = true;
+            this.labelTitle.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.labelTitle.ForeColor = System.Drawing.Color.White;
-            this.labelTitle.Location = new System.Drawing.Point(10, 11);
+            this.labelTitle.Location = new System.Drawing.Point(12, 11);
             this.labelTitle.Name = "labelTitle";
-            this.labelTitle.Size = new System.Drawing.Size(100, 23);
+            this.labelTitle.Size = new System.Drawing.Size(58, 15);
             this.labelTitle.TabIndex = 1;
             this.labelTitle.Text = "인증 필요";
             // 
             // labelPrompt
             // 
+            this.labelPrompt.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.labelPrompt.ForeColor = System.Drawing.Color.White;
             this.labelPrompt.Location = new System.Drawing.Point(30, 70);
             this.labelPrompt.Name = "labelPrompt";
@@ -68,11 +72,12 @@
             // 
             this.txtPassword.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(50)))), ((int)(((byte)(58)))));
             this.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtPassword.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.txtPassword.ForeColor = System.Drawing.Color.White;
             this.txtPassword.Location = new System.Drawing.Point(30, 98);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(290, 28);
+            this.txtPassword.Size = new System.Drawing.Size(290, 23);
             this.txtPassword.TabIndex = 2;
             // 
             // btnConfirm
@@ -81,10 +86,11 @@
             this.btnConfirm.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btnConfirm.FlatAppearance.BorderSize = 0;
             this.btnConfirm.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnConfirm.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.btnConfirm.ForeColor = System.Drawing.Color.White;
-            this.btnConfirm.Location = new System.Drawing.Point(33, 150);
+            this.btnConfirm.Location = new System.Drawing.Point(30, 150);
             this.btnConfirm.Name = "btnConfirm";
-            this.btnConfirm.Size = new System.Drawing.Size(108, 43);
+            this.btnConfirm.Size = new System.Drawing.Size(120, 40);
             this.btnConfirm.TabIndex = 3;
             this.btnConfirm.Text = "확인";
             this.btnConfirm.UseVisualStyleBackColor = false;
@@ -97,10 +103,11 @@
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.FlatAppearance.BorderSize = 0;
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCancel.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.btnCancel.ForeColor = System.Drawing.Color.White;
-            this.btnCancel.Location = new System.Drawing.Point(212, 150);
+            this.btnCancel.Location = new System.Drawing.Point(202, 150);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(108, 43);
+            this.btnCancel.Size = new System.Drawing.Size(120, 40);
             this.btnCancel.TabIndex = 4;
             this.btnCancel.Text = "취소";
             this.btnCancel.UseVisualStyleBackColor = false;
@@ -110,7 +117,7 @@
             // PasswordCheckForm
             // 
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(38)))));
-            this.ClientSize = new System.Drawing.Size(350, 220);
+            this.ClientSize = new System.Drawing.Size(350, 210);
             this.Controls.Add(this.panelTitle);
             this.Controls.Add(this.labelPrompt);
             this.Controls.Add(this.txtPassword);
@@ -120,6 +127,7 @@
             this.Name = "PasswordCheckForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.panelTitle.ResumeLayout(false);
+            this.panelTitle.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
