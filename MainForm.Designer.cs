@@ -41,8 +41,6 @@
             this.ImageFolderOpenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.StartCycleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.StopCycleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setupToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -50,12 +48,11 @@
             // 
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.setupToolStripMenuItem});
+            this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(883, 24);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(1009, 28);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -75,7 +72,7 @@
             this.fileToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.fileToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // modelNewMenuItem
@@ -120,7 +117,7 @@
             this.imageOpenToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.imageOpenToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.imageOpenToolStripMenuItem.Name = "imageOpenToolStripMenuItem";
-            this.imageOpenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.imageOpenToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
             this.imageOpenToolStripMenuItem.Text = "Image Open";
             this.imageOpenToolStripMenuItem.Click += new System.EventHandler(this.imageOpenToolStripMenuItem_Click);
             // 
@@ -129,7 +126,7 @@
             this.imageSaveToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.imageSaveToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.imageSaveToolStripMenuItem.Name = "imageSaveToolStripMenuItem";
-            this.imageSaveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.imageSaveToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
             this.imageSaveToolStripMenuItem.Text = "Image Save";
             // 
             // ImageFolderOpenToolStripMenuItem
@@ -137,7 +134,7 @@
             this.ImageFolderOpenToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ImageFolderOpenToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.ImageFolderOpenToolStripMenuItem.Name = "ImageFolderOpenToolStripMenuItem";
-            this.ImageFolderOpenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ImageFolderOpenToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
             this.ImageFolderOpenToolStripMenuItem.Text = "Image Folder Open";
             this.ImageFolderOpenToolStripMenuItem.Click += new System.EventHandler(this.ImageFolderOpenToolStripMenuItem_Click);
             // 
@@ -146,7 +143,7 @@
             this.StartCycleToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.StartCycleToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.StartCycleToolStripMenuItem.Name = "StartCycleToolStripMenuItem";
-            this.StartCycleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.StartCycleToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
             this.StartCycleToolStripMenuItem.Text = "Start Cycle";
             this.StartCycleToolStripMenuItem.Click += new System.EventHandler(this.StartCycleToolStripMenuItem_Click);
             // 
@@ -155,37 +152,20 @@
             this.StopCycleToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.StopCycleToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.StopCycleToolStripMenuItem.Name = "StopCycleToolStripMenuItem";
-            this.StopCycleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.StopCycleToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
             this.StopCycleToolStripMenuItem.Text = "Stop Cycle";
             this.StopCycleToolStripMenuItem.Click += new System.EventHandler(this.StopCycleToolStripMenuItem_Click);
             // 
-            // setupToolStripMenuItem
-            // 
-            this.setupToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.setupToolStripMenuItem1});
-            this.setupToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.setupToolStripMenuItem.Name = "setupToolStripMenuItem";
-            this.setupToolStripMenuItem.Size = new System.Drawing.Size(50, 20);
-            this.setupToolStripMenuItem.Text = "Setup";
-            // 
-            // setupToolStripMenuItem1
-            // 
-            this.setupToolStripMenuItem1.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.setupToolStripMenuItem1.Name = "setupToolStripMenuItem1";
-            this.setupToolStripMenuItem1.Size = new System.Drawing.Size(105, 22);
-            this.setupToolStripMenuItem1.Text = "Setup";
-            this.setupToolStripMenuItem1.Click += new System.EventHandler(this.setupToolStripMenuItem1_Click);
-            // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(38)))));
-            this.ClientSize = new System.Drawing.Size(883, 505);
+            this.ClientSize = new System.Drawing.Size(1009, 631);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "MainForm";
             this.Text = "FreshCheck_CV";
             this.menuStrip1.ResumeLayout(false);
@@ -204,13 +184,6 @@
         private System.Windows.Forms.ToolStripMenuItem ImageFolderOpenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem StartCycleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem StopCycleToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setupToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setupToolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem modelNewMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem modelOpenMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem modelSaveMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem modelSaveAsMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
     }
 }
 

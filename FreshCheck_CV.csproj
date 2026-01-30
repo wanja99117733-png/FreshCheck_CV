@@ -68,9 +68,6 @@
     <Reference Include="log4net">
       <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Log4Net\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="MessagingLibrary">
-      <HintPath>..\ExternalLib\ExternalLib\Dll\MessagingLibrary\MessagingLibrary.dll</HintPath>
-    </Reference>
     <Reference Include="MvCameraControl.Net">
       <HintPath>..\ExternalLib\ExternalLib\Dll\HikRobot\MvCameraControl.Net.dll</HintPath>
     </Reference>
@@ -109,7 +106,6 @@
       <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Security" />
-    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -160,13 +156,6 @@
       <DependentUpon>PasswordCheckForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\InspectionResultDto.cs" />
-    <Compile Include="Models\Model.cs" />
-    <Compile Include="NewModel.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="NewModel.Designer.cs">
-      <DependentUpon>NewModel.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -186,33 +175,6 @@
     </Compile>
     <Compile Include="Dialogs\CustomMessageBoxForm.Designer.cs">
       <DependentUpon>CustomMessageBoxForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="sequence\Communicator.cs" />
-    <Compile Include="sequence\VisionSequence.cs" />
-    <Compile Include="Setting\CameraSetting.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Setting\CameraSetting.Designer.cs">
-      <DependentUpon>CameraSetting.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Setting\CommunicatorSetting.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Setting\CommunicatorSetting.Designer.cs">
-      <DependentUpon>CommunicatorSetting.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Setting\PathSetting.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Setting\PathSetting.Designer.cs">
-      <DependentUpon>PathSetting.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Setting\SettingXml.cs" />
-    <Compile Include="Setting\SetupForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Setting\SetupForm.Designer.cs">
-      <DependentUpon>SetupForm.cs</DependentUpon>
     </Compile>
     <Compile Include="UIControl\OverallRateBarControl.cs">
       <SubType>Component</SubType>
@@ -301,7 +263,6 @@
     </Compile>
     <Compile Include="Util\ResultRecord.cs" />
     <Compile Include="Util\SLogger.cs" />
-    <Compile Include="Util\XmlHelper.cs" />
     <EmbeddedResource Include="CameraForm.resx">
       <DependentUpon>CameraForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -316,9 +277,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="NewModel.resx">
-      <DependentUpon>NewModel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PropertiesForm.resx">
       <DependentUpon>PropertiesForm.cs</DependentUpon>
@@ -343,18 +301,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="RunForm.resx">
       <DependentUpon>RunForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Setting\CameraSetting.resx">
-      <DependentUpon>CameraSetting.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Setting\CommunicatorSetting.resx">
-      <DependentUpon>CommunicatorSetting.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Setting\PathSetting.resx">
-      <DependentUpon>PathSetting.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Setting\SetupForm.resx">
-      <DependentUpon>SetupForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Splash\SplashForm.resx">
       <DependentUpon>SplashForm.cs</DependentUpon>
