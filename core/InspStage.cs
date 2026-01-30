@@ -2,6 +2,7 @@
 using FreshCheck_CV.Grab;
 using FreshCheck_CV.Inspect;
 using FreshCheck_CV.Models;
+using FreshCheck_CV.Sequence;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using SaigeVision.Net.V2.Segmentation;
@@ -12,9 +13,11 @@ using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
+using System.ServiceModel;
 
 
 namespace FreshCheck_CV.Core
@@ -23,6 +26,9 @@ namespace FreshCheck_CV.Core
     //검사와 관련된 클래스를 관리하는 클래스
     public class InspStage : IDisposable
     {
+
+        private long _inspectionSeq = 0;
+
         private BinaryOptions _lastBinaryOptions = new BinaryOptions();
         // 원본 이미지
         private Bitmap _sourceBitmap = null;
@@ -176,90 +182,136 @@ namespace FreshCheck_CV.Core
         }
         public void RunMoldInspectionTemp()
         {
-
             var swTotal = System.Diagnostics.Stopwatch.StartNew();
 
-            if (_sourceBitmap == null)
+            Bitmap source = GetCurrentImage();
+            if (source == null)
                 return;
 
             DateTime now = DateTime.Now;
-
-            // 1) 검사용 입력은 무조건 "원본" 복사본
-            Bitmap detectSource = new Bitmap(_sourceBitmap);
 
             var detector = new MoldDetector(() => _lastBinaryOptions)
             {
                 AreaRatioThreshold = 0.01
             };
 
-            DefectResult result = detector.Detect(detectSource);
-
-            // detectSource는 더 이상 필요 없으니 해제(메모리 누수 방지)
-            detectSource.Dispose();
+            DefectResult result = detector.Detect(source);
 
             bool isMold = result != null && result.IsDefect && result.Type == DefectType.Mold;
 
-            string resultText = isMold ? "Mold" : "OK";
-            string label = isMold ? "Mold" : "OK";
+            string label = isMold ? "NG - Mold" : "OK";
             DefectType saveType = isMold ? DefectType.Mold : DefectType.OK;
-            // 2) 저장도 원본으로 저장하는 게 맞음 (원하면 여기서도 _sourceBitmap 쓰기)
-            string savedPath = DefectImageSaver.Save(new Bitmap(_sourceBitmap), saveType, now, label);
+
+            string savedPath = DefectImageSaver.Save(source, saveType, now, label);
+
+            // 로그
+            Util.SLogger.Write($"Mold Inspection: {label} | ratio={result?.AreaRatio:0.0000} | saved={savedPath}");
+
+            // ✅ 통신 전송 (Jidam과 같은 InspDone)
+            try
+            {
+                long inspNo = System.Threading.Interlocked.Increment(ref _inspectionSeq);
+
+                // NG detail에 Mold/Scratch 이유 문자열로 넣기 (서버가 무시해도 안전)
+                string ngDetail = isMold
+                    ? $"NG=Mold; ratio={result?.AreaRatio:0.0000}; thr={detector.AreaRatioThreshold:0.0000}"
+                    : "OK";
+
+                FreshCheck_CV.Core.Global.Inst.SequenceClient?.SendInspDone(
+                    inspectionNo: inspNo,
+                    isNg: isMold,
+                    ngDetail: ngDetail);
+            }
+            catch (Exception ex)
+            {
+                Util.SLogger.Write($"[WCF] SendInspDone error: {ex.Message}", Util.SLogger.LogType.Error);
+            }
 
             swTotal.Stop();
+        }
 
-            // Inspection Monitor용 집계 이벤트 푸시
-            var dto = new InspectionResultDto
+        private void TrySendWcf_MoldOnly(DateTime now, bool isMold, DefectResult defectResult, double moldThreshold, string savedPath)
+        {
+            try
             {
-                Timestamp = now,
-                IsOk = !isMold,
-                Type = isMold ? MonitorDefectType.Mold : MonitorDefectType.None,
-                Ratio = result?.AreaRatio,
-                SavedPath = savedPath,
-                Message = result?.Message
-            };
+                // 통신 객체
+                var comm = FreshCheck_CV.Core.Global.Inst.Communicator;
+                if (comm == null)
+                    return;
 
+                // 검사 번호 (일련번호)
+                long inspNo = Interlocked.Increment(ref _inspectionSeq);
 
-            Hub.Push(dto);
+                // 제품번호: 아직 라인/서버에서 내려주는 값이 없으면 임시로 검사번호 문자열 사용
+                string productNo = inspNo.ToString();
 
-            // 유진형(스크래치 검사 시간)
-            Util.SLogger.Write($"Result : {label} | " + $"Mold ratio={(result?.AreaRatio ?? 0.0):0.0000} | " + $"MoldDetect={(result?.ElapsedMs ?? 0)}ms | Total={swTotal.ElapsedMilliseconds}ms");
+                // FC 내부 집계(오른쪽 Item/Value용)
+                var snap = Hub.GetSnapshot();
 
-
-            // ResultForm: 항상 1건 기록
-            var resultForm = MainForm.GetDockForm<ResultForm>();
-            if (resultForm != null)
-            {
-                var record = new Models.ResultRecord
+                var counters = new FcCounters
                 {
-                    Time = now,
-                    Result = resultText,
-                    DefectType = isMold ? "Mold" : "None",
-                    Ratio = result?.AreaRatio ?? 0.0,
-                    SavedPath = savedPath,
-                    Message = result?.Message ?? string.Empty
+                    Total = snap.Total,
+                    Good = snap.Ok,
+                    Ng = snap.Total - snap.Ok,
+                    Mold = snap.Mold,
+                    Scratch = snap.Scratch,
+                    Both = snap.Both
                 };
 
-                resultForm.AddRecord(record);
-            }
-
-            // DefectForm: NG일 때만 마스킹 이미지
-            if (isMold)
-            {
-                var defectForm = MainForm.GetDockForm<DefectForm>();
-                defectForm?.AddDefectImage(
-                    result?.OverlayBitmap,
-                    $"{now:HH:mm:ss.fff}  {label}  ratio={result?.AreaRatio:0.0000}",
-                    savedPath);
-            }
-            else
-            {
-                // OK면 OverlayBitmap이 null일 가능성이 높음(정상)
-                if (result?.OverlayBitmap != null)
+                var msg = new FcInspectionResult
                 {
-                    result.OverlayBitmap.Dispose();
+                    InspectionNo = inspNo,
+                    ProductNo = productNo,
+                    Time = now.ToString("HH:mm:ss.fff"),
+
+                    Judge = isMold ? FcJudge.Ng : FcJudge.Good,
+                    NgReason = isMold ? FcNgReason.Mold : FcNgReason.None,
+
+                    MoldRatio = defectResult?.AreaRatio ?? 0.0,
+                    MoldThreshold = moldThreshold,
+
+                    // Scratch는 아직 미연동이므로 0
+                    ScratchCount = 0,
+                    ScratchScore = 0,
+
+                    SavedPath = savedPath,
+                    Message = defectResult?.Message,
+
+                    Counters = counters,
+                    Timing = new FcTiming
+                    {
+                        InspectStartTime = now.ToString("HH:mm:ss.fff"),
+                        InspectEndTime = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        ProcessMsTotal = 0,
+                        MoldMs = 0,
+                        ScratchMs = 0
+                    },
+
+                    MachineName = comm.MachineName,
+                    ModelName = comm.ModelName,
+                    SerialId = comm.SerialId
+                };
+
+                // 연결 확인 후 전송
+                if (comm.State != CommunicationState.Opened)
+                    comm.Connect();
+
+                if (comm.State == CommunicationState.Opened)
+                {
+                    var ack = comm.SendInspection(msg);
+                    FreshCheck_CV.Util.SLogger.Write($"[WCF] InspDone inspNo={inspNo} ack={ack?.Ok} msg={ack?.Message}");
+                }
+                else
+                {
+                    FreshCheck_CV.Util.SLogger.Write("[WCF] Not connected. Skip send.", FreshCheck_CV.Util.SLogger.LogType.Error);
                 }
             }
+            catch (Exception ex)
+            {
+                FreshCheck_CV.Util.SLogger.Write($"[WCF] SendInspection error : {ex.Message}", FreshCheck_CV.Util.SLogger.LogType.Error);
+            }
         }
+
 
 
         // Global.Inst.InspStage 또는 적절한 검사 관리 클래스 내에 구현

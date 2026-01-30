@@ -1,4 +1,6 @@
 ﻿using FreshCheck_CV.Core;
+using FreshCheck_CV.Dialogs;
+using FreshCheck_CV.Sequence;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,7 +11,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FreshCheck_CV.Dialogs;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace FreshCheck_CV
@@ -35,6 +36,35 @@ namespace FreshCheck_CV
         {
 
             InitializeComponent();
+
+
+            try
+            {
+                // 서버 PC IP/포트 일단 하드코딩
+                string serverIp = "192.168.1.85";
+                int serverPort = 7900;
+
+                var comm = FreshCheck_CV.Core.Global.Inst.Communicator;
+                comm.MachineName = "VISION2";
+                comm.ModelName = "TEST";
+                comm.SerialId = "WAF-20260130-L01-EQP1-35515"; 
+                comm.AppVersion = "FC-1.0.0";
+
+                comm.Opened += (s, e) => FreshCheck_CV.Util.SLogger.Write("[WCF] Connected", FreshCheck_CV.Util.SLogger.LogType.Info);
+                comm.Closed += (s, e) => FreshCheck_CV.Util.SLogger.Write("[WCF] Disconnected", FreshCheck_CV.Util.SLogger.LogType.Error);
+
+                comm.Create(CommunicatorType.WCF, serverIp,serverPort);
+
+                if (comm.State == System.ServiceModel.CommunicationState.Opened)
+                {
+                    var ack = comm.SendMachineInfo();
+                    FreshCheck_CV.Util.SLogger.Write($"[WCF] HandShake ack={ack?.Ok} msg={ack?.Message}", FreshCheck_CV.Util.SLogger.LogType.Info);
+                }
+            }
+            catch (Exception ex)
+            {
+                FreshCheck_CV.Util.SLogger.Write($"[WCF] Init error : {ex.Message}", FreshCheck_CV.Util.SLogger.LogType.Error);
+            }
 
             StartPosition = FormStartPosition.CenterScreen;
             WindowState = FormWindowState.Maximized;

@@ -2,6 +2,7 @@
 using FreshCheck_CV.Grab;
 using FreshCheck_CV.UIControl;
 using OpenCvSharp;
+using OpenCvSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -63,7 +64,8 @@ namespace FreshCheck_CV
             {
                 _hikCam = new HikRobotCam();
                 // IP는 실제 카메라 IP로 변경! (Global 설정에서 가져올 수 있음)
-                if (!_hikCam.Create("169.254.90.253") || !_hikCam.InitGrab())
+                if (!_hikCam.Create("192.254.90.253") || !_hikCam.InitGrab())
+
                 {
                     _isCameraConnected = false;
                     return;
@@ -179,47 +181,83 @@ namespace FreshCheck_CV
             propForm.SelectMonitorTab();
             propForm.InitAuth(); // 권한 초기화
         }
+
         private Bitmap ByteArrayToBitmap(byte[] buffer, int width, int height, int srcStride)
         {
             if (buffer == null || buffer.Length == 0) return null;
 
             try
             {
-                // 1. RGB24 stride 패딩 제거 (7776=2592*3 완벽, padding 거의 없음)
-                int expectedLineBytes = width * 3;
-                byte[] cleanBuffer = new byte[expectedLineBytes * height];
+                int lineBytes = width * 3; // RGB24
+                byte[] cleanBuffer = new byte[lineBytes * height];
+
                 for (int y = 0; y < height; y++)
                 {
-                    Buffer.BlockCopy(buffer, y * srcStride, cleanBuffer, y * expectedLineBytes, expectedLineBytes);
+                    Buffer.BlockCopy(buffer, y * srcStride, cleanBuffer, y * lineBytes, lineBytes);
                 }
 
-                Console.WriteLine($"RGB24 변환 - Stride:{srcStride} → Line:{expectedLineBytes} Total:{cleanBuffer.Length}");
-
-                // 2. OpenCV Mat으로 RGB24 → BGR24 변환 (Bitmap 호환)
-                using (Mat rgbMat = new Mat(height, width, MatType.CV_8UC3, cleanBuffer))
-                using (Mat bgrMat = new Mat())
-
+                // ✅ Array 생성자 대신: Mat 생성 후 메모리에 복사
+                using (Mat rgbMat = new Mat(height, width, MatType.CV_8UC3))
                 {
-                    Cv2.CvtColor(rgbMat, bgrMat, ColorConversionCodes.RGB2BGR);  // RGB→BGR [web:46]
+                    Marshal.Copy(cleanBuffer, 0, rgbMat.Data, cleanBuffer.Length);
 
+                    using (Mat bgrMat = new Mat())
                     {
-                        Cv2.CvtColor(rgbMat, bgrMat, ColorConversionCodes.RGB2BGR);  // RGB→BGR [web:46]
+                        Cv2.CvtColor(rgbMat, bgrMat, ColorConversionCodes.RGB2BGR);
 
-                        // 화질 보정 (원본 가까이)
                         Cv2.ConvertScaleAbs(bgrMat, bgrMat, 1.05, 2);
 
-                        Bitmap bmp = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(bgrMat);
-                        Console.WriteLine("RGB24 → 컬러 비트맵 성공!");
-                        return bmp;
+                        return BitmapConverter.ToBitmap(bgrMat);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"RGB24 오류: {ex.Message}\nBuffer[0-10]: {BitConverter.ToString(buffer?.Take(10).ToArray() ?? new byte[0])}");
+                Console.WriteLine($"RGB24 오류: {ex.Message}\nBuffer[0-10]: {BitConverter.ToString(buffer?.Take(10).ToArray() ?? Array.Empty<byte>())}");
                 return null;
             }
         }
+        //private Bitmap ByteArrayToBitmap(byte[] buffer, int width, int height, int srcStride)
+        //{
+        //    if (buffer == null || buffer.Length == 0) return null;
+
+        //    try
+        //    {
+        //        // 1. RGB24 stride 패딩 제거 (7776=2592*3 완벽, padding 거의 없음)
+        //        int expectedLineBytes = width * 3;
+        //        byte[] cleanBuffer = new byte[expectedLineBytes * height];
+        //        for (int y = 0; y < height; y++)
+        //        {
+        //            Buffer.BlockCopy(buffer, y * srcStride, cleanBuffer, y * expectedLineBytes, expectedLineBytes);
+        //        }
+
+        //        Console.WriteLine($"RGB24 변환 - Stride:{srcStride} → Line:{expectedLineBytes} Total:{cleanBuffer.Length}");
+
+        //        // 2. OpenCV Mat으로 RGB24 → BGR24 변환 (Bitmap 호환)
+        //        using (Mat rgbMat = new Mat(height, width, MatType.CV_8UC3, cleanBuffer))
+        //        using (Mat bgrMat = new Mat())
+
+        //        {
+        //            Cv2.CvtColor(rgbMat, bgrMat, ColorConversionCodes.RGB2BGR);  // RGB→BGR [web:46]
+
+        //            {
+        //                Cv2.CvtColor(rgbMat, bgrMat, ColorConversionCodes.RGB2BGR);  // RGB→BGR [web:46]
+
+        //                // 화질 보정 (원본 가까이)
+        //                Cv2.ConvertScaleAbs(bgrMat, bgrMat, 1.05, 2);
+
+        //                Bitmap bmp = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(bgrMat);
+        //                Console.WriteLine("RGB24 → 컬러 비트맵 성공!");
+        //                return bmp;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"RGB24 오류: {ex.Message}\nBuffer[0-10]: {BitConverter.ToString(buffer?.Take(10).ToArray() ?? new byte[0])}");
+        //        return null;
+        //    }
+        //}
 
 
 
