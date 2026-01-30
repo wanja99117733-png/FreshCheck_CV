@@ -1,5 +1,4 @@
-﻿
-using FreshCheck_CV.Defect;
+﻿using FreshCheck_CV.Defect;
 using FreshCheck_CV.Models;
 using System;
 using System.Buffers.Binary;
@@ -11,6 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using FreshCheck_CV.Inspect;
 using SaigeVision.Net.V2.Segmentation;
+using System.Threading;
+using System.ServiceModel;
+using FreshCheck_CV.Sequence;
 
 
 namespace FreshCheck_CV.Core
@@ -18,7 +20,11 @@ namespace FreshCheck_CV.Core
     
     //검사와 관련된 클래스를 관리하는 클래스
     public class InspStage : IDisposable
+
+
     {
+        private long _inspectionSeq = 0;
+
         private BinaryOptions _lastBinaryOptions = new BinaryOptions();
         // 원본 이미지
         private Bitmap _sourceBitmap = null;
@@ -200,6 +206,8 @@ namespace FreshCheck_CV.Core
 
             Hub.Push(dto);
 
+            TrySendWcf_MoldOnly(now, isMold, result, detector.AreaRatioThreshold, savedPath);
+
             // 로그(기록용)
             Util.SLogger.Write($"Mold Inspection: {label} | {result?.Message} | saved={savedPath}");
 
@@ -219,7 +227,7 @@ namespace FreshCheck_CV.Core
 
                 resultForm.AddRecord(record);
             }
-
+         
             // DefectForm: NG일 때만 마스킹 이미지
             if (isMold)
             {
@@ -245,6 +253,90 @@ namespace FreshCheck_CV.Core
             var cameraForm = MainForm.GetDockForm<CameraForm>();
             // CameraForm 호출 (기존 패턴)
             cameraForm.UpdatePreviewWithScratch(bitmap, scratchResult);
+        }
+
+        private void TrySendWcf_MoldOnly(DateTime now, bool isMold, DefectResult result, double moldThreshold, string savedPath)
+        {
+            try
+            {
+                var comm = FreshCheck_CV.Core.Global.Inst.Communicator;
+                if (comm == null)
+                    return;
+
+                // 1) 검사 번호
+                long inspNo = System.Threading.Interlocked.Increment(ref _inspectionSeq);
+                string productNo = inspNo.ToString(); // TODO: 나중에 서버/라인에서 받은 제품번호로 교체
+
+                // 2) 누적 카운트(서버 UI 우측 Item/Value용)
+                var snap = Hub.GetSnapshot();
+
+                var counters = new FreshCheck_CV.Sequence.FcCounters
+                {
+                    Total = snap.Total,
+                    Good = snap.Ok,
+                    Ng = snap.Total - snap.Ok,
+                    Mold = snap.Mold,
+                    Scratch = snap.Scratch,
+                    Both = snap.Both
+                };
+
+                // 3) 시간(지금 RunMoldInspectionTemp는 stopwatch가 없으니 0으로)
+                //    원하면 swTotal 추가해서 넘기면 됨.
+                var timing = new FreshCheck_CV.Sequence.FcTiming
+                {
+                    InspectStartTime = now.ToString("HH:mm:ss.fff"),
+                    InspectEndTime = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    ProcessMsTotal = 0,
+                    MoldMs = 0,
+                    ScratchMs = 0
+                };
+
+                // 4) 메시지 구성
+                var msg = new FreshCheck_CV.Sequence.FcInspectionResult
+                {
+                    InspectionNo = inspNo,
+                    ProductNo = productNo,
+                    Time = now.ToString("HH:mm:ss.fff"),
+
+                    Judge = isMold ? FreshCheck_CV.Sequence.FcJudge.Ng : FreshCheck_CV.Sequence.FcJudge.Good,
+                    NgReason = isMold ? FreshCheck_CV.Sequence.FcNgReason.Mold : FreshCheck_CV.Sequence.FcNgReason.None,
+
+                    MoldRatio = result?.AreaRatio ?? 0.0,
+                    MoldThreshold = moldThreshold,
+
+                    // Scratch 아직 미연동
+                    ScratchCount = 0,
+                    ScratchScore = 0,
+
+                    SavedPath = savedPath,
+                    Message = result?.Message,
+
+                    Counters = counters,
+                    Timing = timing,
+
+                    MachineName = comm.MachineName,
+                    ModelName = comm.ModelName,
+                    SerialId = comm.SerialId
+                };
+
+                // 5) 연결/전송
+                if (comm.State != System.ServiceModel.CommunicationState.Opened)
+                    comm.Connect();
+
+                if (comm.State == System.ServiceModel.CommunicationState.Opened)
+                {
+                    var ack = comm.SendInspection(msg);
+                    FreshCheck_CV.Util.SLogger.Write($"[WCF] InspDone inspNo={inspNo} ack={ack?.Ok} msg={ack?.Message}", FreshCheck_CV.Util.SLogger.LogType.Info);
+                }
+                else
+                {
+                    FreshCheck_CV.Util.SLogger.Write("[WCF] Not connected. Skip send.", FreshCheck_CV.Util.SLogger.LogType.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                FreshCheck_CV.Util.SLogger.Write($"[WCF] SendInspection error : {ex.Message}", FreshCheck_CV.Util.SLogger.LogType.Error);
+            }
         }
 
         #region Disposable

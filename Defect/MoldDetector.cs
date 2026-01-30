@@ -14,8 +14,6 @@ namespace FreshCheck_CV.Defect
     {
         private readonly Func<BinaryOptions> _getBinaryOptions;
 
-        // 흰 픽셀 비율 임계값 (기본 1%)
-        public double AreaRatioThreshold { get; set; } = 0.01;
         // 흰 픽셀 비율 임계값
         public double AreaRatioThreshold { get; set; } = 0.001;
 

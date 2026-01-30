@@ -66,24 +66,28 @@
       <HintPath>packages\DocumentFormat.OpenXml.Framework.3.4.1\lib\net46\DocumentFormat.OpenXml.Framework.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
-      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Log4Net\log4net.dll</HintPath>
+      <HintPath>..\라이브러리\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="MessagingLibrary">
+      <HintPath>..\라이브러리\MessagingLibrary.dll</HintPath>
     </Reference>
     <Reference Include="MvCameraControl.Net">
-      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\HikRobot\MvCameraControl.Net.dll</HintPath>
+      <HintPath>..\라이브러리\MvCameraControl.Net.dll</HintPath>
     </Reference>
-    <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\팀프로젝트 자료\Dll\OpenCvSharp\OpenCvSharp.dll</HintPath>
+    <Reference Include="ObjectListView">
+      <HintPath>..\라이브러리\ObjectListView.dll</HintPath>
     </Reference>
-    <Reference Include="OpenCvSharp.Extensions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\팀프로젝트 자료\Dll\OpenCvSharp\OpenCvSharp.Extensions.dll</HintPath>
+    <Reference Include="OpenCvSharp">
+      <HintPath>..\라이브러리\OpenCvSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenCvSharp.Extensions">
+      <HintPath>..\라이브러리\OpenCvSharp.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="SaigeVision.Net.Core.V2">
-      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Saige\SaigeVision.Net.Core.V2.dll</HintPath>
+      <HintPath>..\라이브러리\SaigeVision.Net.Core.V2.dll</HintPath>
     </Reference>
     <Reference Include="SaigeVision.Net.V2">
-      <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Saige\SaigeVision.Net.V2.dll</HintPath>
+      <HintPath>..\라이브러리\SaigeVision.Net.V2.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.dll</HintPath>
@@ -105,7 +109,9 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -158,6 +164,9 @@
     <Compile Include="Property\InspectionMonitorProp.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Sequence\FcCommunicators.cs" />
+    <Compile Include="Sequence\FcMessages.cs" />
+    <Compile Include="Sequence\IFcWcfContract.cs" />
     <Compile Include="UIControl\OverallRateBarControl.cs">
       <SubType>Component</SubType>
     </Compile>
