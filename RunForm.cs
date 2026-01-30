@@ -177,6 +177,7 @@ namespace FreshCheck_CV
             // 검사 시작시 모니터 탭으로 변경
             var propForm = MainForm.GetDockForm<PropertiesForm>();
             propForm.SelectMonitorTab();
+            propForm.InitAuth(); // 권한 초기화
         }
         private Bitmap ByteArrayToBitmap(byte[] buffer, int width, int height, int srcStride)
         {

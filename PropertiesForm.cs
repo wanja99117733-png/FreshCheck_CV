@@ -32,6 +32,7 @@ namespace FreshCheck_CV
 
 
         private bool _isAuthorized = false; // 인증 여부 저장
+
         private readonly string _adminPassword = "1234"; // 설정할 비밀번호
 
 
@@ -174,38 +175,43 @@ namespace FreshCheck_CV
                 // 이미 인증되었다면 통과
                 if (_isAuthorized) return;
 
+
                 // 비밀번호 확인 창 띄우기
-                if (ShowPasswordDialog() == _adminPassword)
+                using (var pwdForm = new Dialogs.PasswordCheckForm())
                 {
-                    _isAuthorized = true; // 인증 성공
-                }
-                else
-                {
-                    //MessageBox.Show("등록되지 않은 관리자입니다.", "인증 실패", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    CustomMessageBoxForm.Show("등록되지 않은 관리자입니다.", "인증 실패"); // 다크모드 메시지 폼
-                    e.Cancel = true; // 탭 이동 취소
+                    DialogResult result = pwdForm.ShowDialog();
+                    if (result == DialogResult.OK)
+                    {
+                        if (pwdForm.Password == _adminPassword)
+                        {
+                            _isAuthorized = true; // 인증 성공
+                        }
+                        else
+                        {
+                            //MessageBox.Show("등록되지 않은 관리자입니다.", "인증 실패", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            CustomMessageBoxForm.Show("등록되지 않은 관리자입니다.", "인증 실패"); // 다크모드 메시지 폼
+                            e.Cancel = true; // 탭 이동 취소
+                        }
+                    }
+                    else if (result == DialogResult.Cancel)
+                    {
+                        e.Cancel = true; // 탭 이동 취소
+                    }
                 }
             }
         }
 
-        // 간단한 비밀번호 입력용 다이얼로그
-        private string ShowPasswordDialog()
-        {
-            using (var pwdForm = new Dialogs.PasswordCheckForm())
-            {
-                if (pwdForm.ShowDialog() == DialogResult.OK)
-                {
-                    return pwdForm.Password;
-                }
-            }
-            return string.Empty;
-        }
 
         public void SelectMonitorTab()
         {
             TabPage monitorTab;
             _allTabs.TryGetValue("Monitor", out monitorTab);
             tabPropControl.SelectedTab = monitorTab;
+        }
+
+        public void InitAuth()
+        {
+            _isAuthorized = false;
         }
 
     }

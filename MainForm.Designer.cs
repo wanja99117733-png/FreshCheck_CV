@@ -31,11 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.modelNewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.modelOpenMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.modelSaveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.modelSaveAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.imageOpenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageSaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ImageFolderOpenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -59,11 +54,6 @@
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.modelNewMenuItem,
-            this.modelOpenMenuItem,
-            this.modelSaveMenuItem,
-            this.modelSaveAsMenuItem,
-            this.toolStripSeparator1,
             this.imageOpenToolStripMenuItem,
             this.imageSaveToolStripMenuItem,
             this.ImageFolderOpenToolStripMenuItem,
@@ -74,43 +64,6 @@
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
             this.fileToolStripMenuItem.Text = "File";
-            // 
-            // modelNewMenuItem
-            // 
-            this.modelNewMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.modelNewMenuItem.Name = "modelNewMenuItem";
-            this.modelNewMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.modelNewMenuItem.Text = "Model New";
-            this.modelNewMenuItem.Click += new System.EventHandler(this.modelNewMenuItem_Click);
-            // 
-            // modelOpenMenuItem
-            // 
-            this.modelOpenMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.modelOpenMenuItem.Name = "modelOpenMenuItem";
-            this.modelOpenMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.modelOpenMenuItem.Text = "Model Open";
-            this.modelOpenMenuItem.Click += new System.EventHandler(this.modelOpenMenuItem_Click);
-            // 
-            // modelSaveMenuItem
-            // 
-            this.modelSaveMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.modelSaveMenuItem.Name = "modelSaveMenuItem";
-            this.modelSaveMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.modelSaveMenuItem.Text = "Model Save";
-            this.modelSaveMenuItem.Click += new System.EventHandler(this.modelSaveMenuItem_Click);
-            // 
-            // modelSaveAsMenuItem
-            // 
-            this.modelSaveAsMenuItem.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.modelSaveAsMenuItem.Name = "modelSaveAsMenuItem";
-            this.modelSaveAsMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.modelSaveAsMenuItem.Text = "Model Save As";
-            this.modelSaveAsMenuItem.Click += new System.EventHandler(this.modelSaveAsMenuItem_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // imageOpenToolStripMenuItem
             // 
