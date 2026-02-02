@@ -24,7 +24,6 @@ namespace FreshCheck_CV
         private bool _isPickMode = false;
         private Bitmap _rawFrame;   // 오버레이/프리뷰 없는 원본
         private readonly object _rawLock = new object();
-        private PictureBox _fakeCursor;
         private bool _isPickingColor = false;
 
         public void SetRawFrame(Bitmap frame)
@@ -55,7 +54,6 @@ namespace FreshCheck_CV
             {
                 imageViewCtrl.MouseClick += ImageViewCtrl_MouseClick;
             }
-            InitFakeCursor();
         }
 
         public void BeginPickColor()
@@ -122,7 +120,8 @@ namespace FreshCheck_CV
 
                 // ✅ ImageViewCtrl은 LoadBitmap을 사용
                 imageViewCtrl.LoadBitmap(resized640);
-
+                
+                imageViewCtrl.FitImageToScreen();
                 // LoadBitmap이 resized640을 소유하게 되므로 여기서 Dispose 하면 안 됨
                 resized640 = null;
             }
@@ -258,32 +257,6 @@ namespace FreshCheck_CV
             this.Cursor = new Cursor(ptr);
         }
 
-        private void InitFakeCursor()
-        {
-            _fakeCursor = new PictureBox();
-
-            //string path = Path.Combine(
-            //    Application.StartupPath,
-            //    "droppericon_70x70.png"
-            //);
-
-            //using (var temp = Image.FromFile(path))
-            //{
-            //    _fakeCursor.Image = new Bitmap(temp);
-            //}
-
-            _fakeCursor.Image = global::FreshCheck_CV.Properties.Resources.droppericon_70x70;
-
-            _fakeCursor.SizeMode = PictureBoxSizeMode.Zoom;
-            _fakeCursor.Size = new System.Drawing.Size(48, 48);
-            _fakeCursor.BackColor = Color.Transparent;
-            _fakeCursor.Visible = false;
-            _fakeCursor.Enabled = false;
-
-            // 🔥 핵심
-            imageViewCtrl.Controls.Add(_fakeCursor);
-            _fakeCursor.BringToFront();
-        }
         public void StartFakeCursorPick()
         {
             if (_isPickingColor)
@@ -292,44 +265,6 @@ namespace FreshCheck_CV
             _isPickingColor = true;
             
             SetCustomCursor();
-
-            //Cursor.Hide();
-            //_fakeCursor.Visible = true;
-
-            // 🔥 핵심: imageViewCtrl에도 이벤트 연결
-            //this.MouseMove += CameraForm_MouseMove;
-            //imageViewCtrl.MouseMove += CameraForm_MouseMove;
-
-            //this.MouseDown += CameraForm_MouseDown;
-            //imageViewCtrl.MouseDown += CameraForm_MouseDown;
-        }
-        private void CameraForm_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (!_isPickingColor)
-                return;
-
-            // 🔥 핫스팟 보정 (스포이드 끝 기준)
-            int offsetX = 6;
-            int offsetY = 42;
-
-            _fakeCursor.Left = e.X - offsetX;
-            _fakeCursor.Top = e.Y - offsetY;
-        }
-        private void CameraForm_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (!_isPickingColor || e.Button != MouseButtons.Left)
-                return;
-
-            if (imageViewCtrl == null)
-                return;
-
-            // 🔥 기존 imageViewCtrl 픽킹 로직 재사용
-            //if (imageViewCtrl.TryPickColor(e.Location, out Color pickedColor))
-            //{
-            //    ColorPicked?.Invoke(this, new ColorPickedEventArgs(pickedColor));
-            //}
-
-            //EndFakeCursorPick();
         }
 
         public void EndFakeCursorPick()
@@ -337,15 +272,6 @@ namespace FreshCheck_CV
             _isPickingColor = false;
 
             this.Cursor = Cursors.Default;
-
-            //_fakeCursor.Visible = false;
-            //Cursor.Show();
-
-            //this.MouseMove -= CameraForm_MouseMove;
-            //imageViewCtrl.MouseMove -= CameraForm_MouseMove;
-
-            //this.MouseDown -= CameraForm_MouseDown;
-            //imageViewCtrl.MouseDown -= CameraForm_MouseDown;
         }
 
 

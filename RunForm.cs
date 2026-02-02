@@ -195,6 +195,10 @@ namespace FreshCheck_CV
             var propForm = MainForm.GetDockForm<PropertiesForm>();
             propForm.SelectMonitorTab();
             propForm.InitAuth(); // 권한 초기화
+            
+            // 카메라 커서 디폴트로 변경
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            cameraForm.EndFakeCursorPick();
 
             try
             {

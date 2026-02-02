@@ -14,14 +14,14 @@ namespace FreshCheck_CV.Models
             public bool Invert { get; set; } = false; // 현재는 안 쓰는 것
 
             // 기준색(BGR): 스포이드로 이미지에서 찍어서 설정
-            public byte TargetB { get; set; } = 0;
-            public byte TargetG { get; set; } = 0;
-            public byte TargetR { get; set; } = 0;
+            public byte TargetB { get; set; } = 230;
+            public byte TargetG { get; set; } = 199;
+            public byte TargetR { get; set; } = 196;
 
             // RangeTrackbar 좌/우를 오차로 사용
             // Left: 아래쪽 허용 오차, Right: 위쪽 허용 오차 (0~255)
             public int TolLow { get; set; } = 0;
-            public int TolHigh { get; set; } = 0;
+            public int TolHigh { get; set; } = 27;
 
             public void Validate()
             {

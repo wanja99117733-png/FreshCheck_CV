@@ -193,7 +193,7 @@ namespace FreshCheck_CV.UIControl
             Invalidate();
         }
 
-        private void FitImageToScreen()
+        public void FitImageToScreen()
         {
             RecalcZoomRatio();
 
@@ -591,7 +591,6 @@ namespace FreshCheck_CV.UIControl
 
             Invalidate();
         }
-
 
     }
 }
