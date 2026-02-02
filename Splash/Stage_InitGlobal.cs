@@ -18,7 +18,6 @@ namespace FreshCheck_CV
         public async Task ExecuteAsync(StartupContext context, IProgress<InitProgress> progress, CancellationToken ct)
         {
             int minMs = 900;
-
             var cps = new StartupProgressHelper.Checkpoint[]
             {
                 new StartupProgressHelper.Checkpoint(  0, 10, "Global 인스턴스 준비 중..."),
