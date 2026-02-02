@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -98,20 +99,79 @@ namespace FreshCheck_CV
 
 
         //#3_CAMERAVIEW_PROPERTY#1 이미지 경로를 받아 PictureBox에 이미지를 로드하는 메서드
-        public void LoadImage(string filePath)
+        public void LoadImage(string imagePath)
         {
-            if (File.Exists(filePath) == false)
-            {
+            if (string.IsNullOrWhiteSpace(imagePath))
                 return;
+
+            Bitmap loaded = null;
+            Bitmap resized640 = null;
+
+            try
+            {
+                loaded = LoadBitmapNoLock(imagePath);
+
+                // ✅ 마지막 입력을 640x640으로 고정 (Letterbox 추천)
+                resized640 = FreshCheck_CV.Util.ImageResizeHelper.ToSquare(
+                    loaded,
+                    640,
+                    FreshCheck_CV.Util.SquareResizeMode.Letterbox);
+
+                // ✅ ImageViewCtrl은 LoadBitmap을 사용
+                imageViewCtrl.LoadBitmap(resized640);
+
+                // LoadBitmap이 resized640을 소유하게 되므로 여기서 Dispose 하면 안 됨
+                resized640 = null;
+            }
+            finally
+            {
+                loaded?.Dispose();
+                resized640?.Dispose(); // null이면 아무 일 없음
+            }
+        }
+        
+
+
+        private static Bitmap LoadBitmapNoLock(string path)
+        {
+            // 파일 락 방지: FileStream → MemoryStream → Bitmap 복제
+            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var ms = new MemoryStream())
+            {
+                fs.CopyTo(ms);
+                ms.Position = 0;
+
+                using (var temp = new Bitmap(ms))
+                {
+                    // 스트림과 분리된 진짜 Bitmap
+                    return new Bitmap(temp);
+                }
+            }
+        }
+
+        private static Bitmap ResizeHalfFast(Bitmap src)
+        {
+            if (src == null)
+                return null;
+
+            int w = Math.Max(1, src.Width / 2);
+            int h = Math.Max(1, src.Height / 2);
+
+            var dst = new Bitmap(w, h, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+            using (var g = Graphics.FromImage(dst))
+            {
+                // 속도 우선 세팅
+                g.CompositingMode = CompositingMode.SourceCopy;
+                g.CompositingQuality = CompositingQuality.HighSpeed;
+                g.InterpolationMode = InterpolationMode.Low;
+                g.SmoothingMode = SmoothingMode.None;
+                g.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+
+                g.DrawImage(src, new Rectangle(0, 0, w, h));
             }
 
-            using (var temp = (Bitmap)Image.FromFile(filePath))
-            {
-                imageViewCtrl.LoadBitmap(new Bitmap(temp)); // 복사본 전달
-            }
-            //#4_IMAGE_VIEWER#6 이미지 뷰어 컨트롤을 사용하여 이미지를 로드
-            Image bitmap = Image.FromFile(filePath);
-            imageViewCtrl.LoadBitmap((Bitmap)bitmap);
+            return dst;
         }
 
         private void CameraForm_Resize_1(object sender, EventArgs e)

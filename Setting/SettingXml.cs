@@ -113,5 +113,7 @@ namespace FreshCheck_CV.Setting
         public CommunicatorType CommType { get; set; }
         public string CommIP { get; set; } = "127.0.0.1";
         public string RecipeName { get; set; } = "TEST";
+
+        public bool LoadHalfResolution { get; set; } = true;
     }
 }

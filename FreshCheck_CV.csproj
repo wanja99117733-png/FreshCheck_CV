@@ -270,6 +270,7 @@
     <Compile Include="UIControl\RangeTrackbar.Designer.cs">
       <DependentUpon>RangeTrackbar.cs</DependentUpon>
     </Compile>
+    <Compile Include="Util\ImageResizeHelper.cs" />
     <Compile Include="Util\ResultRecord.cs" />
     <Compile Include="Util\SLogger.cs" />
     <Compile Include="Util\XmlHelper.cs" />
