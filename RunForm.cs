@@ -22,6 +22,7 @@ namespace FreshCheck_CV
 {
     public partial class RunForm : DockContent
     {
+        private int _stopRequested = 0;
         private volatile bool _isInspectEnabled;
         private bool _liveMode = false;  // Live 모드 플래그
         private volatile bool _isInspectBusy;
@@ -102,24 +103,35 @@ namespace FreshCheck_CV
         }
         private readonly object _bufferLock = new object();
 
-        private async void MultiGrab_TransferCompleted(object sender, object e)
+      private async void MultiGrab_TransferCompleted(object sender, object e)
         {
-            if (!_isInspectEnabled) return;
+            // 정지/일시정지 처리 중이면 아무 것도 하지 않음 (UI 갱신 금지)
+            if (System.Threading.Volatile.Read(ref _stopRequested) == 1)
+                return;
 
-            // 1. 인덱스 유효성 검사
+            if (!_isInspectEnabled)
+                return;
+
             int bufferIndex = _hikCam.BufferIndex;
-            if (bufferIndex < 0 || _imageBuffers == null || _imageBuffers[bufferIndex].ImageBuffer == null) return;
+            if (bufferIndex < 0 || _imageBuffers == null || _imageBuffers[bufferIndex].ImageBuffer == null)
+                return;
 
             try
             {
-                // 2. 이미지 처리 (UI 업데이트 포함)
-                // 비동기 상황에서 버퍼가 바뀌지 않도록 복사본 전달을 권장합니다.
                 UpdateImageViewCtrl(bufferIndex);
 
                 if (_liveMode)
                 {
-                    await Task.Delay(800); // 800ms는 너무 길 수 있으니 적절히 조절
-                    if (_liveMode) _hikCam.Grab(bufferIndex, true);
+                    await Task.Delay(800);
+
+                    // Delay 후에도 정지/일시정지로 바뀌었으면 Grab 재호출 금지
+                    if (_liveMode == false)
+                        return;
+
+                    if (System.Threading.Volatile.Read(ref _stopRequested) == 1)
+                        return;
+
+                    _hikCam.Grab(bufferIndex, true);
                 }
             }
             catch (Exception ex)
@@ -150,6 +162,8 @@ namespace FreshCheck_CV
 
         private void btnStart_Click(object sender, EventArgs e)
         {
+            System.Threading.Interlocked.Exchange(ref _stopRequested, 0);
+
             _isInspectEnabled = true;
             _liveMode = true;  // 🔑 Live 모드 시작!
             Global.Inst?.InspStage?.Hub?.SetRunning(true);
@@ -157,6 +171,9 @@ namespace FreshCheck_CV
             if (_isCameraConnected)
             {
                 Global.Inst.InspStage.SetWorkingState(WorkingState.LIVE);
+
+                _hikCam.TransferCompleted -= MultiGrab_TransferCompleted;
+                _hikCam.TransferCompleted += MultiGrab_TransferCompleted;
 
                 // 첫 Grab으로 연쇄 시작!
                 _hikCam.Grab(0, false);  // 비동기 → TransferCompleted 콜백
@@ -229,10 +246,16 @@ namespace FreshCheck_CV
 
         private void UpdateImageViewCtrl(int bufferIndex)
         {
+            Bitmap bmp = null;
+
             try
             {
                 var cameraForm = MainForm.GetDockForm<CameraForm>();
                 if (cameraForm == null) return;
+
+                // 정지 중이면 즉시 중단
+                if (System.Threading.Volatile.Read(ref _stopRequested) == 1)
+                    return;
 
                 byte[] rawCopy;
                 lock (_bufferLock)
@@ -240,27 +263,73 @@ namespace FreshCheck_CV
                     rawCopy = (byte[])_imageBuffers[bufferIndex].ImageBuffer.Clone();
                 }
 
-                // stride 명시적 전달로 밀림 완전 방지
-                Bitmap bmp = ByteArrayToBitmap(rawCopy, _width, _height, _stride);
+                bmp = ByteArrayToBitmap(rawCopy, _width, _height, _stride);
+                if (bmp == null) return;
 
-                if (bmp != null)
+                // 정지/폼 종료 중이면 UI 갱신 금지
+                if (cameraForm.IsDisposed || cameraForm.Disposing || cameraForm.IsHandleCreated == false)
                 {
-                    cameraForm.Invoke(new Action(() => cameraForm.UpdateDisplay(bmp)));
+                    bmp.Dispose();
+                    return;
                 }
-                else
+
+                // BeginInvoke: Stop 버튼 처리(UI 스레드)와 교착/타이밍 충돌 줄임
+                cameraForm.BeginInvoke(new Action(() =>
                 {
-                    Console.WriteLine("비트맵 생성 실패 - stride 또는 Bayer 확인");
-                }
+                    Bitmap safe = null;
+
+                    try
+                    {
+                        // UI쪽에서도 다시 한번 정지 체크
+                        if (System.Threading.Volatile.Read(ref _stopRequested) == 1)
+                            return;
+
+                        if (cameraForm.IsDisposed || cameraForm.Disposing)
+                            return;
+
+                        // 안전하게 복제본 전달(그리기 중 Dispose 레이스 방지)
+                        safe = (Bitmap)bmp.Clone();
+
+                        // UpdateDisplay → imageViewCtrl.LoadBitmap 소유권 넘김
+                        cameraForm.UpdateDisplay(safe);
+
+                        // 소유권 넘겼으니 Dispose 방지
+                        safe = null;
+                    }
+                    catch (Exception ex)
+                    {
+                        FreshCheck_CV.Util.SLogger.Write("[UI] UpdateDisplay failed: " + ex,
+                            FreshCheck_CV.Util.SLogger.LogType.Error);
+                    }
+                    finally
+                    {
+                        // 우리가 만든 리소스는 반드시 정리
+                        safe?.Dispose();
+                        bmp.Dispose();
+                    }
+                }));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Update UI Error: {ex.Message}");
+                // 여기서 예외를 삼켜서 “전역 메시지박스”로 안 올라가게 막음
+                FreshCheck_CV.Util.SLogger.Write("[RunForm] UpdateImageViewCtrl failed: " + ex,
+                    FreshCheck_CV.Util.SLogger.LogType.Error);
+
+                bmp?.Dispose();
             }
         }
         private void btnPause_Click(object sender, EventArgs e)
         {
+
+            System.Threading.Interlocked.Exchange(ref _stopRequested, 1);
+
             _isInspectEnabled = false;  // 🔑 콜백 제어!
             _liveMode = false;  // 🔑 Live 중지!
+
+            if (_hikCam != null)
+            {
+                _hikCam.TransferCompleted -= MultiGrab_TransferCompleted;
+            }
 
             MainForm.Instance?.StopImageCyclePublic();
             PauseInspectionLoop();
@@ -271,21 +340,29 @@ namespace FreshCheck_CV
             }
             catch (Exception ex)
             {
-                FreshCheck_CV.Util.SLogger.Write("[Vision4] StopAutoRun failed: " + ex, FreshCheck_CV.Util.SLogger.LogType.Error);
+                FreshCheck_CV.Util.SLogger.Write("[Vision4] StopAutoRun failed: " + ex,
+                    FreshCheck_CV.Util.SLogger.LogType.Error);
             }
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            _isInspectEnabled = false;
-            _liveMode = false;  // 🔑 Live 중지!
+            System.Threading.Interlocked.Exchange(ref _stopRequested, 1);
 
+            _isInspectEnabled = false;
+            _liveMode = false;
+
+            if (_hikCam != null)
+            {
+                _hikCam.TransferCompleted -= MultiGrab_TransferCompleted;
+            }
 
             if (MainForm.Instance != null)
             {
                 MainForm.Instance.StopImageCyclePublic();
                 MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
             }
+
             StopInspectionLoop();
 
             try
@@ -294,7 +371,8 @@ namespace FreshCheck_CV
             }
             catch (Exception ex)
             {
-                FreshCheck_CV.Util.SLogger.Write("[Vision4] StopAutoRun failed: " + ex, FreshCheck_CV.Util.SLogger.LogType.Error);
+                FreshCheck_CV.Util.SLogger.Write("[Vision4] StopAutoRun failed: " + ex,
+                    FreshCheck_CV.Util.SLogger.LogType.Error);
             }
         }
 

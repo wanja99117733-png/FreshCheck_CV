@@ -104,6 +104,9 @@ namespace FreshCheck_CV
             if (string.IsNullOrWhiteSpace(imagePath))
                 return;
 
+            if (File.Exists(imagePath) == false)
+                return;
+
             Bitmap loaded = null;
             Bitmap resized640 = null;
 

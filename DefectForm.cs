@@ -33,7 +33,7 @@ namespace FreshCheck_CV
         private readonly Color _cardSelectedBack = Color.FromArgb(35, 38, 44);
         private readonly Color _cardSelectedBorder = Color.White;
 
-        private const int MaxItems = 50;
+        private const int MaxItems = 4;
         private Panel _selectedCard;
 
         public DefectForm()

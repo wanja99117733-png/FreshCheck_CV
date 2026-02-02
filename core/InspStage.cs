@@ -191,7 +191,7 @@ namespace FreshCheck_CV.Core
 
             var detector = new MoldDetector(() => _lastBinaryOptions)
             {
-                AreaRatioThreshold = 0.01
+                AreaRatioThreshold = 0.005
             };
 
             DefectResult result = detector.Detect(detectSource);

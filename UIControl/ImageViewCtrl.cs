@@ -8,7 +8,9 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,30 +21,58 @@ using System.Windows.Forms;
 
 namespace FreshCheck_CV.UIControl
 {
+
     public partial class ImageViewCtrl : UserControl
     {
+        private readonly object _imgLock = new object();
         //#4_IMAGE_VIEWER#1 변수 선언
         private bool _isInitialized = false;
 
         // 현재 로드된 이미지
         private Bitmap _bitmapImage = null;
+        private static Bitmap SafeClone(Bitmap src)
+        {
+            if (src == null) return null;
 
+            try
+            {
+                // Clone이 가장 빠르고 픽셀포맷도 유지됨
+                return (Bitmap)src.Clone();
+            }
+            catch
+            {
+                // src가 이미 Dispose된 상태면 여기로 들어올 수 있음
+                return null;
+            }
+        }
 
         // 프리뷰 이미지 변수
         private Bitmap _previewImage = null;
 
         public Bitmap PreviewImage
         {
-            get { return _previewImage; }
+            get
+            {
+                lock (_imgLock)
+                {
+                    return SafeClone(_previewImage);
+                }
+            }
             set
             {
-                if (_previewImage != null)
+                Bitmap clone = SafeClone(value); // ✅ 들어오는 순간 복제
+
+                lock (_imgLock)
                 {
-                    _previewImage.Dispose();
-                    _previewImage = null;
+                    if (_previewImage != null)
+                    {
+                        _previewImage.Dispose();
+                        _previewImage = null;
+                    }
+
+                    _previewImage = clone;
                 }
 
-                _previewImage = value;
                 Invalidate();
             }
         }
@@ -51,16 +81,28 @@ namespace FreshCheck_CV.UIControl
 
         public Bitmap ResultImage
         {
-            get { return _resultImage; }
+            get
+            {
+                lock (_imgLock)
+                {
+                    return SafeClone(_resultImage);
+                }
+            }
             set
             {
-                if (_resultImage != null)
+                Bitmap clone = SafeClone(value); // ✅ 들어오는 순간 복제
+
+                lock (_imgLock)
                 {
-                    _resultImage.Dispose();
-                    _resultImage = null;
+                    if (_resultImage != null)
+                    {
+                        _resultImage.Dispose();
+                        _resultImage = null;
+                    }
+
+                    _resultImage = clone;
                 }
 
-                _resultImage = value;
                 Invalidate();
             }
         }
@@ -85,8 +127,8 @@ namespace FreshCheck_CV.UIControl
 
         // 스크래치 세그멘테이션 결과 저장용
         private SegmentationResult _scratchResult = null;
-        
-        
+
+
         //#17_WORKING_STATE#3 작업 상태 변수
         public string WorkingState { get; set; } = "";
 
@@ -98,8 +140,8 @@ namespace FreshCheck_CV.UIControl
 
             MouseWheel += new MouseEventHandler(ImageViewCCtrl_MouseWheel);
         }
-    
-    
+
+
         //#4_IMAGE_VIEWER#2 캔버스 초기화 및 설정
         private void InitializeCanvas()
         {
@@ -134,49 +176,21 @@ namespace FreshCheck_CV.UIControl
         //#4_IMAGE_VIEWER#5 이미지 로딩 함수
         public void LoadBitmap(Bitmap bitmap)
         {
-            if (_previewImage != null)
-            {
-                _previewImage.Dispose(); // Bitmap 객체가 사용하던 메모리 리소스를 해제
-                _previewImage = null;  //객체를 해제하여 가비지 컬렉션(GC)이 수집할 수 있도록 설정
-            }
+            Bitmap clone = SafeClone(bitmap);
+            if (clone == null) return;
 
-            if (_resultImage != null)
+            lock (_imgLock)
             {
-                _resultImage.Dispose(); // Bitmap 객체가 사용하던 메모리 리소스를 해제
-                _resultImage = null;  //객체를 해제하여 가비지 컬렉션(GC)이 수집할 수 있도록 설정
-            }
-
-            if (_scratchResult != null)
-            {
-                _scratchResult = null;
-            }
-
-            // 기존에 로드된 이미지가 있다면 해제 후 초기화, 메모리누수 방지
-            if (_bitmapImage != null)
-            {
-                //이미지 크기가 같다면, 이미지 변경 후, 화면 갱신
-                if (_bitmapImage.Width == bitmap.Width && _bitmapImage.Height == bitmap.Height)
+                if (_bitmapImage != null)
                 {
-                    _bitmapImage = bitmap;
-                    Invalidate();
-                    return;
+                    _bitmapImage.Dispose();
+                    _bitmapImage = null;
                 }
 
-                _bitmapImage.Dispose(); // Bitmap 객체가 사용하던 메모리 리소스를 해제
-                _bitmapImage = null;  //객체를 해제하여 가비지 컬렉션(GC)이 수집할 수 있도록 설정
+                _bitmapImage = clone;
             }
 
-            // 새로운 이미지 로드
-            _bitmapImage = bitmap;
-
-            ////bitmap==null 예외처리도 초기화되지않은 변수들 초기화
-            if (_isInitialized == false)
-            {
-                _isInitialized = true;
-                ResizeCanvas();
-            }
-
-            FitImageToScreen();
+            Invalidate();
         }
 
         private void FitImageToScreen()
@@ -184,7 +198,7 @@ namespace FreshCheck_CV.UIControl
             RecalcZoomRatio();
 
             float NewWidth = _bitmapImage.Width * _curZoom;
-            
+
             float NewHeight = _bitmapImage.Height * _curZoom;
 
             // 이미지가 UserControl 중앙에 배치되도록 정렬
@@ -202,7 +216,7 @@ namespace FreshCheck_CV.UIControl
         {
             _resultImage = previewImage?.Clone() as Bitmap;  // 강제 PreviewImage 설정!
             _scratchResult = scratchResult;
-                
+
             // 🔥 Preview 전용 줌 리셋
             if (_resultImage != null)
             {
@@ -255,45 +269,91 @@ namespace FreshCheck_CV.UIControl
         // 화면새로고침(Invalidate()), 창 크기변경, 컨트롤이 숨겨졌다가 나타날때 실행
         protected override void OnPaint(PaintEventArgs e)
         {
-            base.OnPaint(e);
-
-            // 🔥 수정: PreviewImage 무조건 우선!
-            Bitmap displayBitmap = _resultImage != null ? _resultImage : (_previewImage != null ? _previewImage : _bitmapImage);
-
-            if (displayBitmap != null && Canvas != null)
+            try
             {
-                using (Graphics g = Graphics.FromImage(Canvas))
-                {
-                    g.Clear(Color.Transparent);
-                    g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                base.OnPaint(e);
 
-                    // 🔥 PreviewImage 크기로 ImageRect 재계산!
-                    if (_previewImage != null)
+                // ✅ 표시 우선순위: Result > Preview > Original
+                Bitmap src = _resultImage ?? _previewImage ?? _bitmapImage;
+                if (src == null)
+                    return;
+
+                // ✅ Canvas가 없거나 크기가 바뀌었으면 재생성 (Dispose/Resize 방어)
+                int cw = Math.Max(1, this.Width);
+                int ch = Math.Max(1, this.Height);
+
+                if (Canvas == null || Canvas.Width != cw || Canvas.Height != ch)
+                {
+                    Canvas?.Dispose();
+                    Canvas = new Bitmap(cw, ch, PixelFormat.Format32bppPArgb);
+                }
+
+                // ✅ 그리기 직전에 Clone해서 "그리는 중 Dispose" 레이스 끊기
+                Bitmap drawBmp = null;
+                try
+                {
+                    drawBmp = (Bitmap)src.Clone();
+                }
+                catch
+                {
+                    // src가 이미 Dispose되었거나 GDI+ 내부 상태가 깨진 경우
+                    return;
+                }
+
+                try
+                {
+                    using (drawBmp)
+                    using (Graphics g = Graphics.FromImage(Canvas))
                     {
-                        float virtualWidth = _previewImage.Width * _curZoom;
-                        float virtualHeight = _previewImage.Height * _curZoom;
+                        g.Clear(Color.Transparent);
+                        g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                        g.SmoothingMode = SmoothingMode.None;
+                        g.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+
+                        // ✅ 선택된 표시 비트맵(drawBmp) 기준으로 ImageRect 재계산
+                        float virtualWidth = drawBmp.Width * _curZoom;
+                        float virtualHeight = drawBmp.Height * _curZoom;
+
                         ImageRect = new RectangleF(
                             (Width - virtualWidth) / 2f,
                             (Height - virtualHeight) / 2f,
-                            virtualWidth, virtualHeight);
+                            virtualWidth,
+                            virtualHeight);
+
+                        // ✅ 실제 그리기
+                        g.DrawImage(drawBmp, ImageRect);
+
+                        // ✅ 스크래치 박스
+                        DrawScratchBoundingBoxes(g);
+
+                        // ✅ 작업 상태 텍스트
+                        if (string.IsNullOrEmpty(WorkingState) == false && (_resultImage != null || _previewImage != null))
+                        {
+                            float fontSize = 20.0f;
+                            Color stateColor = Color.FromArgb(255, 128, 0);
+                            PointF textPos = new PointF(10, 10);
+                            DrawText(g, WorkingState, textPos, fontSize, stateColor);
+                        }
                     }
 
-                    g.DrawImage(displayBitmap, ImageRect);  // 배경제거 이미지!
-
-                    DrawScratchBoundingBoxes(g);  // 사각형!
-
-
-                    //#17_WORKING_STATE#4 작업 상태 화면에 표시
-                    if (WorkingState != "" && (_resultImage != null || _previewImage != null))
-                    {
-                        float fontSize = 20.0f;
-                        Color stateColor = Color.FromArgb(255, 128, 0);
-                        PointF textPos = new PointF(10, 10);
-                        DrawText(g, WorkingState, textPos, fontSize, stateColor);
-                    }
-
-                    e.Graphics.DrawImage(Canvas, 0, 0);
+                    // ✅ Canvas를 화면에 출력
+                    e.Graphics.DrawImageUnscaled(Canvas, 0, 0);
                 }
+                catch (ArgumentException)
+                {
+                    // GDI+ "Parameter is not valid" 방어
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Canvas나 Graphics가 Dispose된 타이밍 방어
+                }
+            }
+            catch (ArgumentException)
+            {
+                // base.OnPaint 포함해서 혹시라도 올라오면 최종 방어
+            }
+            catch (ObjectDisposedException)
+            {
             }
         }
 
@@ -519,5 +579,19 @@ namespace FreshCheck_CV.UIControl
             imagePoint = new System.Drawing.Point(x, y);
             return true;
         }
+
+        public void ClearAllImages()
+        {
+            lock (_imgLock)
+            {
+                _bitmapImage?.Dispose(); _bitmapImage = null;
+                _previewImage?.Dispose(); _previewImage = null;
+                _resultImage?.Dispose(); _resultImage = null;
+            }
+
+            Invalidate();
+        }
+
+
     }
 }
