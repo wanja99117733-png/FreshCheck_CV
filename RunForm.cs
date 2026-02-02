@@ -133,6 +133,9 @@ namespace FreshCheck_CV
 
                     _hikCam.Grab(bufferIndex, true);
                 }
+
+                var cameraForm = MainForm.GetDockForm<CameraForm>();
+                cameraForm.FitImageToScreen();
             }
             catch (Exception ex)
             {

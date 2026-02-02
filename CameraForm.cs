@@ -120,8 +120,6 @@ namespace FreshCheck_CV
 
                 // ✅ ImageViewCtrl은 LoadBitmap을 사용
                 imageViewCtrl.LoadBitmap(resized640);
-                
-                imageViewCtrl.FitImageToScreen();
                 // LoadBitmap이 resized640을 소유하게 되므로 여기서 Dispose 하면 안 됨
                 resized640 = null;
             }
@@ -324,6 +322,11 @@ namespace FreshCheck_CV
 
             imageViewCtrl.WorkingState = state;
             imageViewCtrl.Invalidate();
+        }
+
+        public void FitImageToScreen()
+        {
+            imageViewCtrl.FitImageToScreen();
         }
 
     }
