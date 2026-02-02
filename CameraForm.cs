@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Drawing.Charts;
 using FreshCheck_CV.Core;
 using FreshCheck_CV.Inspect;
+using FreshCheck_CV.Property;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using SaigeVision.Net.V2.Segmentation;
@@ -84,13 +85,16 @@ namespace FreshCheck_CV
             {
                 return;
             }
-
+            Console.WriteLine(pickedColor.ToString());
             ColorPicked?.Invoke(this, new ColorPickedEventArgs(pickedColor));
             // 폼 배경
             this.BackColor = Color.FromArgb(25, 25, 25);
 
             // 이미지 컨트롤 외 여백 색
             imageViewCtrl.BackColor = Color.Black;
+
+            BinaryProp binaryProp = new BinaryProp();
+            binaryProp.UpdateTargetUi(pickedColor);
         }
 
 
@@ -322,11 +326,6 @@ namespace FreshCheck_CV
 
             imageViewCtrl.WorkingState = state;
             imageViewCtrl.Invalidate();
-        }
-
-        public void FitImageToScreen()
-        {
-            imageViewCtrl.FitImageToScreen();
         }
 
     }

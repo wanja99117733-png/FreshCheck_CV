@@ -133,9 +133,6 @@ namespace FreshCheck_CV
 
                     _hikCam.Grab(bufferIndex, true);
                 }
-
-                var cameraForm = MainForm.GetDockForm<CameraForm>();
-                cameraForm.FitImageToScreen();
             }
             catch (Exception ex)
             {
@@ -202,7 +199,7 @@ namespace FreshCheck_CV
             // 카메라 커서 디폴트로 변경
             var cameraForm = MainForm.GetDockForm<CameraForm>();
             cameraForm.EndFakeCursorPick();
-
+            
             try
             {
                 Global.Inst.Vision4Runtime.StartAutoRun();

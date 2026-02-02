@@ -103,7 +103,9 @@ namespace FreshCheck_CV.Property
 
 
             UpdateToleranceLabel();
-            UpdateTargetUi(0, 0, 0);
+
+            BinaryOptions binaryOptions = Global.Inst.InspStage.LastBinaryOptions;
+            UpdateTargetUi(binaryOptions.TargetB, binaryOptions.TargetG, binaryOptions.TargetR);
         }
         private SegmentationResult FilterStemScratches(Bitmap noBgImage, SegmentationResult scratchResult)
         {
@@ -261,6 +263,11 @@ namespace FreshCheck_CV.Property
         {
             lblTargetColor.Text = $"Target: (B={b}, G={g}, R={r})";
             pnlTargetSwatch.BackColor = Color.FromArgb(r, g, b);
+        }
+
+        public void UpdateTargetUi(Color c)
+        {
+            UpdateTargetUi(c.B, c.G, c.R);
         }
 
         private void UpdateToleranceLabel()

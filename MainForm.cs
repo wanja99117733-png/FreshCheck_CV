@@ -163,7 +163,7 @@ namespace FreshCheck_CV
 
             // 하단 오른쪽 (ResultForm)
             var resultWindow = new ResultForm();
-            resultWindow.Show(defectWindow.Pane, DockAlignment.Right, 0.8);
+            resultWindow.Show(defectWindow.Pane, DockAlignment.Right, 0.65);
         }
         // 이미지가 들어 있는 폴더를 선택하는 메서드
         private void LoadImageFolder()

@@ -24,6 +24,18 @@ namespace FreshCheck_CV.Core
     public class InspStage : IDisposable
     {
         private BinaryOptions _lastBinaryOptions = new BinaryOptions();
+        public BinaryOptions LastBinaryOptions
+        {
+            get
+            {
+                return _lastBinaryOptions;
+            }
+            set
+            {
+                _lastBinaryOptions = value ?? new BinaryOptions();
+            }
+        }
+
         // 원본 이미지
         private Bitmap _sourceBitmap = null;
         private GrabModel _grabManager = null;

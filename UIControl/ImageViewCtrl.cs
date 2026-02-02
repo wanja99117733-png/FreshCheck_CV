@@ -193,7 +193,7 @@ namespace FreshCheck_CV.UIControl
             Invalidate();
         }
 
-        public void FitImageToScreen()
+        private void FitImageToScreen()
         {
             RecalcZoomRatio();
 
@@ -335,6 +335,7 @@ namespace FreshCheck_CV.UIControl
                             DrawText(g, WorkingState, textPos, fontSize, stateColor);
                         }
                     }
+
 
                     // ✅ Canvas를 화면에 출력
                     e.Graphics.DrawImageUnscaled(Canvas, 0, 0);
