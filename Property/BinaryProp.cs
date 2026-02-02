@@ -179,7 +179,6 @@ namespace FreshCheck_CV.Property
                 );
             }
         }
-
         // --- 보조 메서드 1: 곡률 분석 (각도 조절 기능 포함) ---
         private bool IsPointNearSharpCurvature(OpenCvSharp.Point2f scratchPt, OpenCvSharp.Point[] contour, float distanceThreshold, double maxAngle)
         {
