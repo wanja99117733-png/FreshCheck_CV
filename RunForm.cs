@@ -122,8 +122,7 @@ namespace FreshCheck_CV
 
                 if (_liveMode)
                 {
-                    await Task.Delay(800);
-
+                    await Task.Delay(500);
                     // Delay 후에도 정지/일시정지로 바뀌었으면 Grab 재호출 금지
                     if (_liveMode == false)
                         return;
@@ -132,6 +131,7 @@ namespace FreshCheck_CV
                         return;
 
                     _hikCam.Grab(bufferIndex, true);
+                    
                 }
             }
             catch (Exception ex)
