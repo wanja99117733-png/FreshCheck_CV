@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FreshCheck_CV.Seqeunce;
 
 namespace FreshCheck_CV.Core
 {
@@ -22,6 +23,12 @@ namespace FreshCheck_CV.Core
         #endregion
 
         private InspStage _stage = new InspStage();
+        private readonly Vision4SequenceRuntime _vision4Runtime = new Vision4SequenceRuntime();
+
+        internal Vision4SequenceRuntime Vision4Runtime
+        {
+            get { return _vision4Runtime; }
+        }
 
         public InspStage InspStage
         {
@@ -40,7 +47,8 @@ namespace FreshCheck_CV.Core
 
         public void Dispose()
         {
-            _stage.Dispose();
+            try { _vision4Runtime.Dispose(); } catch { }
+            try { _stage.Dispose(); } catch { }
         }
     }
 }

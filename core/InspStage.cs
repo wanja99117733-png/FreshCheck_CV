@@ -30,6 +30,8 @@ namespace FreshCheck_CV.Core
         SaigeAI _saigeAI; // SaigeAI 인스턴스
         private CameraType _camType = CameraType.HikRobotCam;
 
+        public string LastFinalResult { get; private set; } = "OK";
+
         public InspStage() { }
 
         public SaigeAI AIModule
@@ -263,131 +265,214 @@ namespace FreshCheck_CV.Core
 
 
         // Global.Inst.InspStage 또는 적절한 검사 관리 클래스 내에 구현
-        public void RunFullInspectionCycle()
+        public bool RunFullInspectionCycle()
         {
+            bool isNG = true;
+
             var swTotal = System.Diagnostics.Stopwatch.StartNew();
-            var saigeAI = this.AIModule;
-            if (saigeAI == null) return;
 
-
-            // 1. 원본 이미지 가져오기
-            Bitmap original = GetCurrentImage();
-            if (original == null) return;
-            DateTime now = DateTime.Now;
-
-            // --- [STEP 1: 배경 제거] ---
-            if (!saigeAI.InspAIModule(original, AIEngineType.Segmentation)) return;
-            Bitmap noBgImage = saigeAI.GetResultImage(); // 배경이 제거된 검정 바탕 이미지
-
-            // --- [STEP 2: Mold 검사] ---
-            // 유저 요청에 따라 배경이 제거된 이미지(noBgImage)로 Mold 검사 수행
-            var moldDetector = new MoldDetector(() => _lastBinaryOptions) { AreaRatioThreshold = 0.01 };
-
-            // Mold 검사 수행
-            DefectResult moldResult = moldDetector.Detect(noBgImage, original);
-            bool isMold = moldResult != null && moldResult.IsDefect && moldResult.Type == DefectType.Mold;
-
-            // --- [STEP 3: Scratch 검사] ---
-            if (!saigeAI.InspAIModule(noBgImage, AIEngineType.ScratchSegmentation))
-            {
-                FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show("Scratch 검출이 실패하였습니다.", "시스템 오류");
-                //MessageBox.Show("Scratch 검출 실패", "오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            SegmentationResult scratchResult = saigeAI.GetScratchResult();
-            bool isScratch = scratchResult != null && scratchResult.SegmentedObjects.Length > 0;
-
-
-            // --- [STEP 4: 다중 결함 판정 로직] ---
-            List<string> defectList = new List<string>();
-
-            if (isMold) defectList.Add("Mold");
-            if (isScratch) defectList.Add("Scratch");
-
-            bool isNG = isMold || isScratch;
-            string finalResult = isNG ? string.Join(", ", defectList) : "OK";
-
-            swTotal.Stop();
-
-            // --- [STEP 5: 최종 화면 출력] ---
-            // Mold 하이라이트 이미지(resultBaseImage) 위에 Scratch 박스(scratchResult)를 겹쳐서 그림
+            Bitmap original = null;
+            Bitmap noBgImage = null;
+            DefectResult moldResult = null;
             Bitmap displayBase = null;
 
-            if (isMold && moldResult.OverlayBitmap != null)
-                // Mold 결함이 있을 때 Overlay 이미지를 복제
-                displayBase = (Bitmap)moldResult.OverlayBitmap.Clone();
-            else if (original != null)
-                // 결함이 없거나 Overlay가 없을 때 원본 복제
-                displayBase = (Bitmap)original.Clone();
+            // ✅ Scratch를 Mold 결과에 따라 실행/스킵해야 하므로 미리 선언
+            SegmentationResult scratchResult = null;
+            bool isScratch = false;
+            bool isMold = false;
 
-            UpdatePreviewWithScratch(displayBase, scratchResult);
-
-            // --- [STEP 6: 데이터 기록 및 저장] ---
-
-            // 최종 판정 로직 (Mold나 Scratch 중 하나라도 있으면 NG)
-            string resultText = isNG ? (isMold ? "Mold" : "Scratch") : "OK";
-            string label = resultText;
-
-            // 저장용 타입 결정 (우선순위: Mold > Scratch)
-            DefectType saveType = isMold ? DefectType.Mold : (isScratch ? DefectType.Scratch : DefectType.OK);
-
-            // 이미지 저장 (원본 기준으로 저장)
-            string savedPath = DefectImageSaver.Save(new Bitmap(original), saveType, now, finalResult);
-
-            // 1) Inspection Monitor(Hub) 업데이트
-            var dto = new InspectionResultDto
+            try
             {
-                Timestamp = now,
-                IsOk = !isNG,
-                Type = isMold ? MonitorDefectType.Mold : (isScratch ? MonitorDefectType.Scratch : MonitorDefectType.None),
-                SavedPath = savedPath,
-                Message = $"[Result: {finalResult}] " +
-                  (isMold ? $"Ratio: {moldResult.AreaRatio:F4} " : "") +
-                  (isScratch ? $"Scratch: {scratchResult.SegmentedObjects.Length}ea" : "")
-            };
-            Hub.Push(dto);
+                var saigeAI = this.AIModule;
+                if (saigeAI == null)
+                {
+                    return true; // 검사 불가 => NG로 처리(안전)
+                }
 
-            // 2) ResultForm 기록 (최종 결과 기준)
-            var resultForm = MainForm.GetDockForm<ResultForm>();
-            resultForm?.AddRecord(new Models.ResultRecord
-            {
-                Time = now,
-                Result = finalResult,
-                DefectType = isNG ? finalResult : "None",
-                Ratio = moldResult?.AreaRatio ?? 0.0,
-                SavedPath = savedPath,
-                Message = dto.Message
-            });
+                // 1) 원본 이미지
+                original = GetCurrentImage();
+                if (original == null)
+                {
+                    return true;
+                }
 
-            // 3) SLogger 기록
-            Util.SLogger.Write($"[FullCycle] Result: {label} | Mold: {isMold}({moldResult?.ElapsedMs}ms) | Scratch: {isScratch} | Total: {swTotal.ElapsedMilliseconds}ms");
+                DateTime now = DateTime.Now;
 
+                // STEP 1) 배경 제거
+                if (!saigeAI.InspAIModule(original, AIEngineType.Segmentation))
+                {
+                    return true;
+                }
 
-            // 4) DefectForm 업데이트 (NG일 때)
-            if (isNG)
-            {
-                MainForm.GetDockForm<DefectForm>()?.AddDefectImage(
-                    displayBase,
-                    $"{now:HH:mm:ss} [{finalResult}]",
-                    savedPath);
+                noBgImage = saigeAI.GetResultImage();
+                if (noBgImage == null)
+                {
+                    return true;
+                }
+
+                // STEP 2) Mold
+                var moldDetector = new MoldDetector(() => _lastBinaryOptions)
+                {
+                    AreaRatioThreshold = 0.01
+                };
+
+                moldResult = moldDetector.Detect(noBgImage, original);
+                isMold = moldResult != null && moldResult.IsDefect && moldResult.Type == DefectType.Mold;
+
+                // ✅ STEP 3) Scratch (Mold가 아닐 때만 실행)
+                if (!isMold)
+                {
+                    if (!saigeAI.InspAIModule(noBgImage, AIEngineType.ScratchSegmentation))
+                    {
+                        FreshCheck_CV.Dialogs.CustomMessageBoxForm.Show("Scratch 검출이 실패하였습니다.", "시스템 오류");
+                        return true;
+                    }
+
+                    scratchResult = saigeAI.GetScratchResult();
+                    isScratch = scratchResult != null &&
+                                scratchResult.SegmentedObjects != null &&
+                                scratchResult.SegmentedObjects.Length > 0;
+                }
+                else
+                {
+                    // Mold면 Scratch는 스킵 (명시적으로)
+                    scratchResult = null;
+                    isScratch = false;
+                }
+
+                // STEP 4) 최종 판정
+                isNG = isMold || isScratch;
+
+                // ✅ Mold면 결과는 Mold로 확정(= Scratch를 아예 안 돌았으므로 둘 다 표기 불가)
+                string finalResult =
+                    isMold ? "Mold" :
+                    (isScratch ? "Scratch" : "OK");
+
+                LastFinalResult = finalResult;
+
+                // STEP 5) 화면 출력용 베이스 이미지
+                if (isMold && moldResult?.OverlayBitmap != null)
+                {
+                    displayBase = (Bitmap)moldResult.OverlayBitmap.Clone();
+                }
+                else
+                {
+                    displayBase = (Bitmap)original.Clone();
+                }
+
+                // ✅ Mold면 scratchResult가 null일 수 있음 → UpdatePreviewWithScratch가 null-safe여야 함(아래 2번 패치 참고)
+                UpdatePreviewWithScratch(displayBase, scratchResult);
+
+                // STEP 6) 저장/기록
+                DefectType saveType = isMold ? DefectType.Mold : (isScratch ? DefectType.Scratch : DefectType.OK);
+
+                string savedPath;
+                using (var originalCopy = new Bitmap(original)) // ★ new Bitmap(original) 누수 방지
+                {
+                    savedPath = DefectImageSaver.Save(originalCopy, saveType, now, finalResult);
+                }
+
+                int scratchCount = (scratchResult?.SegmentedObjects?.Length) ?? 0;
+
+                // 1) Hub 업데이트
+                var dto = new InspectionResultDto
+                {
+                    Timestamp = now,
+                    IsOk = !isNG,
+                    Type = isMold ? MonitorDefectType.Mold : (isScratch ? MonitorDefectType.Scratch : MonitorDefectType.None),
+                    SavedPath = savedPath,
+                    Message = $"[Result: {finalResult}] " +
+                              (isMold ? $"Ratio: {moldResult.AreaRatio:F4} " : "") +
+                              (!isMold ? (isScratch ? $"Scratch: {scratchCount}ea" : "Scratch: 0ea") : "Scratch: skipped")
+                };
+                Hub.Push(dto);
+
+                // 2) ResultForm 기록
+                var resultForm = MainForm.GetDockForm<ResultForm>();
+                resultForm?.AddRecord(new Models.ResultRecord
+                {
+                    Time = now,
+                    Result = finalResult,
+                    DefectType = isNG ? finalResult : "None",
+                    Ratio = moldResult?.AreaRatio ?? 0.0,
+                    SavedPath = savedPath,
+                    Message = dto.Message
+                });
+
+                // 3) 로그
+                swTotal.Stop();
+                Util.SLogger.Write(
+                    $"[FullCycle] Result: {finalResult} | " +
+                    $"Mold: {isMold}({moldResult?.ElapsedMs}ms) | " +
+                    (isMold ? "Scratch: skipped | " : $"Scratch: {isScratch}({scratchCount}ea) | ") +
+                    $"Total: {swTotal.ElapsedMilliseconds}ms");
+
+                // 4) DefectForm (NG일 때만)
+                if (isNG)
+                {
+                    MainForm.GetDockForm<DefectForm>()?.AddDefectImage(
+                        displayBase,
+                        $"{now:HH:mm:ss} [{finalResult}]",
+                        savedPath);
+
+                    // DefectForm이 displayBase.Dispose()를 내부에서 함 → 여기서는 중복 Dispose 방지
+                    displayBase = null;
+                }
+                else
+                {
+                    // OK일 때는 누수 방지 위해 직접 해제 가능 (ImageViewCtrl은 Clone해서 내부 보관함)
+                    displayBase.Dispose();
+                    displayBase = null;
+                }
+
+                return isNG;
             }
+            finally
+            {
+                // swTotal이 Stop 안 되었으면 정리
+                if (swTotal.IsRunning)
+                {
+                    swTotal.Stop();
+                }
 
-            // 메모리 정리
-            noBgImage.Dispose();
-            if (moldResult?.OverlayBitmap != null) moldResult.OverlayBitmap.Dispose();
-            // resultBaseImage는 UpdatePreviewWithScratch 내부에서 관리되므로 여기서 Dispose하지 않음 (ImageViewCtrl 내부 로직 확인 필요)
+                // noBgImage는 항상 우리가 Dispose
+                if (noBgImage != null)
+                {
+                    noBgImage.Dispose();
+                    noBgImage = null;
+                }
+
+                // MoldDetector가 가진 OverlayBitmap은 우리가 더 이상 쓰지 않으니 정리
+                if (moldResult?.OverlayBitmap != null)
+                {
+                    moldResult.OverlayBitmap.Dispose();
+                }
+
+                // displayBase는 위에서 NG/OK 분기에서 처리했지만, 혹시 남아있으면 정리
+                if (displayBase != null)
+                {
+                    displayBase.Dispose();
+                }
+            }
         }
 
-
-
-
-        public void UpdatePreviewWithScratch(Bitmap bitmap, SegmentationResult scratchResult)
+        public void UpdatePreviewWithScratch(Bitmap displayBase, SegmentationResult scratchResult)
         {
             var cameraForm = MainForm.GetDockForm<CameraForm>();
-            // CameraForm 호출 (기존 패턴)
-            cameraForm.UpdatePreviewWithScratch(bitmap, scratchResult);
-        }
+            if (cameraForm == null)
+                return;
 
+            // ✅ Scratch 결과가 없으면 base 이미지만 표시
+            if (scratchResult == null ||
+                scratchResult.SegmentedObjects == null ||
+                scratchResult.SegmentedObjects.Length == 0)
+            {
+                cameraForm.UpdatePreview(displayBase);
+                return;
+            }
+
+            cameraForm.UpdatePreviewWithScratch(displayBase, scratchResult);
+        }
 
 
 

@@ -178,6 +178,15 @@ namespace FreshCheck_CV
             var propForm = MainForm.GetDockForm<PropertiesForm>();
             propForm.SelectMonitorTab();
             propForm.InitAuth(); // 권한 초기화
+
+            try
+            {
+                Global.Inst.Vision4Runtime.StartAutoRun();
+            }
+            catch (Exception ex)
+            {
+                FreshCheck_CV.Util.SLogger.Write("[Vision4] StartAutoRun failed: " + ex, FreshCheck_CV.Util.SLogger.LogType.Error);
+            }
         }
         private Bitmap ByteArrayToBitmap(byte[] buffer, int width, int height, int srcStride)
         {
@@ -255,6 +264,15 @@ namespace FreshCheck_CV
 
             MainForm.Instance?.StopImageCyclePublic();
             PauseInspectionLoop();
+
+            try
+            {
+                Global.Inst.Vision4Runtime.StopAutoRun();
+            }
+            catch (Exception ex)
+            {
+                FreshCheck_CV.Util.SLogger.Write("[Vision4] StopAutoRun failed: " + ex, FreshCheck_CV.Util.SLogger.LogType.Error);
+            }
         }
 
         private void btnStop_Click(object sender, EventArgs e)
@@ -269,6 +287,15 @@ namespace FreshCheck_CV
                 MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
             }
             StopInspectionLoop();
+
+            try
+            {
+                Global.Inst.Vision4Runtime.StopAutoRun();
+            }
+            catch (Exception ex)
+            {
+                FreshCheck_CV.Util.SLogger.Write("[Vision4] StopAutoRun failed: " + ex, FreshCheck_CV.Util.SLogger.LogType.Error);
+            }
         }
 
         private void StartInspectionLoop()

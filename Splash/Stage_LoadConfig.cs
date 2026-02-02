@@ -1,4 +1,5 @@
 ﻿using FreshCheck_CV.Splash;
+using FreshCheck_CV.Setting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,7 @@ namespace FreshCheck_CV
                     // TODO: 실제 설정 로드 코드로 교체
                     // 지금은 예시: context.Config = ...
                     context.Config = new AppConfig();
+
                     return Task.CompletedTask;
                 },
                 progress: progress,

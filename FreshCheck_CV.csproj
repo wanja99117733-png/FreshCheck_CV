@@ -68,6 +68,10 @@
     <Reference Include="log4net">
       <HintPath>..\..\교수님 프로젝트\ExternalLib\Dll\Log4Net\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="MessagingLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\라이브러리\MessagingLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="MvCameraControl.Net">
       <HintPath>..\ExternalLib\ExternalLib\Dll\HikRobot\MvCameraControl.Net.dll</HintPath>
     </Reference>
@@ -106,6 +110,7 @@
       <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -176,6 +181,10 @@
     <Compile Include="Dialogs\CustomMessageBoxForm.Designer.cs">
       <DependentUpon>CustomMessageBoxForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Seqeunce\Communicator.cs" />
+    <Compile Include="Seqeunce\SequenceRuntime.cs" />
+    <Compile Include="Seqeunce\VisionSequence.cs" />
+    <Compile Include="Setting\SettingXml.cs" />
     <Compile Include="UIControl\OverallRateBarControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -263,6 +272,7 @@
     </Compile>
     <Compile Include="Util\ResultRecord.cs" />
     <Compile Include="Util\SLogger.cs" />
+    <Compile Include="Util\XmlHelper.cs" />
     <EmbeddedResource Include="CameraForm.resx">
       <DependentUpon>CameraForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -311,6 +321,7 @@
     <EmbeddedResource Include="UIControl\ImageViewCtrl.resx">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="log4net.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -337,6 +348,7 @@
     <Content Include="Resources\Lock_open.png" />
     <None Include="Resources\icon.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

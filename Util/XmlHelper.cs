@@ -24,14 +24,17 @@ namespace Common.Util.Helpers
 	 */
 
     public class XmlHelper
+
+
 	{
-		/// <summary>
-		/// Loads a XML file from a specified path
-		/// </summary>
-		/// <param name="path">File path to load</param>
-		/// <returns>XML element</returns>
-		public static XElement LoadLinqXml(string path)
+        /// <summary>
+        /// Loads a XML file from a specified path
+        /// </summary>
+        /// <param name="path">File path to load</param>
+        /// <returns>XML element</returns>
+        public static XElement LoadLinqXml(string path)
 		{
+
 			XElement doc = null;
 
 			// Make sure existance of the file

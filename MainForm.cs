@@ -36,6 +36,17 @@ namespace FreshCheck_CV
 
             InitializeComponent();
 
+            try
+            {
+                // (권장) SettingXml에 SequenceEnabled 같은 플래그가 있으면 if로 감싸기
+                // if (FreshCheck_CV.Setting.SettingXml.Inst.SequenceEnabled)
+                Global.Inst.Vision4Runtime.BindUiAndStart(this);
+            }
+            catch (Exception ex)
+            {
+                FreshCheck_CV.Util.SLogger.Write("[Vision4] BindUiAndStart failed: " + ex, FreshCheck_CV.Util.SLogger.LogType.Error);
+            }
+
             StartPosition = FormStartPosition.CenterScreen;
             WindowState = FormWindowState.Maximized;
 
@@ -82,6 +93,19 @@ namespace FreshCheck_CV
 
             LoadDockingWindows();
 
+            FreshCheck_CV.Util.SLogger.Write("MainForm: Docking windows loaded. UI log is ready.");
+
+            try
+            {
+                // MainForm은 UI 스레드 Invoke의 기준 객체로 쓰기 좋습니다.
+                FreshCheck_CV.Core.Global.Inst.Vision4Runtime.BindUiAndStart(this);
+
+                FreshCheck_CV.Util.SLogger.Write("Vision4Runtime: BindUiAndStart called.");
+            }
+            catch (Exception ex)
+            {
+                FreshCheck_CV.Util.SLogger.Write("Vision4Runtime start failed: " + ex, FreshCheck_CV.Util.SLogger.LogType.Error);
+            }
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
