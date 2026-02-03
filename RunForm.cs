@@ -184,15 +184,15 @@ namespace FreshCheck_CV
             }
             else
             {
-                Global.Inst.InspStage.SetWorkingState(WorkingState.CYCLE);
+                //Global.Inst.InspStage.SetWorkingState(WorkingState.CYCLE);
 
                 // 공통: 이벤트 + 사이클링 (카메라 있어도 ImageChanged는 유지)
-                if (MainForm.Instance != null)
-                {
-                    MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
-                    MainForm.Instance.ImageChanged += MainForm_ImageChanged;
+                //if (MainForm.Instance != null)
+                //{
+                //    MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
+                //    MainForm.Instance.ImageChanged += MainForm_ImageChanged;
                     //StartInspectionLoop();
-                }
+                //}
             }
 
             // 검사 시작시 모니터 탭으로 변경
@@ -336,8 +336,8 @@ namespace FreshCheck_CV
                 _hikCam.TransferCompleted -= MultiGrab_TransferCompleted;
             }
 
-            MainForm.Instance?.StopImageCyclePublic();
-            PauseInspectionLoop();
+            //MainForm.Instance?.StopImageCyclePublic();
+            //PauseInspectionLoop();
 
             try
             {
@@ -364,8 +364,8 @@ namespace FreshCheck_CV
 
             if (MainForm.Instance != null)
             {
-                MainForm.Instance.StopImageCyclePublic();
-                MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
+                //MainForm.Instance.StopImageCyclePublic();
+                //MainForm.Instance.ImageChanged -= MainForm_ImageChanged;
             }
 
             StopInspectionLoop();
