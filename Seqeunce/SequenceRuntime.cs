@@ -19,7 +19,8 @@ namespace FreshCheck_CV.Seqeunce
         private bool _disposed;
 
         // 서버 트리거가 연속으로 들어올 때 중복 검사 방지
-        private volatile bool _isInspectBusy;
+        private readonly System.Threading.SemaphoreSlim _inspGate
+    = new System.Threading.SemaphoreSlim(1, 1);
 
         /// <summary>
         /// MainForm(=UI 스레드 보장 객체)을 바인딩하고 통신 시퀀스를 시작합니다.
@@ -67,57 +68,50 @@ namespace FreshCheck_CV.Seqeunce
 
         private void OnSeqCommand(object sender, SeqCmd cmd, object param)
         {
+            if (cmd == SeqCmd.OpenRecipe)
             {
-                if (cmd == SeqCmd.OpenRecipe)
-                {
-                    // param은 Message e 가 들어옴 (위에서 RaiseSeqCommand(SeqCmd.OpenRecipe, e) 했으니까)
-                    // 지금 FC는 별도 "모델 로드"가 없거나, 고정 모델이라면
-                    // 일단 성공 ACK만 보내도 다음 단계로 진행됨
-                    VisionSequence.Inst.ReplyOpenRecipe(true);
-                    return;
-                }
+                VisionSequence.Inst.ReplyOpenRecipe(true);
+                return;
+            }
 
-                // 재진입 방지
-                if (_isInspectBusy)
-                    return;
+            // InspStart만 검사 트리거로 사용 (InspEnd 등은 무시)
+            if (cmd != SeqCmd.InspStart)
+                return;
 
-                _isInspectBusy = true;
+            // ★ UI 스레드 절대 건드리지 않고 백그라운드에서 검사 실행
+            _ = Task.Run(async () =>
+            {
+                await _inspGate.WaitAsync().ConfigureAwait(false);
+
+                bool isNg = true;
+                string reason = "NG";
 
                 try
                 {
-                    // VisionSequence는 e를 bool로 받음: true면 NG, false면 GOOD로 보내는 구조
-                    bool isNg = true;
-
-                    InvokeOnUi(() =>
-                    {
-                        try
-                        {
-                            // ★ 여기서 FC 1사이클 검사 실행
-                            isNg = Global.Inst.InspStage.RunFullInspectionCycle();
-                        }
-                        catch (Exception ex)
-                        {
-                            isNg = true;
-                            SLogger.Write("[Vision4] Inspection exception: " + ex, SLogger.LogType.Error);
-                        }
-                    });
-
-                    // ★ 결과 회신
-                    string reason = Global.Inst.InspStage.LastFinalResult;
-
-                    VisionSequence.Inst.VisionCommand(
-                        Vision2Mmi.InspDone,
-                        new InspDonePayload
-                        {
-                            IsNg = isNg,
-                            Reason = reason   // "OK" 또는 "Mold" 또는 "Mold, Scratch"
-                        });
+                    // 여기서 검사 1회 실행 (UI가 아니라 백그라운드)
+                    isNg = Global.Inst.InspStage.RunFullInspectionCycle();
+                    reason = Global.Inst.InspStage.LastFinalResult ?? (isNg ? "NG" : "OK");
+                }
+                catch (Exception ex)
+                {
+                    isNg = true;
+                    reason = "Exception";
+                    SLogger.Write("[Vision4] Inspection exception: " + ex, SLogger.LogType.Error);
                 }
                 finally
                 {
-                    _isInspectBusy = false;
+                    _inspGate.Release();
                 }
-            }
+
+                // ★ 결과 회신
+                VisionSequence.Inst.VisionCommand(
+                    Vision2Mmi.InspDone,
+                    new InspDonePayload
+                    {
+                        IsNg = isNg,
+                        Reason = reason
+                    });
+            });
         }
 
         private void InvokeOnUi(Action action)

@@ -273,36 +273,24 @@ namespace FreshCheck_CV.UIControl
             {
                 base.OnPaint(e);
 
-                // ✅ 표시 우선순위: Result > Preview > Original
-                Bitmap src = _resultImage ?? _previewImage ?? _bitmapImage;
-                if (src == null)
-                    return;
-
-                // ✅ Canvas가 없거나 크기가 바뀌었으면 재생성 (Dispose/Resize 방어)
-                int cw = Math.Max(1, this.Width);
-                int ch = Math.Max(1, this.Height);
-
-                if (Canvas == null || Canvas.Width != cw || Canvas.Height != ch)
+                // ※ Clone 제거 버전: 그리는 동안 Dispose 레이스를 lock으로 차단
+                lock (_imgLock)
                 {
-                    Canvas?.Dispose();
-                    Canvas = new Bitmap(cw, ch, PixelFormat.Format32bppPArgb);
-                }
+                    // ✅ 표시 우선순위: Result > Preview > Original
+                    Bitmap src = _resultImage ?? _previewImage ?? _bitmapImage;
+                    if (src == null)
+                        return;
 
-                // ✅ 그리기 직전에 Clone해서 "그리는 중 Dispose" 레이스 끊기
-                Bitmap drawBmp = null;
-                try
-                {
-                    drawBmp = (Bitmap)src.Clone();
-                }
-                catch
-                {
-                    // src가 이미 Dispose되었거나 GDI+ 내부 상태가 깨진 경우
-                    return;
-                }
+                    // ✅ Canvas가 없거나 크기가 바뀌었으면 재생성
+                    int cw = Math.Max(1, this.Width);
+                    int ch = Math.Max(1, this.Height);
 
-                try
-                {
-                    using (drawBmp)
+                    if (Canvas == null || Canvas.Width != cw || Canvas.Height != ch)
+                    {
+                        Canvas?.Dispose();
+                        Canvas = new Bitmap(cw, ch, PixelFormat.Format32bppPArgb);
+                    }
+
                     using (Graphics g = Graphics.FromImage(Canvas))
                     {
                         g.Clear(Color.Transparent);
@@ -310,9 +298,9 @@ namespace FreshCheck_CV.UIControl
                         g.SmoothingMode = SmoothingMode.None;
                         g.PixelOffsetMode = PixelOffsetMode.HighSpeed;
 
-                        // ✅ 선택된 표시 비트맵(drawBmp) 기준으로 ImageRect 재계산
-                        float virtualWidth = drawBmp.Width * _curZoom;
-                        float virtualHeight = drawBmp.Height * _curZoom;
+                        // ✅ src 기준으로 ImageRect 재계산
+                        float virtualWidth = src.Width * _curZoom;
+                        float virtualHeight = src.Height * _curZoom;
 
                         ImageRect = new RectangleF(
                             (Width - virtualWidth) / 2f,
@@ -320,44 +308,37 @@ namespace FreshCheck_CV.UIControl
                             virtualWidth,
                             virtualHeight);
 
-                        // ✅ 실제 그리기
-                        g.DrawImage(drawBmp, ImageRect);
+                        // ✅ 실제 그리기 (Clone 없음)
+                        g.DrawImage(src, ImageRect);
 
                         // ✅ 스크래치 박스
                         DrawScratchBoundingBoxes(g);
 
                         // ✅ 작업 상태 텍스트
-                        if (string.IsNullOrEmpty(WorkingState) == false && (_resultImage != null || _previewImage != null))
+                        if (!string.IsNullOrEmpty(WorkingState) && (_resultImage != null || _previewImage != null))
                         {
-                            float fontSize = 20.0f;
-                            Color stateColor = Color.FromArgb(255, 128, 0);
-                            PointF textPos = new PointF(10, 10);
-                            DrawText(g, WorkingState, textPos, fontSize, stateColor);
+                            DrawText(
+                                g,
+                                WorkingState,
+                                new PointF(10, 10),
+                                20.0f,
+                                Color.FromArgb(255, 128, 0));
                         }
                     }
-
 
                     // ✅ Canvas를 화면에 출력
                     e.Graphics.DrawImageUnscaled(Canvas, 0, 0);
                 }
-                catch (ArgumentException)
-                {
-                    // GDI+ "Parameter is not valid" 방어
-                }
-                catch (ObjectDisposedException)
-                {
-                    // Canvas나 Graphics가 Dispose된 타이밍 방어
-                }
             }
             catch (ArgumentException)
             {
-                // base.OnPaint 포함해서 혹시라도 올라오면 최종 방어
+                // GDI+ "Parameter is not valid" 방어
             }
             catch (ObjectDisposedException)
             {
+                // Dispose 타이밍 방어
             }
         }
-
 
 
         private void DrawText(Graphics g, string text, PointF position, float fontSize, Color color)

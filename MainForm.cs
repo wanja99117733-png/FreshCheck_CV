@@ -247,7 +247,7 @@ namespace FreshCheck_CV
                 using (var tmp = (Bitmap)Image.FromFile(imagePath))
                 {
                     // 파일 락 방지 + stage 내부에서 다시 복사하므로 new Bitmap으로 넘김
-                    Global.Inst.InspStage.SetSourceImage(new Bitmap(tmp));
+                    Global.Inst.InspStage.SetSourceImage(tmp);
                 }
             }
             catch (Exception ex)

@@ -15,6 +15,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
+using System.Threading;
+
 
 
 namespace FreshCheck_CV.Core
@@ -23,6 +25,34 @@ namespace FreshCheck_CV.Core
     //검사와 관련된 클래스를 관리하는 클래스
     public class InspStage : IDisposable
     {
+
+        private readonly object _latestFrameSync = new object();
+        private Bitmap _latestFrameBitmap = null;
+
+        public void UpdateLatestFrame(Bitmap bitmap)
+        {
+            if (bitmap == null) return;
+
+            Bitmap clone;
+            try { clone = (Bitmap)bitmap.Clone(); }
+            catch { return; }
+
+            lock (_latestFrameSync)
+            {
+                _latestFrameBitmap?.Dispose();
+                _latestFrameBitmap = clone;
+            }
+        }
+
+        private Bitmap GetLatestFrameSnapshot()
+        {
+            lock (_latestFrameSync)
+            {
+                if (_latestFrameBitmap == null) return null;
+                try { return (Bitmap)_latestFrameBitmap.Clone(); }
+                catch { return null; }
+            }
+        }
         private BinaryOptions _lastBinaryOptions = new BinaryOptions();
         public BinaryOptions LastBinaryOptions
         {
@@ -125,7 +155,7 @@ namespace FreshCheck_CV.Core
 
             using (var temp = (Bitmap)Image.FromFile(filePath))
             {
-                SetSourceImage(new Bitmap(temp));
+                SetSourceImage(new Bitmap(temp));   
             }
         }
 
@@ -142,9 +172,16 @@ namespace FreshCheck_CV.Core
             }
 
             // 원본 저장
-            _sourceBitmap = new Bitmap(bitmap);
-            // 화면에 원본 표시
-            UpdateDisplay(new Bitmap(_sourceBitmap));
+            // _sourceBitmap = new Bitmap(bitmap);
+
+            // 최신 프레임도 함께 갱신 (Cycle 모드에서도 검사 입력이 맞도록)
+            UpdateLatestFrame(_sourceBitmap);
+
+            // 화면 표시는 clone해서 넘기되, 누수 없게 using 처리
+            using (var view = new Bitmap(_sourceBitmap))
+            {
+                UpdateDisplay(view);
+            }
 
         }
         public void ShowSource()
@@ -274,6 +311,18 @@ namespace FreshCheck_CV.Core
                 }
             }
         }
+        private void UiInvoke(Action action)
+        {
+            if (action == null) return;
+
+            var main = MainForm.Instance;
+            if (main == null || main.IsDisposed) return;
+
+            if (main.InvokeRequired)
+                main.BeginInvoke(action);
+            else
+                action();
+        }
 
 
         // Global.Inst.InspStage 또는 적절한 검사 관리 클래스 내에 구현
@@ -302,11 +351,16 @@ namespace FreshCheck_CV.Core
                 }
 
                 // 1) 원본 이미지
-                original = GetCurrentImage();
-                if (original == null)
+                original = GetLatestFrameSnapshot();
+
+                // 2) 없으면 _sourceBitmap (Cycle/파일)
+                if (original == null && _sourceBitmap != null)
                 {
-                    return true;
+                    original = new Bitmap(_sourceBitmap);
                 }
+
+                if (original == null)
+                    return true;
 
                 DateTime now = DateTime.Now;
 
@@ -470,20 +524,21 @@ namespace FreshCheck_CV.Core
 
         public void UpdatePreviewWithScratch(Bitmap displayBase, SegmentationResult scratchResult)
         {
-            var cameraForm = MainForm.GetDockForm<CameraForm>();
-            if (cameraForm == null)
-                return;
-
-            // ✅ Scratch 결과가 없으면 base 이미지만 표시
-            if (scratchResult == null ||
-                scratchResult.SegmentedObjects == null ||
-                scratchResult.SegmentedObjects.Length == 0)
+            UiInvoke(() =>
             {
-                cameraForm.UpdatePreview(displayBase);
-                return;
-            }
+                var cameraForm = MainForm.GetDockForm<CameraForm>();
+                if (cameraForm == null || cameraForm.IsDisposed) return;
 
-            cameraForm.UpdatePreviewWithScratch(displayBase, scratchResult);
+                if (scratchResult == null ||
+                    scratchResult.SegmentedObjects == null ||
+                    scratchResult.SegmentedObjects.Length == 0)
+                {
+                    cameraForm.UpdatePreview(displayBase);
+                    return;
+                }
+
+                cameraForm.UpdatePreviewWithScratch(displayBase, scratchResult);
+            });
         }
 
 

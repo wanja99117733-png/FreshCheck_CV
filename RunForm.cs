@@ -22,6 +22,10 @@ namespace FreshCheck_CV
 {
     public partial class RunForm : DockContent
     {
+
+        private int _pendingCycleInspect = 0;
+        private int _cycleWorkerRunning = 0;
+
         private int _stopRequested = 0;
         private volatile bool _isInspectEnabled;
         private bool _liveMode = false;  // Live 모드 플래그
@@ -291,14 +295,11 @@ namespace FreshCheck_CV
                         if (cameraForm.IsDisposed || cameraForm.Disposing)
                             return;
 
-                        // 안전하게 복제본 전달(그리기 중 Dispose 레이스 방지)
-                        safe = (Bitmap)bmp.Clone();
+                        // LoadBitmap이 내부에서 Clone하므로 여기서 Clone 금지
+                        cameraForm.UpdateDisplay(bmp);
 
-                        // UpdateDisplay → imageViewCtrl.LoadBitmap 소유권 넘김
-                        cameraForm.UpdateDisplay(safe);
-
-                        // 소유권 넘겼으니 Dispose 방지
-                        safe = null;
+                        // 최신 프레임 버퍼 갱신(검사 입력용)
+                        Global.Inst?.InspStage?.UpdateLatestFrame(bmp);
                     }
                     catch (Exception ex)
                     {
@@ -548,22 +549,42 @@ namespace FreshCheck_CV
             if (!_isInspectEnabled)
                 return;
 
-            // 같은 UI 스레드에서 연속 호출되거나, 검사가 오래 걸릴 경우 재진입 방지
-            if (_isInspectBusy)
+            // UI 스레드는 즉시 반환하고, 검사는 백그라운드에서 최신 1회만 수행
+            RequestCycleInspect();
+        }
+        private void RequestCycleInspect()
+        {
+            System.Threading.Interlocked.Exchange(ref _pendingCycleInspect, 1);
+
+            if (System.Threading.Interlocked.CompareExchange(ref _cycleWorkerRunning, 1, 0) != 0)
                 return;
 
-            try
+            Task.Run(() =>
             {
-                _isInspectBusy = true;
+                try
+                {
+                    while (System.Threading.Interlocked.Exchange(ref _pendingCycleInspect, 0) == 1)
+                    {
+                        try
+                        {
+                            Global.Inst?.InspStage?.RunFullInspectionCycle();
+                        }
+                        catch (Exception ex)
+                        {
+                            FreshCheck_CV.Util.SLogger.Write("[Cycle] Inspect failed: " + ex,
+                                FreshCheck_CV.Util.SLogger.LogType.Error);
+                        }
+                    }
+                }
+                finally
+                {
+                    System.Threading.Interlocked.Exchange(ref _cycleWorkerRunning, 0);
 
-                // 사이클링 이미지 검사 (기존)
-                Global.Inst?.InspStage?.RunFullInspectionCycle();
-                //Global.Inst?.InspStage?.RunMoldInspectionTemp();
-            }
-            finally
-            {
-                _isInspectBusy = false;
-            }
+                    // 워커 종료 순간에 요청이 또 들어왔으면 재시작
+                    if (System.Threading.Volatile.Read(ref _pendingCycleInspect) == 1)
+                        RequestCycleInspect();
+                }
+            });
         }
     }
 }
