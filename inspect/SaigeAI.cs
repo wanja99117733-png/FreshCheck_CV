@@ -77,6 +77,7 @@ namespace FreshCheck_CV.Inspect
             option.CalcObjectScoreAndApplyThreshold = true;
             // 필요시 스코어 임계값 설정
             option.ObjectScoreThresholdPerClass[1] = 0.5;
+            option.ObjectAreaThresholdPerClass[1] = 2000;
             _scratchSegEngine.SetInferenceOption(option);
         }
 

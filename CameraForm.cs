@@ -289,7 +289,7 @@ namespace FreshCheck_CV
             {
                 imageViewCtrl.PreviewImage = bitmap;
                 imageViewCtrl.Invalidate(); // 다시 그려줌. OnPaint 함수 호출.
-                imageViewCtrl.ClearScratchResult();
+                ClearPreviewImage();
             }
         }
 

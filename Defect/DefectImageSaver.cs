@@ -18,20 +18,20 @@ namespace FreshCheck_CV.Defect
 
             string root = AppDomain.CurrentDomain.BaseDirectory;
 
-            string typeFolder = (type == DefectType.Mold) ? "Mold" : "OK";
+            string typeFolder = (type == DefectType.Mold || type == DefectType.Scratch) ? "NG" : "OK";
 
             string dateFolder = timestamp.ToString("yyyy-MM-dd");
-            string suffix = (type == DefectType.Mold) ? "Mold" : "OK";
-            string fileName = $"{timestamp:HH-mm-ss-fff}_{suffix}.png";
+            string suffix = (type == DefectType.Mold || type == DefectType.Scratch) ? "NG" : "OK";
+            string fileName = $"{timestamp:HH-mm-ss-fff}_{suffix}.jpeg";
 
             string dir = Path.Combine(root, "Defect", typeFolder, dateFolder);
             Directory.CreateDirectory(dir);
 
             string path = Path.Combine(dir, fileName);
-
+            Console.WriteLine(path);
             using (Bitmap overlay = DrawLabelTopLeft(sourceBitmap, labelText))
             {
-                overlay.Save(path, ImageFormat.Png);
+                overlay.Save(path, ImageFormat.Jpeg);
             }
 
             return path;

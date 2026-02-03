@@ -97,9 +97,8 @@ namespace FreshCheck_CV.Property
 
             rangeTrackbar.Minimum = 0;
             rangeTrackbar.Maximum = 255;
-
-            rangeTrackbar.ValueLeft = 80;
-            rangeTrackbar.ValueRight = 120;
+            rangeTrackbar.ValueLeft = 0;
+            rangeTrackbar.ValueRight = 32;
 
 
             UpdateToleranceLabel();
@@ -420,6 +419,7 @@ namespace FreshCheck_CV.Property
                 lblTargetColor.Text = $"Target: (B={_options.TargetB}, G={_options.TargetG}, R={_options.TargetR})";
 
                 // 하이라이트 모드 라디오 버튼 등
+
                 if (_options.ShowMode != null)
                 {
                     ShowBinaryMode binaryMode = (ShowBinaryMode) _options.ShowMode;
