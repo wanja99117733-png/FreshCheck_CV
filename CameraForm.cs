@@ -282,15 +282,12 @@ namespace FreshCheck_CV
         {
             return imageViewCtrl.PreviewImage;
         }
-
         public void UpdatePreview(Bitmap bitmap)
         {
-            if (imageViewCtrl != null)
-            {
-                imageViewCtrl.PreviewImage = bitmap;
-                imageViewCtrl.Invalidate(); // 다시 그려줌. OnPaint 함수 호출.
-                ClearPreviewImage();
-            }
+            if (imageViewCtrl == null || bitmap == null) return;
+
+            imageViewCtrl.PreviewImage = bitmap; // 내부에서 Clone + Invalidate까지 함
+                                                 // ClearPreviewImage(); // ❌ 삭제
         }
 
         public void ClearPreviewImage()

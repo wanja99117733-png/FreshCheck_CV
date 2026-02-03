@@ -64,6 +64,16 @@ namespace FreshCheck_CV.UIControl
 
                 lock (_imgLock)
                 {
+                    // ✅ (2) Preview로 화면을 갱신할 때, 이전 Result/Scratch가 남아있으면
+                    // OnPaint 우선순위 때문에 Preview가 안 보임 → 잔상 제거
+                    _scratchResult = null;
+
+                    if (_resultImage != null)
+                    {
+                        _resultImage.Dispose();
+                        _resultImage = null;
+                    }
+
                     if (_previewImage != null)
                     {
                         _previewImage.Dispose();
@@ -214,15 +224,24 @@ namespace FreshCheck_CV.UIControl
         // 스크래치 결과와 함께 Preview 설정
         public void SetPreviewWithScratch(Bitmap previewImage, SegmentationResult scratchResult)
         {
-            _resultImage = previewImage?.Clone() as Bitmap;  // 강제 PreviewImage 설정!
-            _scratchResult = scratchResult;
+            Bitmap clone = SafeClone(previewImage);
 
-            // 🔥 Preview 전용 줌 리셋
-            if (_resultImage != null)
+            lock (_imgLock)
             {
-                _bitmapImage = _resultImage.Clone() as Bitmap;  // _bitmapImage도 Preview로!
-                FitImageToScreen();  // 크기 맞춤
+                _scratchResult = scratchResult;
+
+                _resultImage?.Dispose();
+                _resultImage = clone;
+
+                _bitmapImage?.Dispose();
+                _bitmapImage = (_resultImage != null) ? (Bitmap)_resultImage.Clone() : null;
+
+                _previewImage?.Dispose();
+                _previewImage = null;
             }
+
+            if (clone != null)
+                FitImageToScreen();
 
             Invalidate();
         }
